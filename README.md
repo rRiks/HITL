@@ -134,19 +134,30 @@ HITL/
 
 ## 🚀 Running Locally
 
+> 📖 **Full Setup & Multi-Player Guide:** See [SETUP_GUIDE.md](file:///c:/Users/saubh/Documents/GenAI/AI/HITL/SETUP_GUIDE.md) for detailed step-by-step instructions, troubleshooting, and co-op testing.
+
 ### Prerequisites
 - Python 3.10+
-- Node.js 18+ & npm
+- Node.js 18+ (or 20+) & npm
 
-### 1. Start the Backend API
+### 1. Start the Backend API (FastAPI)
 ```bash
 cd backend
-python -m pip install -r requirements.txt
+
+# Create & activate virtual environment (Windows PowerShell)
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# (Or macOS/Linux)
+# python3 -m venv .venv && source .venv/bin/activate
+
+pip install -r requirements.txt
 python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 API docs available at: `http://127.0.0.1:8000/docs`
 
-### 2. Start the Frontend
+### 2. Start the Frontend (React + Vite)
+In a separate terminal:
 ```bash
 cd frontend
 npm install
