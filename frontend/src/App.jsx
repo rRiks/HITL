@@ -16,7 +16,17 @@ import * as api from './services/api';
 import { ArrowRight, Rotate3d, CheckCircle2, AlertTriangle, Layers, Zap } from 'lucide-react';
 
 export default function App() {
-  const [gameStarted, setGameStarted] = useState(false);
+  const [gameStarted, setGameStarted] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('lobby') === 'true') {
+        sessionStorage.removeItem('hitl_in_game');
+        return false;
+      }
+      return sessionStorage.getItem('hitl_in_game') === 'true';
+    }
+    return false;
+  });
   const [gameState, setGameState] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -52,7 +62,9 @@ export default function App() {
     try {
       const state = await api.fetchGameState();
       setGameState(state);
-      if (state.has_started || state.current_stage_index > 0 || state.health < 100 || state.total_jenga_pulls > 0) {
+      // Only auto-restore in-game view if this tab was actively in an in-game session
+      const inGameSession = sessionStorage.getItem('hitl_in_game') === 'true';
+      if (inGameSession && (state.has_started || state.current_stage_index > 0 || state.health < 100 || state.total_jenga_pulls > 0)) {
         setGameStarted(true);
       }
       const myId = api.getPlayerId();
@@ -312,6 +324,7 @@ export default function App() {
       if (playerName) api.setPlayerName(playerName);
       const state = await api.startGame(teamName, playerCount, room);
       await api.joinPlayer(api.getPlayerId(), api.getPlayerName(), room);
+      sessionStorage.setItem('hitl_in_game', 'true');
       setGameState(state);
       setGameStarted(true);
       setTimeLeft(120);
@@ -338,6 +351,7 @@ export default function App() {
       if (playerName) api.setPlayerName(playerName);
       await api.joinPlayer(api.getPlayerId(), api.getPlayerName(), room);
       const state = await api.fetchGameState(room);
+      sessionStorage.setItem('hitl_in_game', 'true');
       setGameState(state);
       setGameStarted(true);
       setTimeLeft(120);
@@ -348,6 +362,18 @@ export default function App() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Exit back to Welcome Screen / Table Lobby
+  const handleExitToLobby = () => {
+    sessionStorage.removeItem('hitl_in_game');
+    setGameStarted(false);
+    setIsTimerRunning(false);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('lobby');
+      window.history.replaceState({}, '', url.toString());
+    } catch {}
   };
 
   const handleResetGame = async () => {
@@ -549,6 +575,7 @@ export default function App() {
         totalPulls={gameState.total_jenga_pulls}
         history={gameState.history}
         onPlayAgain={handleResetGame}
+        onExitToLobby={handleExitToLobby}
       />
     );
   }
@@ -573,6 +600,7 @@ export default function App() {
         isTimerRunning={isTimerRunning}
         onToggleTimer={() => setIsTimerRunning((prev) => !prev)}
         onResetGame={handleResetGame}
+        onExitToLobby={handleExitToLobby}
         soundEnabled={sound.soundEnabled}
         onToggleSound={sound.toggleSound}
         musicEnabled={sound.musicEnabled}
@@ -742,6 +770,7 @@ export default function App() {
               totalPulls={gameState.total_jenga_pulls}
               onRestart={handleResetGame}
               onReplayCollapse={handleReplayCollapse}
+              onExitToLobby={handleExitToLobby}
             />
           )}
         </>

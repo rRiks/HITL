@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { Trophy, Award, CheckCircle2, RotateCcw, Share2, Shield, Heart, Activity, Rotate3d } from 'lucide-react';
+import { Trophy, Award, CheckCircle2, RotateCcw, Share2, Shield, Heart, Activity, Rotate3d, Home } from 'lucide-react';
 
 export default function VictoryScreen({
   teamName = 'Alpha Devs',
@@ -8,6 +8,7 @@ export default function VictoryScreen({
   totalPulls = 4,
   history = [],
   onPlayAgain,
+  onExitToLobby,
 }) {
   useEffect(() => {
     try {
@@ -180,6 +181,16 @@ Completed all 11 Salesforce SDLC Stages with 3D Virtual Tower Standing!`;
             <RotateCcw className="w-4 h-4" />
             <span>Play Again with New Team</span>
           </button>
+
+          {onExitToLobby && (
+            <button
+              onClick={onExitToLobby}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl text-xs font-bold bg-white hover:bg-amber-50 border border-[#ded5c5] text-stone-800 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs font-mono"
+            >
+              <Home className="w-4 h-4 text-amber-700" />
+              <span>Table Lobby</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

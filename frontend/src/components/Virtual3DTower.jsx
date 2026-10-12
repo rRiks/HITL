@@ -60,113 +60,137 @@ const DOMAIN_CONFIG = {
 };
 
 // 18 Layers of 100% Salesforce Architectural Subsystems (54 blocks total)
+// Base Foundation at Layer 0; Top application stages at Layer 17
 const SF_ARCHITECTURE_BLOCKS = [
-  // Layer 0: Core Foundation
+  // Layer 0: Core Bedrock Foundation
   { layer: 0, pos: 0, label: 'Salesforce Multi-Tenant DB', domain: 'governors' },
   { layer: 0, pos: 1, label: 'Universal SObject Schema', domain: 'cpq' },
   { layer: 0, pos: 2, label: 'Standard Platform Kernel', domain: 'governors' },
 
-  // Layer 1: Apex Governors (Targeted in Stage 1 SOQL Loop)
-  { layer: 1, pos: 0, label: 'SOQL Governor (101)', domain: 'governors' },
-  { layer: 1, pos: 1, label: 'Bulkified Trigger Map', domain: 'governors' },
-  { layer: 1, pos: 2, label: 'DML Limit (10k Rows)', domain: 'governors' },
+  // Layer 1: Org Health & Concurrency
+  { layer: 1, pos: 0, label: 'Transaction Finalizer Guard', domain: 'governors' },
+  { layer: 1, pos: 1, label: 'Skinny Table Optimizer', domain: 'cpq' },
+  { layer: 1, pos: 2, label: 'Custom Index Selector', domain: 'governors' },
 
-  // Layer 2: Security & Sharing (Targeted in Stage 2 FLS / Without Sharing)
-  { layer: 2, pos: 0, label: 'With Sharing Mode', domain: 'security' },
-  { layer: 2, pos: 1, label: 'StripInaccessible FLS', domain: 'security' },
-  { layer: 2, pos: 2, label: 'WITH USER_MODE Parser', domain: 'security' },
+  // Layer 2: Package & AppExchange Governance
+  { layer: 2, pos: 0, label: 'Managed Package Namespace', domain: 'devops' },
+  { layer: 2, pos: 1, label: '2GP Second-Gen Packaging', domain: 'devops' },
+  { layer: 2, pos: 2, label: 'AppExchange Security Review', domain: 'security' },
 
-  // Layer 3: Mixed DML Concurrency (Targeted in Stage 3 Mixed DML)
-  { layer: 3, pos: 0, label: 'Setup Object Lock Guard', domain: 'governors' },
-  { layer: 3, pos: 1, label: 'Queueable Job Finalizer', domain: 'async' },
-  { layer: 3, pos: 2, label: 'System.runAs() Isolation', domain: 'security' },
+  // Layer 3: Data Cloud & External Services
+  { layer: 3, pos: 0, label: 'Named Credentials Vault', domain: 'security' },
+  { layer: 3, pos: 1, label: 'External Services OpenAPI', domain: 'devops' },
+  { layer: 3, pos: 2, label: 'MuleSoft AnyPoint Proxy', domain: 'async' },
 
-  // Layer 4: LWC & Shadow DOM (Targeted in Stage 4 LWC)
-  { layer: 4, pos: 0, label: 'LWC Shadow DOM Boundary', domain: 'lwc' },
-  { layer: 4, pos: 1, label: 'Lightning Data Service', domain: 'lwc' },
-  { layer: 4, pos: 2, label: '@salesforce/schema Import', domain: 'lwc' },
+  // Layer 4: Event-Driven Bus
+  { layer: 4, pos: 0, label: 'Change Data Capture (CDC)', domain: 'async' },
+  { layer: 4, pos: 1, label: 'CometD Streaming Client', domain: 'async' },
+  { layer: 4, pos: 2, label: 'EventBus.publish() Buffer', domain: 'async' },
 
-  // Layer 5: Async Apex Limits (Targeted in Stage 5 Queueable Storm)
-  { layer: 5, pos: 0, label: '250k Daily Async Cap', domain: 'async' },
-  { layer: 5, pos: 1, label: 'Database.Batchable Scope', domain: 'async' },
-  { layer: 5, pos: 2, label: 'High-Volume Platform Events', domain: 'async' },
+  // Layer 5: Architecture Framework (fflib)
+  { layer: 5, pos: 0, label: 'fflib Domain Layer', domain: 'governors' },
+  { layer: 5, pos: 1, label: 'fflib Selector Layer', domain: 'governors' },
+  { layer: 5, pos: 2, label: 'fflib Service Layer', domain: 'governors' },
 
-  // Layer 6: Dynamic Schema & Metadata (Targeted in Stage 6 Hardcoded IDs)
-  { layer: 6, pos: 0, label: 'Custom Metadata CMDT', domain: 'cpq' },
-  { layer: 6, pos: 1, label: 'Describe SObject Cache', domain: 'cpq' },
-  { layer: 6, pos: 2, label: 'RecordType DeveloperName', domain: 'cpq' },
+  // Layer 6: Enterprise Security Architecture
+  { layer: 6, pos: 0, label: 'Shield Platform Encryption', domain: 'security' },
+  { layer: 6, pos: 1, label: 'OAuth Connected App Policy', domain: 'security' },
+  { layer: 6, pos: 2, label: 'Salesforce Code Analyzer', domain: 'devops' },
 
-  // Layer 7: DevOps & Quick Deploy (Targeted in Stage 7 Deployment)
-  { layer: 7, pos: 0, label: 'RunLocalTests Coverage 85%', domain: 'devops' },
-  { layer: 7, pos: 1, label: 'Quick Deploy Staging ID', domain: 'devops' },
-  { layer: 7, pos: 2, label: 'Validation Check-Only Gate', domain: 'devops' },
+  // Layer 7: Release Gate & Production Audit (Stage 11)
+  { layer: 7, pos: 0, label: 'Production Freeze Window', domain: 'devops' },
+  { layer: 7, pos: 1, label: 'Apex Test Assertions Gate', domain: 'devops' },
+  { layer: 7, pos: 2, label: 'Technical Debt Ceiling', domain: 'governors' },
 
-  // Layer 8: Enterprise Security Architecture
-  { layer: 8, pos: 0, label: 'Shield Platform Encryption', domain: 'security' },
-  { layer: 8, pos: 1, label: 'OAuth Connected App Policy', domain: 'security' },
-  { layer: 8, pos: 2, label: 'Salesforce Code Analyzer', domain: 'devops' },
+  // Layer 8: CPQ & Revenue Engine (Stage 10)
+  { layer: 8, pos: 0, label: 'QCP Quote Calculator', domain: 'cpq' },
+  { layer: 8, pos: 1, label: 'Subscription Billing Engine', domain: 'cpq' },
+  { layer: 8, pos: 2, label: 'Idempotent Order Activation', domain: 'cpq' },
 
-  // Layer 9: Apex Runtime Governors
-  { layer: 9, pos: 0, label: 'CPU Timeout (10s)', domain: 'governors' },
-  { layer: 9, pos: 1, label: 'Heap Size Limit (12MB)', domain: 'governors' },
-  { layer: 9, pos: 2, label: 'Apex Callout Limit (100)', domain: 'governors' },
+  // Layer 9: Lightning Web Security & Locker (Stage 9)
+  { layer: 9, pos: 0, label: 'Lightning Web Security (LWS)', domain: 'lwc' },
+  { layer: 9, pos: 1, label: 'SLDS Design Tokens', domain: 'lwc' },
+  { layer: 9, pos: 2, label: 'NavigationMixin Router', domain: 'lwc' },
 
-  // Layer 10: Lightning Web Security & Locker
-  { layer: 10, pos: 0, label: 'Lightning Web Security (LWS)', domain: 'lwc' },
-  { layer: 10, pos: 1, label: 'SLDS Design Tokens', domain: 'lwc' },
-  { layer: 10, pos: 2, label: 'NavigationMixin Router', domain: 'lwc' },
+  // Layer 10: Apex Runtime Governors & CPU (Stage 8)
+  { layer: 10, pos: 0, label: 'CPU Timeout (10s)', domain: 'governors' },
+  { layer: 10, pos: 1, label: 'Heap Size Limit (12MB)', domain: 'governors' },
+  { layer: 10, pos: 2, label: 'Apex Callout Limit (100)', domain: 'governors' },
 
-  // Layer 11: CPQ & Revenue Engine
-  { layer: 11, pos: 0, label: 'QCP Quote Calculator', domain: 'cpq' },
-  { layer: 11, pos: 1, label: 'Subscription Billing Engine', domain: 'cpq' },
-  { layer: 11, pos: 2, label: 'Idempotent Order Activation', domain: 'cpq' },
+  // Layer 11: DevOps & Quick Deploy (Stage 7)
+  { layer: 11, pos: 0, label: 'RunLocalTests Coverage 85%', domain: 'devops' },
+  { layer: 11, pos: 1, label: 'Quick Deploy Staging ID', domain: 'devops' },
+  { layer: 11, pos: 2, label: 'Validation Check-Only Gate', domain: 'devops' },
 
-  // Layer 12: Event-Driven Bus
-  { layer: 12, pos: 0, label: 'Change Data Capture (CDC)', domain: 'async' },
-  { layer: 12, pos: 1, label: 'CometD Streaming Client', domain: 'async' },
-  { layer: 12, pos: 2, label: 'EventBus.publish() Buffer', domain: 'async' },
+  // Layer 12: Dynamic Schema & Metadata (Stage 6)
+  { layer: 12, pos: 0, label: 'Custom Metadata CMDT', domain: 'cpq' },
+  { layer: 12, pos: 1, label: 'Describe SObject Cache', domain: 'cpq' },
+  { layer: 12, pos: 2, label: 'RecordType DeveloperName', domain: 'cpq' },
 
-  // Layer 13: Architecture Framework (fflib)
-  { layer: 13, pos: 0, label: 'fflib Domain Layer', domain: 'governors' },
-  { layer: 13, pos: 1, label: 'fflib Selector Layer', domain: 'governors' },
-  { layer: 13, pos: 2, label: 'fflib Service Layer', domain: 'governors' },
+  // Layer 13: Async Apex Limits (Stage 5)
+  { layer: 13, pos: 0, label: '250k Daily Async Cap', domain: 'async' },
+  { layer: 13, pos: 1, label: 'Database.Batchable Scope', domain: 'async' },
+  { layer: 13, pos: 2, label: 'High-Volume Platform Events', domain: 'async' },
 
-  // Layer 14: Data Cloud & External Services
-  { layer: 14, pos: 0, label: 'Named Credentials Vault', domain: 'security' },
-  { layer: 14, pos: 1, label: 'External Services OpenAPI', domain: 'devops' },
-  { layer: 14, pos: 2, label: 'MuleSoft AnyPoint Proxy', domain: 'async' },
+  // Layer 14: LWC & Shadow DOM (Stage 4)
+  { layer: 14, pos: 0, label: 'LWC Shadow DOM Boundary', domain: 'lwc' },
+  { layer: 14, pos: 1, label: 'Lightning Data Service', domain: 'lwc' },
+  { layer: 14, pos: 2, label: '@salesforce/schema Import', domain: 'lwc' },
 
-  // Layer 15: Package & AppExchange Governance
-  { layer: 15, pos: 0, label: 'Managed Package Namespace', domain: 'devops' },
-  { layer: 15, pos: 1, label: '2GP Second-Gen Packaging', domain: 'devops' },
-  { layer: 15, pos: 2, label: 'AppExchange Security Review', domain: 'security' },
+  // Layer 15: Mixed DML Concurrency (Stage 3)
+  { layer: 15, pos: 0, label: 'Setup Object Lock Guard', domain: 'governors' },
+  { layer: 15, pos: 1, label: 'Queueable Job Finalizer', domain: 'async' },
+  { layer: 15, pos: 2, label: 'System.runAs() Isolation', domain: 'security' },
 
-  // Layer 16: Org Health & Concurrency
-  { layer: 16, pos: 0, label: 'Transaction Finalizer Guard', domain: 'governors' },
-  { layer: 16, pos: 1, label: 'Skinny Table Optimizer', domain: 'cpq' },
-  { layer: 16, pos: 2, label: 'Custom Index Selector', domain: 'governors' },
+  // Layer 16: Security & Sharing (Stage 2)
+  { layer: 16, pos: 0, label: 'With Sharing Mode', domain: 'security' },
+  { layer: 16, pos: 1, label: 'StripInaccessible FLS', domain: 'security' },
+  { layer: 16, pos: 2, label: 'WITH USER_MODE Parser', domain: 'security' },
 
-  // Layer 17: Release Gate & Production Sign-off
-  { layer: 17, pos: 0, label: 'Production Freeze Window', domain: 'devops' },
-  { layer: 17, pos: 1, label: 'Apex Test Assertions Gate', domain: 'devops' },
-  { layer: 17, pos: 2, label: 'Technical Debt Ceiling', domain: 'governors' },
+  // Layer 17: Top Pinnacle - Apex Governors (Stage 1)
+  { layer: 17, pos: 0, label: 'SOQL Governor (101)', domain: 'governors' },
+  { layer: 17, pos: 1, label: 'Bulkified Trigger Map', domain: 'governors' },
+  { layer: 17, pos: 2, label: 'DML Limit (10k Rows)', domain: 'governors' },
 ];
 
-// Ordered sequence of blocks removed matching the 11 Salesforce stages
+// Ordered sequence of blocks removed starting from the TOP layers downward
 const REMOVAL_SEQUENCE = [
-  3, 4,
-  6, 7,
-  9, 10,
-  12, 14,
-  15, 17,
-  20, 18,
-  21, 22,
+  // Stage 1 (Top Layer 17 - Apex Trigger & SOQL):
+  51, 53,
+  // Stage 2 (Layer 16 - Security & Sharing):
   48, 50,
-  27, 28,
-  36, 38,
+  // Stage 3 (Layer 15 - Mixed DML):
+  45, 47,
+  // Stage 4 (Layer 14 - LWC Shadow DOM):
   42, 44,
-  // Extra stress blocks
-  24, 30, 33, 39, 45, 51, 0, 1, 2, 5, 8, 11, 13, 16, 19, 23, 25, 26, 29, 31, 32, 34, 35, 37, 40, 41, 43, 46, 47, 49, 52, 53
+  // Stage 5 (Layer 13 - Async Apex Limits):
+  39, 41,
+  // Stage 6 (Layer 12 - Custom Metadata CMDT):
+  36, 38,
+  // Stage 7 (Layer 11 - Quick Deploy & RunLocalTests):
+  33, 35,
+  // Stage 8 (Layer 10 - CPU Governor & Concurrency):
+  30, 32,
+  // Stage 9 (Layer 9 - Lightning Web Security):
+  27, 29,
+  // Stage 10 (Layer 8 - CPQ Revenue & Calculation):
+  24, 26,
+  // Stage 11 (Layer 7 - Production Release Audit):
+  21, 23,
+
+  // Extra / Heavy Risk stress pulls working down lower levels:
+  18, 20, // Layer 6
+  15, 17, // Layer 5
+  12, 14, // Layer 4
+  9, 11,  // Layer 3
+  6, 8,   // Layer 2
+  3, 5,   // Layer 1
+
+  // Center spine blocks (leaving precarious edge balances):
+  52, 49, 46, 43, 40, 37, 34, 31, 28, 25, 22, 19, 16, 13, 10, 7, 4,
+
+  // Bedrock foundation blocks:
+  0, 2, 1
 ];
 
 function createBlockTexture(label, domain, color) {
@@ -248,6 +272,11 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
   const onBlockSlideRef = useRef(onBlockSlide);
   const onBlockLandRef = useRef(onBlockLand);
   const onExtractionCompleteRef = useRef(onExtractionComplete);
+  const instabilityPctRef = useRef(instabilityPct);
+
+  useEffect(() => {
+    instabilityPctRef.current = instabilityPct;
+  }, [instabilityPct]);
 
   useEffect(() => {
     onBlockSlideRef.current = onBlockSlide;
@@ -569,9 +598,39 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
       currentRotationRef.current.x +=
         (targetRotationRef.current.x - currentRotationRef.current.x) * 0.08;
 
-      if (towerGroupRef.current) {
-        towerGroupRef.current.rotation.y = currentRotationRef.current.y;
-        towerGroupRef.current.rotation.x = currentRotationRef.current.x;
+      if (towerGroupRef.current && !isCollapsingRef.current) {
+        let rotY = currentRotationRef.current.y;
+        let rotX = currentRotationRef.current.x;
+        let rotZ = 0;
+
+        const currentInstability = instabilityPctRef.current || 0;
+        if (currentInstability > 8) {
+          const swayFactor = currentInstability / 100;
+          const elapsedTime = clock.getElapsedTime();
+
+          // Organic architectural lean & sway
+          const swayX = Math.sin(elapsedTime * 1.6) * 0.04 * swayFactor;
+          const swayZ = Math.cos(elapsedTime * 1.2) * 0.035 * swayFactor;
+          rotX += swayX;
+          rotZ += swayZ;
+
+          // Realistic jitter / creaking tremor if instability is severe (>= 50%)
+          if (currentInstability >= 50) {
+            const tremor = (Math.sin(elapsedTime * 14) * 0.007 + (Math.random() - 0.5) * 0.004) * swayFactor;
+            rotZ += tremor;
+          }
+
+          // Subtle horizontal shift simulating leaning center of gravity
+          towerGroupRef.current.position.x = Math.sin(elapsedTime * 1.6) * 0.3 * swayFactor;
+          towerGroupRef.current.position.z = Math.cos(elapsedTime * 1.2) * 0.22 * swayFactor;
+        } else {
+          towerGroupRef.current.position.x = 0;
+          towerGroupRef.current.position.z = 0;
+        }
+
+        towerGroupRef.current.rotation.y = rotY;
+        towerGroupRef.current.rotation.x = rotX;
+        towerGroupRef.current.rotation.z = rotZ;
       }
 
       // Smooth camera distance, height & lookAt height interpolation for close-up block tracking!
@@ -962,19 +1021,6 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     setExtractedHistory(historyItems.reverse());
   }, [totalPulls]);
 
-  useEffect(() => {
-    if (!towerGroupRef.current) return;
-    if (instabilityPct >= 70) {
-      towerGroupRef.current.position.x = (Math.random() - 0.5) * 0.6;
-      towerGroupRef.current.position.z = (Math.random() - 0.5) * 0.6;
-    } else if (instabilityPct >= 40) {
-      towerGroupRef.current.position.x = (Math.random() - 0.5) * 0.25;
-      towerGroupRef.current.position.z = (Math.random() - 0.5) * 0.25;
-    } else {
-      towerGroupRef.current.position.x = 0;
-      towerGroupRef.current.position.z = 0;
-    }
-  }, [instabilityPct]);
 
   // Trigger catastrophic 3D tumble physics when game over occurs
   useEffect(() => {

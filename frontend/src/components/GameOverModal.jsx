@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Skull, AlertOctagon, RotateCcw, Terminal, Rotate3d, Eye, EyeOff, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { Skull, AlertOctagon, RotateCcw, Terminal, Rotate3d, Eye, EyeOff, Sparkles, ChevronDown, ChevronUp, Home } from 'lucide-react';
 
 export default function GameOverModal({
   reason = 'Catastrophic Outage',
@@ -9,6 +9,7 @@ export default function GameOverModal({
   totalPulls = 0,
   onRestart,
   onReplayCollapse,
+  onExitToLobby,
 }) {
   const [isMinimized, setIsMinimized] = useState(false);
   const isTowerCollapse = reason.toLowerCase().includes('tower');
@@ -61,6 +62,17 @@ export default function GameOverModal({
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset</span>
             </button>
+
+            {onExitToLobby && (
+              <button
+                onClick={onExitToLobby}
+                title="Return to Welcome Screen & Table Lobby"
+                className="px-3 py-2 rounded-xl text-xs font-mono font-bold bg-white hover:bg-amber-50 border border-[#ded5c5] text-stone-700 flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+              >
+                <Home className="w-3.5 h-3.5 text-amber-700" />
+                <span className="hidden sm:inline">Lobby</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -167,6 +179,16 @@ export default function GameOverModal({
             <RotateCcw className="w-4 h-4" />
             <span>Reset Architecture & Try Again</span>
           </button>
+
+          {onExitToLobby && (
+            <button
+              onClick={onExitToLobby}
+              className="sm:col-span-2 py-3 px-5 rounded-2xl font-bold text-xs bg-white hover:bg-amber-50 border border-[#ded5c5] text-stone-700 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs font-mono"
+            >
+              <Home className="w-4 h-4 text-amber-700" />
+              <span>Return to Table Lobby / Switch Table</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

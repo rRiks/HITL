@@ -12,6 +12,7 @@ import {
   Share2,
   Check,
   User,
+  Home,
 } from 'lucide-react';
 import { getPlayerName } from '../services/api';
 
@@ -26,6 +27,7 @@ export default function Navbar({
   isTimerRunning = true,
   onToggleTimer,
   onResetGame,
+  onExitToLobby,
   soundEnabled = true,
   onToggleSound,
   musicEnabled = true,
@@ -210,6 +212,18 @@ export default function Navbar({
         >
           <RotateCcw className="w-3.5 h-3.5" />
         </button>
+
+        {/* Exit to Lobby / Welcome Screen */}
+        {onExitToLobby && (
+          <button
+            onClick={onExitToLobby}
+            title="Exit to Table Lobby / Welcome Screen"
+            className="px-2.5 py-1.5 rounded-xl bg-white border border-[#ded5c5] hover:bg-amber-50 hover:border-amber-300 text-stone-700 hover:text-stone-900 text-xs font-mono font-bold transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+          >
+            <Home className="w-3.5 h-3.5 text-amber-700" />
+            <span className="hidden sm:inline">Lobby</span>
+          </button>
+        )}
       </div>
     </header>
   );
