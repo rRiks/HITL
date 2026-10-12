@@ -1,0 +1,604 @@
+import random
+import time
+from typing import Optional, List, Dict, Any
+from stages_data import STAGES
+from models import (
+    GameStateResponse,
+    StageDetails,
+    RuleItem,
+    ActionRequest,
+    ActionResponse,
+    StageSummaryRecord,
+    PlayerInfo,
+    DraftRequest,
+    VoteRequest,
+)
+
+class GameStateManager:
+    def __init__(self, room_id: str = "default", team_name: str = "DevOps Gladiators", player_count: int = 4):
+        self.room_id: str = room_id
+        self.team_name: str = team_name.strip() or "DevOps Gladiators"
+        self.player_count: int = player_count
+        self.current_stage_index: int = 0
+        self.health: int = 100
+        self.total_jenga_pulls: int = 0
+        self.pending_pulls: int = 0
+        self.is_game_over: bool = False
+        self.game_over_reason: Optional[str] = None
+        self.is_victory: bool = False
+        self.has_started: bool = False
+        self.history: List[StageSummaryRecord] = []
+        self.stage_start_time: float = time.time()
+        self.last_active: float = time.time()
+        self.pending_stage_advance: bool = False
+        self.stage_action_taken: bool = False
+        self.last_action_result: Optional[Dict[str, Any]] = None
+
+        # Live Player Roster & Democratic Voting State
+        self.players: Dict[str, Dict[str, Any]] = {}
+        self.votes: Dict[str, str] = {}  # player_id -> action_type
+        self.custom_prompt_draft: Optional[Dict[str, Any]] = None
+        self.guardrail_rule_draft: Optional[Dict[str, Any]] = None
+        self.tie_broken: bool = False
+        self.tied_options: Optional[List[str]] = None
+
+    def reset_game(self, team_name: str = "DevOps Gladiators", player_count: int = 4):
+        self.team_name = team_name.strip() or "DevOps Gladiators"
+        self.player_count = player_count
+        self.current_stage_index = 0
+        self.health = 100
+        self.total_jenga_pulls = 0
+        self.pending_pulls = 0
+        self.is_game_over = False
+        self.game_over_reason = None
+        self.is_victory = False
+        self.has_started = True
+        self.stage_action_taken = False
+        self.last_action_result = None
+        self.history = []
+        self.stage_start_time = time.time()
+        self.last_active = time.time()
+        self.pending_stage_advance = False
+        self.votes = {}
+        self.custom_prompt_draft = None
+        self.guardrail_rule_draft = None
+        self.tie_broken = False
+        self.tied_options = None
+
+    def get_current_stage(self) -> Optional[Dict[str, Any]]:
+        if 0 <= self.current_stage_index < len(STAGES):
+            return STAGES[self.current_stage_index]
+        return None
+
+    def calculate_instability(self) -> int:
+        # Standard Jenga has 54 blocks. Pulling ~16-20 blocks causes high risk of collapse.
+        # Scale 0 to 100%
+        instability = int((self.total_jenga_pulls / 18.0) * 100)
+        return min(100, max(0, instability))
+
+    def touch_player(self, player_id: str, player_name: str) -> None:
+        self.last_active = time.time()
+        pid = player_id.strip() if player_id else "anonymous"
+        pname = player_name.strip() if player_name else "Player"
+        if pid not in self.players:
+            self.players[pid] = {
+                "player_id": pid,
+                "player_name": pname,
+                "last_seen": time.time(),
+            }
+        else:
+            self.players[pid]["player_name"] = pname
+            self.players[pid]["last_seen"] = time.time()
+
+    def get_active_players(self, timeout_sec: float = 25.0) -> List[PlayerInfo]:
+        now = time.time()
+        active = []
+        for pid, pdata in self.players.items():
+            if now - pdata.get("last_seen", 0) <= timeout_sec:
+                voted_act = self.votes.get(pid)
+                active.append(PlayerInfo(
+                    player_id=pid,
+                    player_name=pdata.get("player_name", "Player"),
+                    has_voted=voted_act is not None,
+                    voted_action=voted_act,
+                    last_seen=pdata.get("last_seen", 0)
+                ))
+        return active
+
+    def get_votes_tally(self) -> Dict[str, int]:
+        tally = {
+            "accept_as_is": 0,
+            "deny_and_move_on": 0,
+            "custom_prompt": 0,
+            "suggest_change": 0,
+        }
+        for pid, act in self.votes.items():
+            if act in tally:
+                tally[act] += 1
+        return tally
+
+    def submit_draft(self, req: DraftRequest) -> GameStateResponse:
+        self.touch_player(req.player_id, req.player_name)
+        if req.draft_type == "custom_prompt":
+            self.custom_prompt_draft = {
+                "text": (req.custom_prompt_text or "").strip(),
+                "player_name": req.player_name,
+                "player_id": req.player_id,
+                "timestamp": time.time(),
+            }
+        elif req.draft_type == "suggest_change":
+            stg = self.get_current_stage()
+            rule_title = "Selected Guardrail Rule"
+            if stg:
+                for r in stg.get("suggest_change_rules", []):
+                    if r["id"] == req.selected_rule_id:
+                        rule_title = r["title"]
+                        break
+            self.guardrail_rule_draft = {
+                "rule_id": req.selected_rule_id or "rule_1",
+                "title": rule_title,
+                "player_name": req.player_name,
+                "player_id": req.player_id,
+                "timestamp": time.time(),
+            }
+        return self.get_state()
+
+    def submit_vote(self, req: VoteRequest) -> GameStateResponse:
+        self.touch_player(req.player_id, req.player_name)
+        if self.stage_action_taken or self.is_game_over:
+            return self.get_state()
+
+        # Record or update vote
+        self.votes[req.player_id] = req.action_type
+
+        # Check if ALL active connected players have voted
+        active = self.get_active_players()
+        if len(active) > 0 and all(p.player_id in self.votes for p in active):
+            # All active teammates have voted! Trigger resolution immediately
+            self.resolve_voting(is_timeout=False, time_spent_seconds=req.time_spent_seconds)
+
+        return self.get_state()
+
+    def resolve_voting(self, is_timeout: bool = False, time_spent_seconds: int = 0) -> ActionResponse:
+        if self.stage_action_taken and self.last_action_result:
+            return ActionResponse(**self.last_action_result)
+
+        tally = self.get_votes_tally()
+        total_votes = sum(tally.values())
+
+        if total_votes == 0:
+            act_req = ActionRequest(
+                action_type="accept_as_is",
+                is_timeout=True,
+                time_spent_seconds=120
+            )
+            return self.process_action(act_req)
+
+        max_votes = max(tally.values())
+        tied_candidates = [act for act, cnt in tally.items() if cnt == max_votes]
+
+        tie_broken = False
+        tied_options = None
+        if len(tied_candidates) > 1:
+            tie_broken = True
+            tied_options = tied_candidates
+            winning_action = random.choice(tied_candidates)  # 50-50 toss or 1-of-N uniform random
+        else:
+            winning_action = tied_candidates[0]
+
+        prompt_text = None
+        if winning_action == "custom_prompt" and self.custom_prompt_draft:
+            prompt_text = self.custom_prompt_draft.get("text")
+
+        rule_id = None
+        if winning_action == "suggest_change":
+            if self.guardrail_rule_draft:
+                rule_id = self.guardrail_rule_draft.get("rule_id")
+            else:
+                rule_id = "rule_1"
+
+        act_req = ActionRequest(
+            action_type=winning_action,
+            custom_prompt_text=prompt_text,
+            selected_rule_id=rule_id,
+            is_timeout=is_timeout,
+            time_spent_seconds=time_spent_seconds
+        )
+
+        resp = self.process_action(act_req)
+        resp.tie_broken = tie_broken
+        resp.tied_options = tied_options
+        resp.winning_votes_count = max_votes
+        resp.total_votes_cast = total_votes
+
+        # Append tie-breaker info to feedback message if tie occurred
+        if tie_broken and tied_options:
+            options_str = " vs ".join([opt.replace('_', ' ').title() for opt in tied_options])
+            resp.feedback_message = (
+                f"🎲 TIE-BREAKER (50/50 TOSS): Votes split across [{options_str}]. "
+                f"Random toss selected [{winning_action.replace('_', ' ').title()}]!\n"
+                + resp.feedback_message
+            )
+
+        self.last_action_result = resp.dict()
+        return resp
+
+    def get_state(self) -> GameStateResponse:
+        current_stg = self.get_current_stage()
+        stage_details = None
+        if current_stg:
+            stage_details = StageDetails(
+                id=current_stg["id"],
+                title=current_stg["title"],
+                phase_name=current_stg["phase_name"],
+                story=current_stg["story"],
+                ai_proposal_summary=current_stg["ai_proposal_summary"],
+                file_name=current_stg["file_name"],
+                code_diff=current_stg["code_diff"],
+                hidden_risks=current_stg["hidden_risks"],
+                suggest_change_rules=[
+                    RuleItem(**r) for r in current_stg["suggest_change_rules"]
+                ]
+            )
+
+        self.last_active = time.time()
+        return GameStateResponse(
+            room_id=self.room_id,
+            team_name=self.team_name,
+            player_count=self.player_count,
+            current_stage_index=self.current_stage_index,
+            total_stages=len(STAGES),
+            current_stage=stage_details,
+            health=self.health,
+            total_jenga_pulls=self.total_jenga_pulls,
+            pending_pulls=self.pending_pulls,
+            tower_instability_pct=self.calculate_instability(),
+            is_game_over=self.is_game_over,
+            game_over_reason=self.game_over_reason,
+            is_victory=self.is_victory,
+            has_started=self.has_started,
+            stage_action_taken=self.stage_action_taken,
+            last_action_result=self.last_action_result,
+            history=self.history,
+            current_stage_time_limit_seconds=120,
+            active_players=self.get_active_players(),
+            votes_tally=self.get_votes_tally(),
+            custom_prompt_draft=self.custom_prompt_draft,
+            guardrail_rule_draft=self.guardrail_rule_draft,
+            tie_broken=self.tie_broken,
+            tied_options=self.tied_options,
+        )
+
+    def process_action(self, req: ActionRequest) -> ActionResponse:
+        self.last_active = time.time()
+        if self.is_game_over:
+            return ActionResponse(
+                room_id=self.room_id,
+                success=False,
+                action_type=req.action_type,
+                action_label="Game Over",
+                outcome="failure",
+                feedback_message=f"Game already terminated: {self.game_over_reason}",
+                health_delta=0,
+                jenga_pulls=0,
+                new_health=self.health,
+                total_pulls=self.total_jenga_pulls,
+                pending_pulls=self.pending_pulls,
+                tower_instability_pct=self.calculate_instability(),
+                is_game_over=True,
+                game_over_reason=self.game_over_reason,
+                is_victory=False,
+                next_stage_ready=False
+            )
+
+        # CONCURRENCY RESOLUTION (First-To-Act Wins):
+        # If another teammate has already committed a decision for this stage,
+        # return the identical cached ActionResponse immediately.
+        # This prevents double health penalties, duplicate block extractions, or state drift.
+        if self.stage_action_taken and self.last_action_result:
+            return ActionResponse(**self.last_action_result)
+
+        current_stg = self.get_current_stage()
+        if not current_stg:
+            raise ValueError("No active stage available.")
+
+        action_type = req.action_type
+        is_timeout = req.is_timeout
+        health_delta = 0
+        jenga_pulls = 0
+        outcome = "success"
+        feedback = ""
+        action_label = ""
+        roll_val: Optional[float] = None
+        roll_threshold: Optional[float] = None
+
+        # 1. TIMEOUT CASE: If timer hit 00:00, forces "Accept As-Is" with extra -10% health penalty and double pulls
+        if is_timeout:
+            action_type = "accept_as_is"
+            action_label = "TIMEOUT FORCED: Accept As-Is"
+            cfg = current_stg["accept_as_is"]
+            roll_val = round(random.random(), 3)
+            roll_threshold = cfg["success_rate"]
+            
+            # Timeout penalty applies extra -10% and doubles pull requirement
+            if roll_val < roll_threshold:
+                outcome = "timeout_success"
+                feedback = (
+                    f"⏰ TIMEOUT EXPIRED! Defaulted to Blind Accept. "
+                    f"By pure luck, AI didn't explode immediately, but panic overtime cost team morale. "
+                    f"Timeout Penalty: -10% Health and mandatory 2 Jenga pulls!"
+                )
+                health_delta = -10
+                jenga_pulls = 2
+            else:
+                outcome = "timeout_failure"
+                base_pulls = max(2, cfg["failure_pulls"] * 2)
+                health_delta = cfg["failure_health_delta"] - 10
+                jenga_pulls = base_pulls
+                feedback = (
+                    f"⏰ TIMEOUT DISASTER! You ran out of time and blindly deployed to production. "
+                    f"{cfg['failure_feedback']} "
+                    f"DOUBLE TIMEOUT PENALTY: {health_delta}% Health, MUST PULL {jenga_pulls} JENGA BLOCKS!"
+                )
+
+        # 2. STANDARD "Accept as-is (Blind Velocity)"
+        elif action_type == "accept_as_is":
+            action_label = "Accept As-Is (Blind Velocity)"
+            cfg = current_stg["accept_as_is"]
+            roll_val = round(random.random(), 3)
+            roll_threshold = cfg["success_rate"]
+
+            if roll_val < roll_threshold:
+                outcome = "success"
+                feedback = f"🎲 Roll {int(roll_val*100)}% (Threshold: {int(roll_threshold*100)}%): SUCCESS! {cfg['success_feedback']}"
+                health_delta = cfg["success_health_delta"]
+                jenga_pulls = cfg["success_pulls"]
+            else:
+                outcome = "failure"
+                feedback = f"🎲 Roll {int(roll_val*100)}% (Threshold: {int(roll_threshold*100)}%): HALLUCINATION DETECTED! {cfg['failure_feedback']}"
+                health_delta = cfg["failure_health_delta"]
+                jenga_pulls = cfg["failure_pulls"]
+
+        # 3. "Deny and Move On (Bypass & Skip)"
+        elif action_type == "deny_and_move_on":
+            action_label = "Deny & Move On (Bypass & Skip)"
+            cfg = current_stg["deny_and_move_on"]
+            outcome = "partial"
+            feedback = f"🛑 PR REJECTED: {cfg['feedback']}"
+            health_delta = cfg["health_delta"]
+            jenga_pulls = cfg["pulls"]
+
+        # 4. "Discuss & Type Custom Prompt (Human-Led Iteration)"
+        elif action_type == "custom_prompt":
+            action_label = "Discuss & Custom Prompt (Human-in-the-Loop)"
+            prompt_text = (req.custom_prompt_text or "").strip().lower()
+            cfg = current_stg["custom_prompt"]
+            keywords = cfg["keywords"]
+
+            # Count keyword hits
+            hit_keywords = [kw for kw in keywords if kw.lower() in prompt_text]
+            has_substantive_length = len(prompt_text) >= 20
+
+            if hit_keywords or (has_substantive_length and len(prompt_text.split()) >= 6):
+                outcome = "success"
+                matched_str = f" [Matched concepts: {', '.join(hit_keywords[:3])}]" if hit_keywords else ""
+                feedback = f"💬 HITL Prompt Accepted!{matched_str} {cfg['success_feedback']}"
+                health_delta = cfg["success_health_delta"]
+                jenga_pulls = cfg["success_pulls"]
+            else:
+                outcome = "partial"
+                feedback = (
+                    f"💬 Vague Prompt Warning: '{req.custom_prompt_text or ''}'. "
+                    f"{cfg['partial_feedback']} "
+                    f"Tip: Mention architectural concepts like {', '.join(keywords[:3])}."
+                )
+                health_delta = cfg["partial_health_delta"]
+                jenga_pulls = cfg["partial_pulls"]
+
+        # 5. "Suggest Change (Structured Guardrails)"
+        elif action_type == "suggest_change":
+            action_label = "Suggest Change (Structured Guardrails)"
+            rules = current_stg["suggest_change_rules"]
+            selected_rule = None
+            if req.selected_rule_id:
+                for r in rules:
+                    if r["id"] == req.selected_rule_id:
+                        selected_rule = r
+                        break
+            if not selected_rule and rules:
+                selected_rule = rules[0]
+
+            outcome = "success"
+            feedback = f"🛡️ Architectural Guardrail Applied: [{selected_rule['title']}]. {selected_rule['benefit_feedback']}"
+            health_delta = selected_rule["health_delta"]
+            jenga_pulls = selected_rule["pulls"]
+
+        else:
+            raise ValueError(f"Unknown action type: {action_type}")
+
+        # Update Health (Clamped 0 - 100)
+        new_health = max(0, min(100, self.health + health_delta))
+        self.health = new_health
+        self.total_jenga_pulls += jenga_pulls
+        self.pending_pulls = jenga_pulls
+
+        # Check for Health Outage Game Over with explicit, detailed failure reason
+        if self.health <= 0:
+            self.is_game_over = True
+            self.game_over_reason = (
+                f"CATASTROPHIC INCIDENT in Stage {current_stg['id']} [{current_stg['title']}]: "
+                f"{feedback} (Target File: {current_stg['file_name']} | Application Health collapsed to 0%)"
+            )
+
+        # Record History
+        summary_rec = StageSummaryRecord(
+            stage_id=current_stg["id"],
+            stage_title=current_stg["title"],
+            phase_name=current_stg["phase_name"],
+            action_type=action_type,
+            action_label=action_label,
+            outcome=outcome,
+            feedback=feedback,
+            health_delta=health_delta,
+            jenga_pulls=jenga_pulls,
+            health_after=self.health,
+            time_spent_seconds=req.time_spent_seconds or 0,
+            details={
+                "roll_val": roll_val,
+                "roll_threshold": roll_threshold,
+                "custom_prompt": req.custom_prompt_text,
+                "selected_rule_id": req.selected_rule_id,
+            }
+        )
+        self.history.append(summary_rec)
+
+        # Check for Victory on final stage
+        if not self.is_game_over and self.current_stage_index == len(STAGES) - 1:
+            self.is_victory = True
+
+        resp = ActionResponse(
+            room_id=self.room_id,
+            success=True,
+            action_type=action_type,
+            action_label=action_label,
+            outcome=outcome,
+            roll_value=roll_val,
+            roll_threshold=roll_threshold,
+            feedback_message=feedback,
+            health_delta=health_delta,
+            jenga_pulls=jenga_pulls,
+            new_health=self.health,
+            total_pulls=self.total_jenga_pulls,
+            pending_pulls=self.pending_pulls,
+            tower_instability_pct=self.calculate_instability(),
+            is_game_over=self.is_game_over,
+            game_over_reason=self.game_over_reason,
+            is_victory=self.is_victory,
+            next_stage_ready=True
+        )
+        self.stage_action_taken = True
+        self.last_action_result = resp.dict()
+        return resp
+
+    def acknowledge_pulls(self, physical_tower_fell: bool = False):
+        self.last_active = time.time()
+        self.pending_pulls = 0
+        if physical_tower_fell:
+            self.is_game_over = True
+            self.game_over_reason = "VIRTUAL 3D TOWER COLLAPSED: The Salesforce Architecture Tower toppled during block extraction!"
+
+    def force_tower_collapse(self):
+        self.last_active = time.time()
+        current_stg = self.get_current_stage()
+        stage_name = current_stg["title"] if current_stg else "Stage Execution"
+        self.is_game_over = True
+        self.game_over_reason = (
+            f"3D ARCHITECTURAL COLLAPSE: Virtual Salesforce Architecture Tower suffered catastrophic structural "
+            f"failure under excessive destabilization during {stage_name}!"
+        )
+
+    def advance_to_next_stage(self) -> bool:
+        self.last_active = time.time()
+        if self.is_game_over:
+            return False
+        if self.current_stage_index < len(STAGES) - 1:
+            self.current_stage_index += 1
+            self.stage_start_time = time.time()
+            self.pending_pulls = 0
+            self.stage_action_taken = False
+            self.last_action_result = None
+            self.votes = {}
+            self.custom_prompt_draft = None
+            self.guardrail_rule_draft = None
+            self.tie_broken = False
+            self.tied_options = None
+            return True
+        else:
+            self.is_victory = True
+            return False
+
+
+class RoomManager:
+    """
+    Manages isolated multi-team game rooms for workshops.
+    Ensures that when 20+ developers split across multiple tables or rooms,
+    each team has their own completely isolated 3D tower, health, and 11-stage progress.
+    """
+    def __init__(self):
+        self._rooms: Dict[str, GameStateManager] = {}
+        # Pre-seed default room for standard single-room play
+        self.get_or_create_room("default", team_name="Alpha Devs", player_count=4)
+
+    def normalize_room_id(self, room_id: Optional[str]) -> str:
+        if not room_id:
+            return "default"
+        clean = "".join(c for c in room_id.lower().strip() if c.isalnum() or c in "-_")
+        return clean or "default"
+
+    def get_or_create_room(self, room_id: str, team_name: str = "Alpha Devs", player_count: int = 4) -> GameStateManager:
+        norm_id = self.normalize_room_id(room_id)
+        if norm_id not in self._rooms:
+            self._rooms[norm_id] = GameStateManager(room_id=norm_id, team_name=team_name, player_count=player_count)
+        return self._rooms[norm_id]
+
+    def get_room(self, room_id: Optional[str]) -> GameStateManager:
+        norm_id = self.normalize_room_id(room_id)
+        if norm_id not in self._rooms:
+            # Auto-create on demand
+            return self.get_or_create_room(norm_id)
+        return self._rooms[norm_id]
+
+    def list_leaderboard(self) -> List[Dict[str, Any]]:
+        """
+        Returns live telemetry for all active workshop rooms.
+        Also supplements with realistic benchmark tables if fewer than 4 live rooms exist.
+        """
+        live_list = []
+        for r_id, r in self._rooms.items():
+            status = "active"
+            if r.is_game_over:
+                status = "collapsed"
+            elif r.is_victory:
+                status = "victorious"
+            elif r.health > 80:
+                status = "leading"
+            elif r.health < 40:
+                status = "warning"
+
+            live_list.append({
+                "room_id": r_id,
+                "team_name": r.team_name,
+                "health": r.health,
+                "current_stage": r.current_stage_index + 1,
+                "total_stages": len(STAGES),
+                "total_pulls": r.total_jenga_pulls,
+                "is_game_over": r.is_game_over,
+                "is_victory": r.is_victory,
+                "status": status,
+                "last_active": r.last_active,
+            })
+
+        # Mock workshop competitor teams if only 1-2 real tables are active
+        mock_benchmarks = [
+            {"room_id": "table-2", "team_name": "Table 2: ByteBusters", "health": 82, "current_stage": 5, "total_stages": len(STAGES), "total_pulls": 2, "is_game_over": False, "is_victory": False, "status": "leading", "last_active": time.time() - 40},
+            {"room_id": "table-4", "team_name": "Table 4: QuantumSREs", "health": 94, "current_stage": 7, "total_stages": len(STAGES), "total_pulls": 1, "is_game_over": False, "is_victory": False, "status": "leading", "last_active": time.time() - 15},
+            {"room_id": "table-7", "team_name": "Table 7: NullPointers", "health": 0, "current_stage": 4, "total_stages": len(STAGES), "total_pulls": 7, "is_game_over": True, "is_victory": False, "status": "collapsed", "last_active": time.time() - 120},
+            {"room_id": "table-9", "team_name": "Table 9: GlitchHunters", "health": 68, "current_stage": 6, "total_stages": len(STAGES), "total_pulls": 3, "is_game_over": False, "is_victory": False, "status": "active", "last_active": time.time() - 30},
+        ]
+
+        # Only add mock tables if they don't collide with real room IDs
+        existing_ids = {item["room_id"] for item in live_list}
+        for mock in mock_benchmarks:
+            if mock["room_id"] not in existing_ids and len(live_list) < 6:
+                live_list.append(mock)
+
+        # Sort: Victors first, then non-collapsed by stage desc, then health desc
+        live_list.sort(key=lambda x: (x["is_victory"], not x["is_game_over"], x["current_stage"], x["health"]), reverse=True)
+        return live_list
+
+
+# Global Room Manager instance
+room_manager = RoomManager()
+
+# Default singleton for backward compatibility
+game_manager = room_manager.get_room("default")
