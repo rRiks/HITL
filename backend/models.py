@@ -38,6 +38,18 @@ class RuleItem(BaseModel):
     benefit_feedback: str
     health_delta: int
     pulls: int
+    tier: Optional[str] = "optimal"
+    accuracy: Optional[str] = "80% Match"
+
+class AISuggestionItem(BaseModel):
+    id: str
+    tier: str = "optimal"
+    accuracy: str = "80% Match"
+    title: str
+    description: str
+    benefit_feedback: Optional[str] = None
+    health_delta: int = 8
+    pulls: int = 0
 
 class StageDetails(BaseModel):
     id: int
@@ -48,7 +60,8 @@ class StageDetails(BaseModel):
     file_name: str
     code_diff: str
     hidden_risks: str
-    suggest_change_rules: List[RuleItem]
+    suggest_change_rules: List[RuleItem] = []
+    ai_suggestions: List[AISuggestionItem] = []
 
 class PlayerInfo(BaseModel):
     player_id: str
@@ -67,6 +80,7 @@ class DraftRequest(BaseModel):
     draft_type: str  # "custom_prompt" or "suggest_change"
     custom_prompt_text: Optional[str] = None
     selected_rule_id: Optional[str] = None
+    selected_suggestion_id: Optional[str] = None
 
 class VoteRequest(BaseModel):
     player_id: str
@@ -93,6 +107,9 @@ class GameStateResponse(BaseModel):
     last_action_result: Optional[Dict[str, Any]] = None
     history: List[StageSummaryRecord]
     current_stage_time_limit_seconds: int = 120
+    # Technical Debt & Restarts
+    technical_debt: int = 0
+    stage_restart_count: int = 0
     # Live Team Voting & Roster State
     active_players: List[PlayerInfo] = []
     votes_tally: Dict[str, int] = {}
@@ -120,6 +137,8 @@ class ActionResponse(BaseModel):
     game_over_reason: Optional[str] = None
     is_victory: bool
     next_stage_ready: bool
+    technical_debt: int = 0
+    stage_restart_count: int = 0
     # Voting Details
     tie_broken: bool = False
     tied_options: Optional[List[str]] = None

@@ -26,7 +26,6 @@ export function CustomPromptModal({
   onClose,
   onSubmitPrompt,
   stageTitle = '',
-  suggestedKeywords = [],
 }) {
   const [promptText, setPromptText] = useState('');
 
@@ -37,10 +36,6 @@ export function CustomPromptModal({
     if (!promptText.trim()) return;
     onSubmitPrompt(promptText.trim());
     setPromptText('');
-  };
-
-  const handleAddKeyword = (kw) => {
-    setPromptText((prev) => (prev ? `${prev} ${kw}` : kw));
   };
 
   return (
@@ -64,47 +59,27 @@ export function CustomPromptModal({
         </div>
 
         <p className="text-xs text-[#ccc] mb-4 leading-relaxed font-sans">
-          Write specific architectural instructions into the Book & Quill to steer the AI golem and protect vulnerable voxel blocks.
+          Inspect the code diff carefully. Inscribe specific architectural instructions into the Book & Quill to steer the AI agent (e.g. methods, collection patterns, locking mechanisms, or transaction boundaries). Vague prompts will result in AI hallucinations and tech debt!
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-[9px] mc-font text-[#ffd700] mb-1.5">
-              INSCRIBE PROMPT FOR AI GOLEM:
+              INSCRIBE ARCHITECTURAL GUIDANCE:
             </label>
             <textarea
               rows={4}
               value={promptText}
               onChange={(e) => setPromptText(e.target.value)}
-              placeholder="e.g., Do not query inside loops! Collect IDs into Set and bulkify with Map..."
+              placeholder="e.g., Do not query inside loops. Extract parent IDs into a Set, run a bulkified SOQL query outside iteration, and map in-memory..."
               className="w-full bg-[#111] border-2 border-[#555] focus:border-[#ffd700] p-3 text-xs text-white placeholder-[#666] focus:outline-none font-mono resize-none transition-all"
               autoFocus
             />
             <div className="flex justify-between items-center text-[8px] mc-font text-[#888] mt-1">
               <span>{promptText.length} CHARS</span>
-              <span className="text-[#ffd700]">Specific instructions maximize health recovery!</span>
+              <span className="text-[#ffd700]">Valid architectural concepts grant +8% Health!</span>
             </div>
           </div>
-
-          {suggestedKeywords.length > 0 && (
-            <div>
-              <span className="text-[8px] mc-font text-[#aaa] block mb-1">
-                SUGGESTED RUNES & CONCEPTS:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {suggestedKeywords.map((kw, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => handleAddKeyword(kw)}
-                    className="text-[9px] mc-font bg-[#222] hover:bg-[#333] border border-[#555] text-[#ffd700] px-2 py-1 cursor-pointer"
-                  >
-                    +{kw}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#333]">
             <button
@@ -130,7 +105,7 @@ export function CustomPromptModal({
 }
 
 /* -------------------------------------------------------------
- * 2. Guardrails Picker Modal (Minecraft Enchantment Table)
+ * 2. AI Suggestions Modal (3 Jumbled Technical Fixes)
  * -----------------------------------------------------------*/
 export function GuardrailsModal({
   isOpen,
@@ -141,7 +116,7 @@ export function GuardrailsModal({
   const [selectedRuleId, setSelectedRuleId] = useState(rules[0]?.id || '');
 
   useEffect(() => {
-    if (rules.length > 0 && !selectedRuleId) {
+    if (rules.length > 0 && (!selectedRuleId || !rules.some(r => r.id === selectedRuleId))) {
       setSelectedRuleId(rules[0].id);
     }
   }, [rules, selectedRuleId]);
@@ -164,37 +139,37 @@ export function GuardrailsModal({
         </button>
 
         <div className="flex items-center gap-3 mb-3">
-          <div className="p-2 bg-[#001a00] border-2 border-[#00aa00] text-[#55ff55] text-xl">
-            ⚡
+          <div className="p-2 bg-[#1a110a] border-2 border-[#ffaa00] text-[#ffd700] text-xl">
+            🤖
           </div>
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-[#55ff55] mc-font">ENCHANTMENT CODEX: GUARDRAIL</h3>
-            <p className="text-[10px] text-[#aaa] mc-font">Institutional Policy Armor</p>
+            <h3 className="text-sm sm:text-base font-bold text-[#ffd700] mc-font">AI PROPOSED FIXES: 3 OPTIONS</h3>
+            <p className="text-[10px] text-[#aaa] mc-font">Review Proposed Code Solutions</p>
           </div>
         </div>
 
         <p className="text-xs text-[#ccc] mb-4 leading-relaxed font-sans">
-          Select an architectural standard to enchant the codebase. Strict guardrails eliminate risks and shield voxel blocks from tumbling.
+          The AI coding agent generated 3 separate technical fixes. One is an optimal architectural solution (+8% Health, 0 pulls), another is a quick patch with trade-offs (+4% Health, 1 pull), and one is a flawed anti-pattern (-10% Health, 2 pulls, +1 Debt). Inspect their descriptions and select wisely!
         </p>
 
-        <div className="space-y-2 mb-5">
-          {rules.map((rule) => {
+        <div className="space-y-2.5 mb-5">
+          {rules.map((rule, idx) => {
             const isSelected = selectedRuleId === rule.id;
             return (
               <div
-                key={rule.id}
+                key={rule.id || idx}
                 onClick={() => setSelectedRuleId(rule.id)}
                 className={`p-3 border-2 transition-all cursor-pointer flex items-start gap-3 ${
                   isSelected
-                    ? 'bg-[#002b00] border-[#55ff55] shadow-md'
-                    : 'bg-[#1e1e1e] border-[#444] hover:border-[#666]'
+                    ? 'bg-[#2b2210] border-[#ffd700] shadow-md'
+                    : 'bg-[#1a1a1a] border-[#444] hover:border-[#666]'
                 }`}
               >
                 <div className="pt-0.5">
                   <div
                     className={`w-3.5 h-3.5 border flex items-center justify-center ${
                       isSelected
-                        ? 'border-[#55ff55] bg-[#55ff55]'
+                        ? 'border-[#ffd700] bg-[#ffd700]'
                         : 'border-[#555] bg-transparent'
                     }`}
                   >
@@ -203,10 +178,10 @@ export function GuardrailsModal({
                 </div>
 
                 <div className="flex-1">
-                  <div className="flex items-center justify-between mb-0.5">
+                  <div className="flex items-center justify-between mb-1 gap-2">
                     <h4 className="text-xs font-bold text-white mc-font">{rule.title}</h4>
-                    <span className="text-[8px] mc-font text-[#55ff55] bg-[#002200] px-1.5 py-0.5 border border-[#00aa00]">
-                      RULE
+                    <span className="text-[8px] mc-font text-[#ffd700] bg-[#221808] px-1.5 py-0.5 border border-[#885500] shrink-0">
+                      OPTION {idx + 1}
                     </span>
                   </div>
                   <p className="text-[11px] text-[#bbb] leading-relaxed font-sans">

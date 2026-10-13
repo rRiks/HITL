@@ -1,6 +1,7 @@
 """
 Salesforce-Specific AIDLC Stages and Scenario Data for HITL Jenga: AI-Paced Development
-7 sequential stages representing real-world Salesforce development dilemmas (Apex, SOQL, LWC, Governors, Security, Async, DevOps).
+11 sequential stages representing real-world Salesforce development dilemmas (Apex, SOQL, LWC, Governors, Security, Async, DevOps).
+Each stage includes 3 distinct AI Suggestions (Optimal: 80% accuracy, Patchwork: 50% accuracy, Flawed: Anti-pattern).
 """
 
 STAGES = [
@@ -43,38 +44,44 @@ STAGES = [
             "pulls": 1,
         },
         "custom_prompt": {
-            "keywords": ["bulkify", "map", "set", "governor", "soql", "dml", "loop", "collection", "in-memory", "trigger.new"],
+            "keywords": ["bulkify", "map", "set", "governor", "soql", "dml", "loop", "collection", "in-memory", "trigger.new", "limits"],
             "success_feedback": "HITL Success! The AI agent acknowledged the governor limits: it extracted parent IDs into a Set, ran a single bulkified SOQL query outside the loop, mapped contacts in-memory, and executed one bulk DML update.",
             "success_health_delta": 8,
             "success_pulls": 0,
-            "partial_feedback": "Your prompt asked to fix SOQL in the loop, but forgot about DML inside the inner loop, leaving partial governor risk.",
-            "partial_health_delta": -2,
-            "partial_pulls": 1,
+            "failure_feedback": "Vague Guidance Flaw: The AI misjudged the ambiguous prompt and generated an anti-pattern that broke bulk transactions! (-12% Health, 1 Block pulled, +1 Tech Debt).",
+            "failure_health_delta": -12,
+            "failure_pulls": 1,
         },
-        "suggest_change_rules": [
+        "ai_suggestions": [
             {
-                "id": "rule_apex_bulkification_pattern",
-                "title": "Enforce Enterprise Bulkified Apex Trigger Framework & Map In-Memory Joins",
-                "description": "Ban all SOQL queries and DML statements inside loops; mandate Map<Id, SObject> collection patterns with single bulk DML operations.",
-                "benefit_feedback": "Bulkification Guardrail Applied: Code refactored into zero-loop SOQL pattern. Passed 10,000 record stress test with only 1 SOQL query consumed.",
-                "health_delta": 10,
+                "id": "stg1_opt",
+                "tier": "optimal",
+                "accuracy": "80% Match",
+                "title": "Bulkified Map In-Memory Join & Single DML Update",
+                "description": "Extract parent Account IDs into a Set<Id>, execute a single SOQL query outside the loop, map child Contacts in-memory, and perform one atomic bulk update statement.",
+                "benefit_feedback": "Architectural Solution Applied: Zero SOQL/DML inside loops. Passed 10,000 record bulk load test with only 1 SOQL query consumed.",
+                "health_delta": 8,
                 "pulls": 0
             },
             {
-                "id": "rule_pmd_code_analyzer",
-                "title": "Automated Salesforce Code Analyzer (PMD) Rule: ApexSOQLInjection & AvoidSoqlInLoops",
-                "description": "Block CI/CD deployment on any PMD violations for AvoidSoqlInLoops or DmlInLoops.",
-                "benefit_feedback": "PMD Static Analysis Guardrail Applied: CI gate rejected loop query before reaching staging.",
-                "health_delta": 7,
-                "pulls": 0
+                "id": "stg1_patch",
+                "tier": "patchwork",
+                "accuracy": "50% Match",
+                "title": "Limits.getQueries() Circuit Breaker & Early Exit",
+                "description": "Keep loop queries but inject an 'if (Limits.getQueries() < 90)' check to abort before hitting the 101 governor ceiling.",
+                "benefit_feedback": "Patchwork Fix Applied: Avoided the 101 query crash for small batches, but silently dropped contact updates for remaining records, causing data inconsistency! (1 Block pulled)",
+                "health_delta": 4,
+                "pulls": 1
             },
             {
-                "id": "rule_trigger_handler_dispatcher",
-                "title": "Standardize on fflib / Apex Trigger Handler Architecture",
-                "description": "Enforce separation of concerns using Domain and Selector layers for all database operations.",
-                "benefit_feedback": "Architecture Guardrail Applied: Standardized Selector layer guarantees query bulkification across the org.",
-                "health_delta": 6,
-                "pulls": 0
+                "id": "stg1_flawed",
+                "tier": "flawed",
+                "accuracy": "20% Anti-Pattern",
+                "title": "@future(callout=false) Fire-and-Forget Wrapper",
+                "description": "Wrap the loop query inside an asynchronous @future method to take advantage of the higher 200 async SOQL query limit.",
+                "benefit_feedback": "Flawed Anti-Pattern Applied: Calling @future inside Trigger.new iteration breached the 50 future method invocations limit on batch imports! (-10% Health, 2 Blocks pulled, +1 Debt)",
+                "health_delta": -10,
+                "pulls": 2
             }
         ]
     },
@@ -116,38 +123,44 @@ STAGES = [
             "pulls": 1,
         },
         "custom_prompt": {
-            "keywords": ["with sharing", "stripinaccessible", "security.stripinaccessible", "fls", "escapesinglequotes", "bind variable", "accessible", "isaccessible"],
+            "keywords": ["with sharing", "stripinaccessible", "security.stripinaccessible", "fls", "escapesinglequotes", "bind variable", "accessible", "isaccessible", "user_mode"],
             "success_feedback": "HITL Success! The AI restored 'with sharing', replaced string concatenation with bound variables (:searchKey), and implemented Security.stripInaccessible(AccessType.READABLE, records) to enforce Field-Level Security.",
             "success_health_delta": 8,
             "success_pulls": 0,
-            "partial_feedback": "Your prompt changed class to 'with sharing', but forgot to sanitize dynamic SOQL injection, leaving a partial security gap.",
-            "partial_health_delta": -2,
-            "partial_pulls": 1,
+            "failure_feedback": "Vague Guidance Flaw: The prompt lacked specific security mandates, leaving dynamic SOQL open to tenant data leaks! (-12% Health, 1 Block pulled, +1 Tech Debt).",
+            "failure_health_delta": -12,
+            "failure_pulls": 1,
         },
-        "suggest_change_rules": [
+        "ai_suggestions": [
             {
-                "id": "rule_strip_inaccessible",
-                "title": "Enforce 'with sharing' & Security.stripInaccessible(AccessType.READABLE, ...) Mandate",
-                "description": "Enforce strict Field-Level Security stripping and bound SOQL variables for all @AuraEnabled methods.",
-                "benefit_feedback": "Security Guardrail Applied: Automatic FLS stripping sanitized sensitive fields and eliminated SOQL injection.",
-                "health_delta": 10,
-                "pulls": 0
-            },
-            {
-                "id": "rule_user_mode_soql",
-                "title": "Mandate Apex WITH USER_MODE Database Operations",
-                "description": "Enforce Salesforce Spring/Summer standard 'WITH USER_MODE' query clause to automatically enforce sharing and FLS natively.",
-                "benefit_feedback": "Platform Guardrail Applied: Native USER_MODE database access guarantees zero privilege escalation.",
+                "id": "stg2_opt",
+                "tier": "optimal",
+                "accuracy": "80% Match",
+                "title": "Enforce 'with sharing' & Security.stripInaccessible(AccessType.READABLE)",
+                "description": "Restore 'with sharing' class declaration, replace dynamic query concatenation with bound variables (:searchKey), and sanitize returned fields via Security.stripInaccessible.",
+                "benefit_feedback": "Architectural Solution Applied: Strict tenant record isolation restored and sensitive SSN__c/Revenue__c fields stripped from unauthorized profiles.",
                 "health_delta": 8,
                 "pulls": 0
             },
             {
-                "id": "rule_graph_engine_dfa",
-                "title": "Execute Salesforce Code Analyzer Graph Engine Data-Flow Analysis (DFA)",
-                "description": "Trace tainted user input sources to database sink endpoints in automated CI/CD scans.",
-                "benefit_feedback": "DFA Guardrail Applied: Graph Engine flagged the tainted query input and blocked deployment before merge.",
-                "health_delta": 6,
-                "pulls": 0
+                "id": "stg2_patch",
+                "tier": "patchwork",
+                "accuracy": "50% Match",
+                "title": "String.escapeSingleQuotes() Sanitizer Only",
+                "description": "Wrap searchKey in String.escapeSingleQuotes() to sanitize SQL injection, but keep the class as 'without sharing' to prevent permission errors.",
+                "benefit_feedback": "Patchwork Fix Applied: Blocked SQL injection syntax, but external portal users can still read other companies' private accounts and revenue data! (1 Block pulled)",
+                "health_delta": 4,
+                "pulls": 1
+            },
+            {
+                "id": "stg2_flawed",
+                "tier": "flawed",
+                "accuracy": "20% Anti-Pattern",
+                "title": "Try-Catch Swallowing with System.runAs() Mock Bypass",
+                "description": "Wrap dynamic queries in empty try-catch blocks and run operations under System.runAs() system admin contexts.",
+                "benefit_feedback": "Flawed Anti-Pattern Applied: System.runAs() is completely ignored in production runtime, exposing the entire database to external guests! (-10% Health, 2 Blocks pulled, +1 Debt)",
+                "health_delta": -10,
+                "pulls": 2
             }
         ]
     },
@@ -192,34 +205,40 @@ STAGES = [
             "success_feedback": "HITL Success! The AI recognized the Mixed DML boundary: it kept Account creation synchronous and dispatched User provisioning via a Queueable Apex job (System.enqueueJob) with an Async Finalizer.",
             "success_health_delta": 8,
             "success_pulls": 0,
-            "partial_feedback": "Your prompt mentioned @future, but did not handle passing complex sObject parameters, resulting in serialization errors.",
-            "partial_health_delta": -2,
-            "partial_pulls": 1,
+            "failure_feedback": "Vague Guidance Flaw: The prompt failed to decouple setup and non-setup DML contexts, leaving transactions prone to MIXED_DML crashes! (-12% Health, 1 Block pulled, +1 Tech Debt).",
+            "failure_health_delta": -12,
+            "failure_pulls": 1,
         },
-        "suggest_change_rules": [
+        "ai_suggestions": [
             {
-                "id": "rule_queueable_decoupling",
-                "title": "Decouple Setup Object DML via Queueable Apex Job with Finalizer",
-                "description": "Execute User and PermissionSet DML in an asynchronous Queueable transaction context to eliminate Mixed DML.",
-                "benefit_feedback": "Queueable Guardrail Applied: Isolated transaction contexts guarantee 100% compliance with Salesforce DML concurrency rules.",
-                "health_delta": 10,
+                "id": "stg3_opt",
+                "tier": "optimal",
+                "accuracy": "80% Match",
+                "title": "Decouple Identity DML via Queueable Apex Job & Finalizer",
+                "description": "Perform synchronous Account DML in the primary thread, then enqueue a Queueable Apex job (System.enqueueJob) to handle User creation and PermissionSet assignment in an isolated async context.",
+                "benefit_feedback": "Architectural Solution Applied: Complete separation of transaction lock boundaries eliminates MIXED_DML runtime faults.",
+                "health_delta": 8,
                 "pulls": 0
             },
             {
-                "id": "rule_platform_event_onboarding",
-                "title": "Publish Event-Driven Architecture (Platform Events) for Identity Provisioning",
-                "description": "Publish a High-Volume Platform Event (New_Hire_Event__e) subscribed to by an automated process.",
-                "benefit_feedback": "Event-Driven Guardrail Applied: Resilient decoupled architecture prevents locks and failures.",
-                "health_delta": 7,
-                "pulls": 0
+                "id": "stg3_patch",
+                "tier": "patchwork",
+                "accuracy": "50% Match",
+                "title": "System.runAs() Test Context Splitting",
+                "description": "Wrap User insertion inside a System.runAs(adminUser) execution block directly within the business service method.",
+                "benefit_feedback": "Patchwork Fix Applied: Unit tests passed because System.runAs() isolates test contexts, but in live production System.runAs() is ignored and still throws MIXED_DML! (1 Block pulled)",
+                "health_delta": 4,
+                "pulls": 1
             },
             {
-                "id": "rule_system_runas_unit_test",
-                "title": "Require System.runAs() Test Isolation on All Provisioning Suites",
-                "description": "Mandate unit tests validating execution as different user personas with separate DML blocks.",
-                "benefit_feedback": "Testing Guardrail Applied: Comprehensive persona suites ensure zero runtime privilege collisions.",
-                "health_delta": 6,
-                "pulls": 0
+                "id": "stg3_flawed",
+                "tier": "flawed",
+                "accuracy": "20% Anti-Pattern",
+                "title": "Database.insert(user, false) AllOrNone Bypass",
+                "description": "Set allOrNone=false on synchronous Database.insert for the User record to suppress transaction failure exceptions.",
+                "benefit_feedback": "Flawed Anti-Pattern Applied: Mixed DML cannot be bypassed with allOrNone=false; the underlying database immediately rolled back the transaction! (-10% Health, 2 Blocks pulled, +1 Debt)",
+                "health_delta": -10,
+                "pulls": 2
             }
         ]
     },
@@ -262,34 +281,40 @@ STAGES = [
             "success_feedback": "HITL Success! The AI agent refactored the component to use this.template.querySelector(), imported field definitions from '@salesforce/schema/Quote.Custom_Discount_Rate__c' for dependency safety, and used SLDS design tokens.",
             "success_health_delta": 8,
             "success_pulls": 0,
-            "partial_feedback": "Your prompt mentioned Shadow DOM, but left hardcoded string field names in place, risking schema renaming regressions.",
-            "partial_health_delta": -2,
-            "partial_pulls": 1,
+            "failure_feedback": "Vague Guidance Flaw: The prompt omitted Shadow DOM boundaries, leaving brittle DOM queries that break in Lightning Web Security! (-12% Health, 1 Block pulled, +1 Tech Debt).",
+            "failure_health_delta": -12,
+            "failure_pulls": 1,
         },
-        "suggest_change_rules": [
+        "ai_suggestions": [
             {
-                "id": "rule_schema_import_policy",
-                "title": "Mandate @salesforce/schema Imports & Shadow DOM Template Isolation",
-                "description": "Strictly prohibit hardcoded SObject/field string names; enforce this.template scoping on all DOM interactions.",
-                "benefit_feedback": "LWC Standard Guardrail Applied: 100% schema dependency integrity and clean LWS compliance verified.",
-                "health_delta": 10,
+                "id": "stg4_opt",
+                "tier": "optimal",
+                "accuracy": "80% Match",
+                "title": "Enforce this.template Scoping & @salesforce/schema Imports",
+                "description": "Restrict DOM manipulation to this.template.querySelector, replace hardcoded field strings with @salesforce/schema imports, and utilize lightning-modal for clean modal layering.",
+                "benefit_feedback": "Architectural Solution Applied: Full Shadow DOM compliance and schema dependency tracking verified across LWS runtime.",
+                "health_delta": 8,
                 "pulls": 0
             },
             {
-                "id": "rule_lightning_data_service",
-                "title": "Standardize on Lightning Data Service (LDS) Wire Adapters & getRecord",
-                "description": "Eliminate custom imperative Apex where standard reactive LDS wire adapters manage cache and updates.",
-                "benefit_feedback": "LDS Guardrail Applied: Automatic client-side caching and zero server-side Apex roundtrips.",
-                "health_delta": 7,
-                "pulls": 0
+                "id": "stg4_patch",
+                "tier": "patchwork",
+                "accuracy": "50% Match",
+                "title": "Global CSS Override via loadStyle() Static Resource",
+                "description": "Inject an un-scoped CSS stylesheet from a Static Resource via loadStyle() to force modal container widths without querySelector.",
+                "benefit_feedback": "Patchwork Fix Applied: Bypassed querySelector crash, but the un-scoped CSS leaked into standard Salesforce setup modals, altering system UI styles! (1 Block pulled)",
+                "health_delta": 4,
+                "pulls": 1
             },
             {
-                "id": "rule_eslint_lwc_bundle",
-                "title": "Enforce Salesforce ESLint LWC Plugin in Pre-Commit Hooks",
-                "description": "Run @salesforce/eslint-plugin-lwc with rules: no-document-query and no-inner-html.",
-                "benefit_feedback": "Linter Guardrail Applied: Prohibited DOM access caught immediately during commit stage.",
-                "health_delta": 6,
-                "pulls": 0
+                "id": "stg4_flawed",
+                "tier": "flawed",
+                "accuracy": "20% Anti-Pattern",
+                "title": "window.parent.document IFrame DOM Traversal",
+                "description": "Access window.parent.document to traverse outside the component boundary and adjust Salesforce shell containers directly.",
+                "benefit_feedback": "Flawed Anti-Pattern Applied: Lightning Web Security instantly terminated the script with SecurityError: Cross-origin frame blocked! (-10% Health, 2 Blocks pulled, +1 Debt)",
+                "health_delta": -10,
+                "pulls": 2
             }
         ]
     },
@@ -327,38 +352,44 @@ STAGES = [
             "pulls": 1,
         },
         "custom_prompt": {
-            "keywords": ["batch apex", "chunk", "governor", "limits.getlimitqueueablejobs", "finalizer", "queueable", "consolidate", "throttle"],
+            "keywords": ["batch apex", "chunk", "governor", "limits.getlimitqueueablejobs", "finalizer", "queueable", "consolidate", "throttle", "batchable"],
             "success_feedback": "HITL Success! The AI replaced runaway single-record Queueables with a chunked Batchable Apex job (Database.Batchable) processing 200 records per scope with automatic retry throttling.",
             "success_health_delta": 8,
             "success_pulls": 0,
-            "partial_feedback": "Your prompt asked to reduce queueables, but the AI simply added an arbitrary sleep loop, which is unsupported in Apex and wastes CPU time.",
-            "partial_health_delta": -3,
-            "partial_pulls": 1,
+            "failure_feedback": "Vague Guidance Flaw: The prompt did not specify batching or governor thresholds, allowing unconstrained async job spawning to continue! (-12% Health, 1 Block pulled, +1 Tech Debt).",
+            "failure_health_delta": -12,
+            "failure_pulls": 1,
         },
-        "suggest_change_rules": [
+        "ai_suggestions": [
             {
-                "id": "rule_batch_apex_chunking",
-                "title": "Migrate to Database.Batchable<sObject> with 200-Record Scope Chunking",
-                "description": "Standardize high-volume data sync on Batch Apex with built-in iterator chunking and automated governor reset per batch.",
-                "benefit_feedback": "Batchable Guardrail Applied: Reduced async consumption by 99.5% with rock-solid execution bounds.",
-                "health_delta": 10,
+                "id": "stg5_opt",
+                "tier": "optimal",
+                "accuracy": "80% Match",
+                "title": "Batch Apex Chunking with 200-Record Scope Iteration",
+                "description": "Migrate to Database.Batchable<sObject> with 200-record chunks, consolidating 3,000 individual queueable executions into just 15 discrete batches with automatic governor resets.",
+                "benefit_feedback": "Architectural Solution Applied: Async execution consumption dropped by 99.5%, preserving org-wide 24-hour limit headroom.",
+                "health_delta": 8,
                 "pulls": 0
             },
             {
-                "id": "rule_queueable_finalizer",
-                "title": "Enforce System.Finalizer & Limits.getQueueableJobs() Execution Throttle",
-                "description": "Block chaining if remaining daily async executions fall below 20% threshold; implement automated recovery.",
-                "benefit_feedback": "Finalizer Guardrail Applied: Guardrail throttled sync jobs safely before breaching org-wide limit.",
-                "health_delta": 7,
-                "pulls": 0
+                "id": "stg5_patch",
+                "tier": "patchwork",
+                "accuracy": "50% Match",
+                "title": "Limits.getQueueableJobs() Throttle Check",
+                "description": "Inject an in-method check to chain only if Limits.getQueueableJobs() < Limits.getLimitQueueableJobs().",
+                "benefit_feedback": "Patchwork Fix Applied: Avoided immediate governor exception, but Queueables continued running one-by-one, causing backlogs of 2,800 pending messages! (1 Block pulled)",
+                "health_delta": 4,
+                "pulls": 1
             },
             {
-                "id": "rule_platform_event_buffering",
-                "title": "Buffer Inbound Webhooks in Platform Event Stream with ReplayId",
-                "description": "Decouple external ingestion from immediate Apex execution using durable event logs.",
-                "benefit_feedback": "Event Streaming Guardrail Applied: High-throughput ingestion with zero risk of governor starvation.",
-                "health_delta": 6,
-                "pulls": 0
+                "id": "stg5_flawed",
+                "tier": "flawed",
+                "accuracy": "20% Anti-Pattern",
+                "title": "While-Loop Spinlock Sleep in Execute Method",
+                "description": "Insert a busy while-loop inside execute() to pause 5 seconds between record iterations and space out execution calls.",
+                "benefit_feedback": "Flawed Anti-Pattern Applied: Apex does not support sleep; the spinlock consumed all 60,000ms CPU time and killed the job! (-10% Health, 2 Blocks pulled, +1 Debt)",
+                "health_delta": -10,
+                "pulls": 2
             }
         ]
     },
@@ -396,38 +427,44 @@ STAGES = [
             "pulls": 1,
         },
         "custom_prompt": {
-            "keywords": ["schema.sobjecttype", "developername", "custom metadata", "cmd", "getrecordtypeinfosbydevelopername", "no hardcoded ids"],
+            "keywords": ["schema.sobjecttype", "developername", "custom metadata", "cmdt", "getrecordtypeinfosbydevelopername", "no hardcoded ids"],
             "success_feedback": "HITL Success! The AI eliminated all hardcoded IDs: it retrieved Record Types dynamically using SObjectType.Lead.getRecordTypeInfosByDeveloperName() and looked up Queue IDs via Custom Metadata Types (CMDT).",
             "success_health_delta": 8,
             "success_pulls": 0,
-            "partial_feedback": "Your prompt mentioned dynamic record types, but left the hardcoded queue owner ID in place.",
-            "partial_health_delta": -2,
-            "partial_pulls": 1,
+            "failure_feedback": "Vague Guidance Flaw: The prompt did not specify dynamic schema methods or CMDT, leaving brittle static ID dependencies in place! (-12% Health, 1 Block pulled, +1 Tech Debt).",
+            "failure_health_delta": -12,
+            "failure_pulls": 1,
         },
-        "suggest_change_rules": [
+        "ai_suggestions": [
             {
-                "id": "rule_dynamic_schema_record_types",
-                "title": "Mandate SObjectType.getRecordTypeInfosByDeveloperName() Dynamic Lookups",
-                "description": "Strictly ban all hardcoded Salesforce IDs; enforce in-memory Describe SObject Result caching.",
-                "benefit_feedback": "Describe Schema Guardrail Applied: Dynamic schema resolution runs in-memory with zero SOQL queries consumed.",
-                "health_delta": 10,
+                "id": "stg6_opt",
+                "tier": "optimal",
+                "accuracy": "80% Match",
+                "title": "SObjectType Describe Schema & Custom Metadata (CMDT) Lookups",
+                "description": "Resolve Record Type IDs dynamically in-memory via SObjectType.Lead.getRecordTypeInfosByDeveloperName() and configure Queue mappings through deployable Custom Metadata Types.",
+                "benefit_feedback": "Architectural Solution Applied: 100% environment portability verified with zero SOQL queries consumed.",
+                "health_delta": 8,
                 "pulls": 0
             },
             {
-                "id": "rule_custom_metadata_routing",
-                "title": "Standardize Routing Configurations on Custom Metadata Types (CMDT)",
-                "description": "Store environment mappings in Custom Metadata so they deploy seamlessly with code.",
-                "benefit_feedback": "Custom Metadata Guardrail Applied: Declarative configuration deployed with 100% environment parity.",
-                "health_delta": 7,
-                "pulls": 0
+                "id": "stg6_patch",
+                "tier": "patchwork",
+                "accuracy": "50% Match",
+                "title": "SOQL Query for RecordType & Group Name Lookups",
+                "description": "Replace hardcoded IDs with runtime SOQL queries against the RecordType and Group database tables on every execution.",
+                "benefit_feedback": "Patchwork Fix Applied: Resolved dynamic IDs, but consumed 2 additional SOQL queries on every transaction, risking governor limits under load! (1 Block pulled)",
+                "health_delta": 4,
+                "pulls": 1
             },
             {
-                "id": "rule_sfdx_scanner_hardcoded_ids",
-                "title": "Enforce Salesforce Code Analyzer (sf scanner) Rule: AvoidHardcodingIds",
-                "description": "Run automated regex pattern scanner in CI/CD pipeline to reject any commit containing 15/18-character IDs.",
-                "benefit_feedback": "Scanner Guardrail Applied: Automated CI scanner identified the hardcoded IDs and rejected the pull request.",
-                "health_delta": 6,
-                "pulls": 0
+                "id": "stg6_flawed",
+                "tier": "flawed",
+                "accuracy": "20% Anti-Pattern",
+                "title": "Hierarchy Custom Setting with Hardcoded Environment Fallbacks",
+                "description": "Store the hardcoded IDs in a Custom Setting with static fallbacks for Sandbox vs Production.",
+                "benefit_feedback": "Flawed Anti-Pattern Applied: Custom settings still require manual org data seeding and broke automated CI/CD scratch org deployments! (-10% Health, 2 Blocks pulled, +1 Debt)",
+                "health_delta": -10,
+                "pulls": 2
             }
         ]
     },
@@ -466,36 +503,42 @@ STAGES = [
         "custom_prompt": {
             "keywords": ["runlocaltests", "check-only", "validate", "quick deploy", "coverage", "scratch org", "75%", "staging"],
             "success_feedback": "HITL Success! The AI restored the professional DevOps workflow: it executed a check-only validation with --test-level RunLocalTests, verified 88% coverage across all Apex classes, and executed a zero-downtime Quick Deploy from the validated job ID.",
-            "success_health_delta": 10,
+            "success_health_delta": 8,
             "success_pulls": 0,
-            "partial_feedback": "Your prompt required tests, but forgot to use Quick Deploy with the validated job ID, making the cut-over take 45 minutes longer than necessary.",
-            "partial_health_delta": 0,
-            "partial_pulls": 1,
+            "failure_feedback": "Vague Guidance Flaw: The prompt did not specify test levels or pre-validation, leaving the deployment pipeline exposed to deployment failures! (-12% Health, 1 Block pulled, +1 Tech Debt).",
+            "failure_health_delta": -12,
+            "failure_pulls": 1,
         },
-        "suggest_change_rules": [
+        "ai_suggestions": [
             {
-                "id": "rule_quick_deploy_pipeline",
-                "title": "Mandate Quick Deploy Pattern (Pre-Validated Check-Only Staging Job ID)",
-                "description": "Pre-validate deployment artifacts in staging with RunLocalTests; execute atomic Quick Deploy in Production in under 30 seconds.",
-                "benefit_feedback": "Quick Deploy Guardrail Applied: 100% coverage verified in advance. Zero downtime production cut-over completed smoothly.",
-                "health_delta": 10,
-                "pulls": 0
-            },
-            {
-                "id": "rule_test_coverage_gate_85",
-                "title": "Enforce Strict 85% Code Coverage Gate & Automated Rollback Watchdog",
-                "description": "Exceed standard 75% requirement; mandate positive, negative, and bulk test assertions for all Apex triggers.",
-                "benefit_feedback": "Quality Gate Guardrail Applied: Robust test assertions ensure zero regressions across all business units.",
+                "id": "stg7_opt",
+                "tier": "optimal",
+                "accuracy": "80% Match",
+                "title": "Pre-Validated Check-Only Staging Job & Atomic Quick Deploy",
+                "description": "Pre-validate deployment artifacts in staging with RunLocalTests; execute an atomic Quick Deploy in Production from the validated Job ID in under 30 seconds.",
+                "benefit_feedback": "Architectural Solution Applied: 100% test coverage verified with zero production downtime and instant rollback safety.",
                 "health_delta": 8,
                 "pulls": 0
             },
             {
-                "id": "rule_freeze_friday_deployments",
-                "title": "Salesforce Production Freeze Window: Block Deployments Past 2:00 PM on Fridays",
-                "description": "Enforce operational engineering governance: all production releases require Monday morning staging deployment sign-off.",
-                "benefit_feedback": "Operational Governance Applied: Release staged cleanly for low-risk Monday rollout with full engineering support.",
-                "health_delta": 6,
-                "pulls": 0
+                "id": "stg7_patch",
+                "tier": "patchwork",
+                "accuracy": "50% Match",
+                "title": "RunSpecifiedTests on Single Dummy Test Class",
+                "description": "Use --test-level RunSpecifiedTests targeting a 1-line dummy test to satisfy the test requirement quickly without running the full test suite.",
+                "benefit_feedback": "Patchwork Fix Applied: Deployment succeeded quickly, but failed to catch breaking trigger changes in related billing classes, causing accounting errors! (1 Block pulled)",
+                "health_delta": 4,
+                "pulls": 1
+            },
+            {
+                "id": "stg7_flawed",
+                "tier": "flawed",
+                "accuracy": "20% Anti-Pattern",
+                "title": "Force Deploy with --ignore-conflicts and --no-prompt",
+                "description": "Force deployment straight to production bypassing conflict checks and test runs simultaneously.",
+                "benefit_feedback": "Flawed Anti-Pattern Applied: Overwrote concurrent team commits and corrupted production validation rule metadata! (-10% Health, 2 Blocks pulled, +1 Debt)",
+                "health_delta": -10,
+                "pulls": 2
             }
         ]
     },
@@ -535,34 +578,40 @@ STAGES = [
             "success_feedback": "HITL Success! The AI sorted parent Account IDs deterministically, added SOQL [SELECT Id FROM Account WHERE Id IN :accIds ORDER BY Id FOR UPDATE] to eliminate circular deadlocks, and decoupled heavy totals via Queueable Apex.",
             "success_health_delta": 8,
             "success_pulls": 0,
-            "partial_feedback": "Your prompt mentioned row locks, but didn't enforce deterministic ID sorting, leaving mutual deadlock vulnerabilities.",
-            "partial_health_delta": -2,
-            "partial_pulls": 1,
+            "failure_feedback": "Vague Guidance Flaw: The prompt did not specify deterministic lock sequencing or async rollups, leaving high-concurrency cart deadlocks! (-12% Health, 1 Block pulled, +1 Tech Debt).",
+            "failure_health_delta": -12,
+            "failure_pulls": 1,
         },
-        "suggest_change_rules": [
+        "ai_suggestions": [
             {
-                "id": "rule_deterministic_id_locking",
-                "title": "Enforce Deterministic Id-Sorting & SOQL FOR UPDATE Locking Strategy",
-                "description": "Lock parent records in ascending ID sequence to eliminate mutual cycle deadlocks across concurrent threads.",
-                "benefit_feedback": "Locking Guardrail Applied: Deterministic lock sequencing passed 250 concurrent worker load test with 0 lock exceptions.",
-                "health_delta": 10,
-                "pulls": 0
-            },
-            {
-                "id": "rule_queueable_rollup_decoupling",
-                "title": "Decouple Heavy Rollups via Asynchronous Queueable Apex with Delay",
-                "description": "Isolate parent balance recalculation from the synchronous checkout thread to eliminate UI latency.",
-                "benefit_feedback": "Async Guardrail Applied: Checkout thread latency dropped by 82% with zero row lock contention.",
+                "id": "stg8_opt",
+                "tier": "optimal",
+                "accuracy": "80% Match",
+                "title": "Deterministic Id-Sorting & SOQL FOR UPDATE Row Locking",
+                "description": "Sort parent Account IDs deterministically in ascending sequence before locking, query via 'SELECT Id FROM Account WHERE Id IN :accIds ORDER BY Id FOR UPDATE', and decouple heavy aggregations to Queueable Apex.",
+                "benefit_feedback": "Architectural Solution Applied: Concurrency deadlock cycle eliminated; passed 200 concurrent user stress test with zero row lock timeouts.",
                 "health_delta": 8,
                 "pulls": 0
             },
             {
-                "id": "rule_lock_retry_framework",
-                "title": "Enforce Enterprise Lock Exception Exponential Backoff & Retry",
-                "description": "Implement catch block for UNABLE_TO_LOCK_ROW with automated exponential backoff retry handler.",
-                "benefit_feedback": "Resilience Guardrail Applied: Automated retry transparently recovered 100% of temporary lock contentions.",
-                "health_delta": 6,
-                "pulls": 0
+                "id": "stg8_patch",
+                "tier": "patchwork",
+                "accuracy": "50% Match",
+                "title": "Catch UNABLE_TO_LOCK_ROW with Synchronous Retry Loop",
+                "description": "Wrap parent update in a try-catch for UNABLE_TO_LOCK_ROW with a synchronous 3-time retry counter.",
+                "benefit_feedback": "Patchwork Fix Applied: Resolved minor transient lock blips, but under peak checkout volume the synchronous retries breached Apex CPU time limits! (1 Block pulled)",
+                "health_delta": 4,
+                "pulls": 1
+            },
+            {
+                "id": "stg8_flawed",
+                "tier": "flawed",
+                "accuracy": "20% Anti-Pattern",
+                "title": "Fire Independent @future Recalculation per Line Item",
+                "description": "Dispatch a separate @future method for every OpportunityLineItem insert to update the parent account asynchronously.",
+                "benefit_feedback": "Flawed Anti-Pattern Applied: Concurrent @future jobs attempted to lock the same parent account simultaneously, causing massive async deadlocks! (-10% Health, 2 Blocks pulled, +1 Debt)",
+                "health_delta": -10,
+                "pulls": 2
             }
         ]
     },
@@ -602,34 +651,40 @@ STAGES = [
             "success_feedback": "HITL Success! The AI eliminated the greedy regex, replaced it with JSON.createParser() streaming tokenization, and moved heavy processing to an asynchronous Queueable with a 60,000ms CPU ceiling.",
             "success_health_delta": 8,
             "success_pulls": 0,
-            "partial_feedback": "Your prompt simplified the regex, but left the large payload in synchronous execution context, risking edge-case CPU spikes.",
-            "partial_health_delta": -2,
-            "partial_pulls": 1,
+            "failure_feedback": "Vague Guidance Flaw: The prompt did not specify streaming JSON parsing or async offloading, leaving synchronous CPU timeouts active! (-12% Health, 1 Block pulled, +1 Tech Debt).",
+            "failure_health_delta": -12,
+            "failure_pulls": 1,
         },
-        "suggest_change_rules": [
+        "ai_suggestions": [
             {
-                "id": "rule_streaming_json_parser",
-                "title": "Mandate Streaming JSONParser & System.JSON.deserializeStrict() Schema Model",
-                "description": "Parse large payloads with low-memory streaming iterator; prohibit regex-based JSON extraction.",
-                "benefit_feedback": "Parser Guardrail Applied: Webhook CPU consumption dropped from 9,400ms to 45ms per payload.",
-                "health_delta": 10,
-                "pulls": 0
-            },
-            {
-                "id": "rule_async_webhook_processing",
-                "title": "Offload Heavy Webhook Processing to Asynchronous Context (60-Second CPU Ceiling)",
-                "description": "Immediately return 200 OK to caller and enqueue processing in Queueable Apex with 60,000ms CPU limit.",
-                "benefit_feedback": "Async Guardrail Applied: 6x higher CPU threshold accommodates high-density enterprise payloads.",
+                "id": "stg9_opt",
+                "tier": "optimal",
+                "accuracy": "80% Match",
+                "title": "Streaming JSON.createParser() & Queueable Offloading",
+                "description": "Replace catastrophic regex with low-memory JSON.createParser() streaming tokenization, immediately return HTTP 200 OK, and offload processing to an async Queueable with a 60,000ms CPU limit.",
+                "benefit_feedback": "Architectural Solution Applied: Parsing CPU time slashed from 9,800ms down to 24ms per payload with zero timeout risk.",
                 "health_delta": 8,
                 "pulls": 0
             },
             {
-                "id": "rule_pmd_complex_regex",
-                "title": "Salesforce Code Analyzer Rule: AvoidComplexRegexInApex",
-                "description": "Block deployment on any regex patterns containing nested quantifiers or unanchored lookaheads.",
-                "benefit_feedback": "Linter Guardrail Applied: Static scanner identified vulnerable regex syntax prior to deployment.",
-                "health_delta": 6,
-                "pulls": 0
+                "id": "stg9_patch",
+                "tier": "patchwork",
+                "accuracy": "50% Match",
+                "title": "Pre-Truncate Inbound Payload String to 10,000 Characters",
+                "description": "Truncate the raw JSON string before applying regex pattern matching to keep regex execution under the CPU time limit.",
+                "benefit_feedback": "Patchwork Fix Applied: Avoided the CPU freeze, but truncated valid multi-line ERP payloads, corrupting 14% of incoming customer orders! (1 Block pulled)",
+                "health_delta": 4,
+                "pulls": 1
+            },
+            {
+                "id": "stg9_flawed",
+                "tier": "flawed",
+                "accuracy": "20% Anti-Pattern",
+                "title": "Nested Try-Catch Block Around Regex Evaluator",
+                "description": "Wrap Pattern.matcher().matches() in try-catch (Exception e) blocks to handle CPU limits gracefully.",
+                "benefit_feedback": "Flawed Anti-Pattern Applied: Apex CPU limit exceptions are uncatchable by try-catch blocks; the thread died instantly with an unhandled fatal error! (-10% Health, 2 Blocks pulled, +1 Debt)",
+                "health_delta": -10,
+                "pulls": 2
             }
         ]
     },
@@ -669,34 +724,40 @@ STAGES = [
             "success_feedback": "HITL Success! The AI implemented a CorrelationId__c header, an in-memory recursion depth counter, and an idempotency cache to block self-published echo loops.",
             "success_health_delta": 8,
             "success_pulls": 0,
-            "partial_feedback": "Your prompt added a static boolean flag, but static variables reset across asynchronous subscriber batches, leaving a partial recursion risk.",
-            "partial_health_delta": -2,
-            "partial_pulls": 1,
+            "failure_feedback": "Vague Guidance Flaw: The prompt did not establish idempotency checks or recursion filters, allowing runaway event loops to continue! (-12% Health, 1 Block pulled, +1 Tech Debt).",
+            "failure_health_delta": -12,
+            "failure_pulls": 1,
         },
-        "suggest_change_rules": [
+        "ai_suggestions": [
             {
-                "id": "rule_event_correlation_idempotency",
-                "title": "Enforce UUID CorrelationId & Idempotent Deduplication Cache on All Events",
-                "description": "Tag each event with SourceAppId and CorrelationId; reject duplicate events within 24-hour cache.",
-                "benefit_feedback": "Idempotency Guardrail Applied: Self-published echo events identified and discarded with 0 governor impact.",
-                "health_delta": 10,
-                "pulls": 0
-            },
-            {
-                "id": "rule_event_recursion_guard",
-                "title": "Mandate Static Recursion Depth Guard & Event Source Filtering",
-                "description": "Strictly prevent publishing the same event type from within its own after-insert subscriber trigger.",
-                "benefit_feedback": "Recursion Guardrail Applied: Hard circuit breaker terminated loop before publishing second event.",
+                "id": "stg10_opt",
+                "tier": "optimal",
+                "accuracy": "80% Match",
+                "title": "UUID CorrelationId & In-Memory Recursion Circuit Breaker",
+                "description": "Tag all events with an immutable CorrelationId__c header, maintain an in-memory processed UUID set, and enforce a static recursion depth guard to block self-published echo loops.",
+                "benefit_feedback": "Architectural Solution Applied: Loop terminates cleanly on first echo detection with zero event bus allocation waste.",
                 "health_delta": 8,
                 "pulls": 0
             },
             {
-                "id": "rule_cdc_filter_expressions",
-                "title": "Migrate Inbound State Changes to Change Data Capture (CDC) with Filter Expressions",
-                "description": "Use declarative CDC channel filtering to process only genuine external field modifications.",
-                "benefit_feedback": "CDC Guardrail Applied: Declarative channel filter eliminated need for custom trigger publishers.",
-                "health_delta": 6,
-                "pulls": 0
+                "id": "stg10_patch",
+                "tier": "patchwork",
+                "accuracy": "50% Match",
+                "title": "Static Boolean hasRun Flag Guard in Trigger",
+                "description": "Place a static Boolean hasRun = false flag inside the trigger to exit if already executed in the current transaction.",
+                "benefit_feedback": "Patchwork Fix Applied: Prevented immediate recursion in the initial batch, but static flags reset across subsequent asynchronous subscriber batches, letting downstream loops through! (1 Block pulled)",
+                "health_delta": 4,
+                "pulls": 1
+            },
+            {
+                "id": "stg10_flawed",
+                "tier": "flawed",
+                "accuracy": "20% Anti-Pattern",
+                "title": "SOQL Query Against Inventory_Event__e Database Table",
+                "description": "Add a SOQL query at the top of the trigger to query previous Inventory_Event__e records to check for duplicates.",
+                "benefit_feedback": "Flawed Anti-Pattern Applied: Platform Events are streaming events and cannot be queried via SOQL! Threw sObject not queryable runtime error! (-10% Health, 2 Blocks pulled, +1 Debt)",
+                "health_delta": -10,
+                "pulls": 2
             }
         ]
     },
@@ -735,37 +796,48 @@ STAGES = [
         "custom_prompt": {
             "keywords": ["named credential", "external credential", "callout:", "vault", "mask", "no hardcoded secrets", "certificate", "credential"],
             "success_feedback": "HITL Success! The AI eliminated hardcoded keys: it configured a Salesforce Named Credential (callout:BankingApi) backed by an External Credential Principal, and stripped authorization headers from all debug logs.",
-            "success_health_delta": 10,
+            "success_health_delta": 8,
             "success_pulls": 0,
-            "partial_feedback": "Your prompt mentioned Named Credentials, but left raw authorization tokens printed in System.debug() lines.",
-            "partial_health_delta": -2,
-            "partial_pulls": 1,
+            "failure_feedback": "Vague Guidance Flaw: The prompt failed to require platform Named Credentials or secret masking, leaving production secrets exposed in source logs! (-12% Health, 1 Block pulled, +1 Tech Debt).",
+            "failure_health_delta": -12,
+            "failure_pulls": 1,
         },
-        "suggest_change_rules": [
+        "ai_suggestions": [
             {
-                "id": "rule_named_credentials_vault",
-                "title": "Enforce Salesforce Named Credentials & External Credential Vault Architecture",
-                "description": "Store secrets securely in platform key vaults; authenticate via callout: endpoint prefix with zero code exposure.",
-                "benefit_feedback": "Named Credential Guardrail Applied: 100% compliance with Salesforce Trust and OWASP credential standards.",
-                "health_delta": 10,
-                "pulls": 0
-            },
-            {
-                "id": "rule_callout_header_masking",
-                "title": "Mandate Apex HTTP Callout Header Masking & Prohibit Raw Authorization Logging",
-                "description": "Automatically redact Bearer tokens and signature headers before writing to debug logs or error sObjects.",
-                "benefit_feedback": "Logging Guardrail Applied: Sensitive tokens masked in all server execution logs.",
+                "id": "stg11_opt",
+                "tier": "optimal",
+                "accuracy": "80% Match",
+                "title": "Salesforce Named Credentials & External Credential Principal Vault",
+                "description": "Store live secrets in Salesforce Named Credential vaults, authenticate via 'callout:BankingApi' endpoint prefix with zero code exposure, and mask authorization headers from logs.",
+                "benefit_feedback": "Architectural Solution Applied: 100% compliance with OWASP and Salesforce Trust credential standards; zero plaintext keys in git or logs.",
                 "health_delta": 8,
                 "pulls": 0
             },
             {
-                "id": "rule_secret_scanner_ci",
-                "title": "Enforce Pre-Deployment Salesforce Code Analyzer Secret Scanner Rule: AvoidHardcodedSecrets",
-                "description": "Run automated regex entropy scanner on all commit diffs to block API keys, private keys, and secrets.",
-                "benefit_feedback": "Scanner Guardrail Applied: Automated CI gate detected the token and prevented repo commit.",
-                "health_delta": 6,
-                "pulls": 0
+                "id": "stg11_patch",
+                "tier": "patchwork",
+                "accuracy": "50% Match",
+                "title": "Base64 Obfuscation in Protected Custom Setting",
+                "description": "Store the secret Base64-encoded inside a Protected Custom Setting and decode it dynamically before setting the HTTP header.",
+                "benefit_feedback": "Patchwork Fix Applied: Removed secret from raw Apex code, but Base64 is easily decodable and the key still printed in plaintext in System.debug() logs! (1 Block pulled)",
+                "health_delta": 4,
+                "pulls": 1
+            },
+            {
+                "id": "stg11_flawed",
+                "tier": "flawed",
+                "accuracy": "20% Anti-Pattern",
+                "title": "Crypto.encryptWithManagedIV with Hardcoded Class Key",
+                "description": "Encrypt the secret with Crypto.encryptWithManagedIV using an AES256 key defined as a static constant within the same class.",
+                "benefit_feedback": "Flawed Anti-Pattern Applied: Storing the decryption key in the same file failed Salesforce Security Review immediately! (-10% Health, 2 Blocks pulled, +1 Debt)",
+                "health_delta": -10,
+                "pulls": 2
             }
         ]
     }
 ]
+
+# Provide backward-compatibility alias so any reference to suggest_change_rules still resolves
+for stage in STAGES:
+    if "ai_suggestions" in stage:
+        stage["suggest_change_rules"] = stage["ai_suggestions"]

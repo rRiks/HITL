@@ -163,7 +163,9 @@ export async function submitDraft({
   draft_type,
   custom_prompt_text = null,
   selected_rule_id = null,
+  selected_suggestion_id = null,
 }, roomId = getRoomId(), playerId = getPlayerId(), playerName = getPlayerName()) {
+  const chosenRuleOrSuggestion = selected_suggestion_id || selected_rule_id;
   const res = await fetch(`${API_BASE}/game/${roomId}/draft`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -172,7 +174,8 @@ export async function submitDraft({
       player_name: playerName,
       draft_type,
       custom_prompt_text,
-      selected_rule_id,
+      selected_rule_id: chosenRuleOrSuggestion,
+      selected_suggestion_id: chosenRuleOrSuggestion,
     }),
   });
   if (!res.ok) throw new Error(`Failed to submit draft: ${res.statusText}`);

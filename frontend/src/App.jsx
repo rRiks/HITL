@@ -138,6 +138,8 @@ export default function App() {
           if (
             prev.health !== remoteState.health ||
             prev.total_jenga_pulls !== remoteState.total_jenga_pulls ||
+            prev.technical_debt !== remoteState.technical_debt ||
+            prev.stage_restart_count !== remoteState.stage_restart_count ||
             prev.is_game_over !== remoteState.is_game_over ||
             prev.is_victory !== remoteState.is_victory ||
             prev.stage_action_taken !== remoteState.stage_action_taken ||
@@ -468,6 +470,7 @@ export default function App() {
       await api.submitDraft({
         draft_type: 'suggest_change',
         selected_rule_id: ruleId,
+        selected_suggestion_id: ruleId,
       });
 
       // 2. Cast vote for guardrail rule
@@ -659,6 +662,8 @@ export default function App() {
         health={gameState.health}
         totalPulls={gameState.total_jenga_pulls}
         history={gameState.history}
+        restarts={gameState.stage_restart_count || 0}
+        debt={gameState.technical_debt || 0}
         onPlayAgain={handleResetGame}
         onExitToLobby={handleExitToLobby}
       />
@@ -723,6 +728,7 @@ export default function App() {
               myVote={myVote}
               customPromptDraft={gameState?.custom_prompt_draft}
               guardrailRuleDraft={gameState?.guardrail_rule_draft}
+              technicalDebt={gameState?.technical_debt || 0}
               onOpenDraftPrompt={() => setPromptModalOpen(true)}
               onOpenDraftRule={() => setGuardrailsModalOpen(true)}
             />
@@ -735,6 +741,7 @@ export default function App() {
               ref={towerRef}
               totalPulls={gameState?.total_jenga_pulls ?? 0}
               instabilityPct={Math.min(100, Math.max(0, Math.max(100 - (gameState?.health ?? 100), gameState?.tower_instability_pct ?? 0)))}
+              technicalDebt={gameState?.technical_debt || 0}
               isGameOver={gameState?.is_game_over ?? false}
               onBlockSlide={sound.playSlide}
               onBlockLand={handleBlockLand}
@@ -811,7 +818,7 @@ export default function App() {
       <GuardrailsModal
         isOpen={guardrailsModalOpen}
         onClose={() => setGuardrailsModalOpen(false)}
-        rules={currentStage?.suggest_change_rules || []}
+        rules={currentStage?.ai_suggestions || currentStage?.suggest_change_rules || []}
         onSubmitRule={handleSubmitRule}
       />
 

@@ -6,6 +6,7 @@ from models import (
     GameStateResponse,
     StageDetails,
     RuleItem,
+    AISuggestionItem,
     ActionRequest,
     ActionResponse,
     StageSummaryRecord,
@@ -41,6 +42,9 @@ class GameStateManager:
         self.guardrail_rule_draft: Optional[Dict[str, Any]] = None
         self.tie_broken: bool = False
         self.tied_options: Optional[List[str]] = None
+        self.technical_debt: int = 0
+        self.stage_restart_count: int = 0
+        self._shuffled_suggestions: Dict[int, List[Dict[str, Any]]] = {}
 
     def reset_game(self, team_name: str = "DevOps Gladiators", player_count: int = 4):
         self.team_name = team_name.strip() or "DevOps Gladiators"
@@ -64,6 +68,9 @@ class GameStateManager:
         self.guardrail_rule_draft = None
         self.tie_broken = False
         self.tied_options = None
+        self.technical_debt = 0
+        self.stage_restart_count = 0
+        self._shuffled_suggestions = {}
 
     def retry_current_stage(self, restore_health: int = 35):
         """
@@ -71,6 +78,7 @@ class GameStateManager:
         failed stage with 35 HP restored, enabling workshop teams to learn and
         try a proper guardrail rule without losing entire session progress.
         """
+        self.stage_restart_count = getattr(self, "stage_restart_count", 0) + 1
         previous_health = self.health
         self.health = max(25, restore_health)
         self.is_game_over = False
@@ -103,7 +111,7 @@ class GameStateManager:
             outcome="retry",
             feedback=(
                 f"🔧 SRE Emergency Hotfix Applied: Restored +{health_restored}% Health to {self.health}% "
-                f"and stabilized tower structure for second-chance retry."
+                f"and stabilized tower structure for second-chance retry. (Outage incident recorded)."
             ),
             health_delta=health_restored,
             jenga_pulls=0,
@@ -113,13 +121,22 @@ class GameStateManager:
                 "type": "stage_restart",
                 "restored_health": self.health,
                 "previous_health": previous_health,
+                "restart_number": self.stage_restart_count,
             }
         )
         self.history.append(restart_record)
 
     def get_current_stage(self) -> Optional[Dict[str, Any]]:
         if 0 <= self.current_stage_index < len(STAGES):
-            return STAGES[self.current_stage_index]
+            stg = dict(STAGES[self.current_stage_index])
+            # Return randomized/jumbled AI suggestions per room session
+            if self.current_stage_index not in self._shuffled_suggestions:
+                sugs = [dict(s) for s in stg.get("ai_suggestions", [])]
+                random.shuffle(sugs)
+                self._shuffled_suggestions[self.current_stage_index] = sugs
+            stg["ai_suggestions"] = self._shuffled_suggestions[self.current_stage_index]
+            stg["suggest_change_rules"] = stg["ai_suggestions"]
+            return stg
         return None
 
     def calculate_instability(self) -> int:
@@ -304,6 +321,9 @@ class GameStateManager:
                 hidden_risks=current_stg["hidden_risks"],
                 suggest_change_rules=[
                     RuleItem(**r) for r in current_stg["suggest_change_rules"]
+                ],
+                ai_suggestions=[
+                    AISuggestionItem(**s) for s in current_stg.get("ai_suggestions", [])
                 ]
             )
 
@@ -327,6 +347,8 @@ class GameStateManager:
             last_action_result=self.last_action_result,
             history=self.history,
             current_stage_time_limit_seconds=120,
+            technical_debt=self.technical_debt,
+            stage_restart_count=getattr(self, "stage_restart_count", 0),
             active_players=self.get_active_players(),
             votes_tally=self.get_votes_tally(),
             custom_prompt_draft=self.custom_prompt_draft,
@@ -354,7 +376,9 @@ class GameStateManager:
                 is_game_over=True,
                 game_over_reason=self.game_over_reason,
                 is_victory=False,
-                next_stage_ready=False
+                next_stage_ready=False,
+                technical_debt=self.technical_debt,
+                stage_restart_count=getattr(self, "stage_restart_count", 0)
             )
 
         # CONCURRENCY RESOLUTION (First-To-Act Wins):
@@ -377,16 +401,17 @@ class GameStateManager:
         action_label = ""
         roll_val: Optional[float] = None
         roll_threshold: Optional[float] = None
+        adds_debt = False
 
-        # 1. TIMEOUT CASE: If timer hit 00:00, forces "Accept As-Is" with extra -10% health penalty and double pulls
+        # 1. TIMEOUT CASE: If timer hit 00:00, forces "Accept As-Is"
         if is_timeout:
             action_type = "accept_as_is"
             action_label = "TIMEOUT FORCED: Accept As-Is"
             cfg = current_stg["accept_as_is"]
             roll_val = round(random.random(), 3)
-            roll_threshold = cfg["success_rate"]
+            # If 5+ debts, degrade success threshold to 15%
+            roll_threshold = 0.15 if self.technical_debt >= 5 else cfg["success_rate"]
             
-            # Timeout penalty applies extra -10% and doubles pull requirement
             if roll_val < roll_threshold:
                 outcome = "timeout_success"
                 feedback = (
@@ -396,6 +421,7 @@ class GameStateManager:
                 )
                 health_delta = -10
                 jenga_pulls = 2
+                adds_debt = True
             else:
                 outcome = "timeout_failure"
                 base_pulls = max(2, cfg["failure_pulls"] * 2)
@@ -406,13 +432,14 @@ class GameStateManager:
                     f"{cfg['failure_feedback']} "
                     f"DOUBLE TIMEOUT PENALTY: {health_delta}% Health, MUST PULL {jenga_pulls} JENGA BLOCKS!"
                 )
+                adds_debt = True
 
         # 2. STANDARD "Accept as-is"
         elif action_type == "accept_as_is":
             action_label = "Accept As-Is"
             cfg = current_stg["accept_as_is"]
             roll_val = round(random.random(), 3)
-            roll_threshold = cfg["success_rate"]
+            roll_threshold = 0.15 if self.technical_debt >= 5 else cfg["success_rate"]
 
             if roll_val < roll_threshold:
                 outcome = "success"
@@ -427,6 +454,7 @@ class GameStateManager:
                 feedback = f"🎲 Roll {int(roll_val*100)}% (Threshold: {int(roll_threshold*100)}%): HALLUCINATION DETECTED! {cfg['failure_feedback']}"
                 health_delta = cfg["failure_health_delta"]
                 jenga_pulls = cfg["failure_pulls"]
+                adds_debt = True
 
         # 3. "Deny and Move On (Bypass & Skip)"
         elif action_type == "deny_and_move_on":
@@ -436,54 +464,83 @@ class GameStateManager:
             feedback = f"🛑 PR REJECTED: {cfg['feedback']}"
             health_delta = cfg["health_delta"]
             jenga_pulls = cfg["pulls"]
+            adds_debt = True
 
-        # 4. "Discuss & Type Custom Prompt (Human-Led Iteration)"
+        # 4. "Discuss & Type Custom Prompt (Human Guidance - Contextual Prompt Validation)"
         elif action_type == "custom_prompt":
-            action_label = "Discuss & Custom Prompt (Human-in-the-Loop)"
+            action_label = "Human Guidance (Contextual Prompt)"
             prompt_text = (req.custom_prompt_text or "").strip().lower()
             cfg = current_stg["custom_prompt"]
-            keywords = cfg["keywords"]
+            keywords = cfg.get("keywords", [])
 
-            # Count keyword hits
+            # Check if prompt articulated genuine architectural solutions
             hit_keywords = [kw for kw in keywords if kw.lower() in prompt_text]
-            has_substantive_length = len(prompt_text) >= 20
 
-            if hit_keywords or (has_substantive_length and len(prompt_text.split()) >= 6):
+            if hit_keywords:
                 outcome = "success"
-                matched_str = f" [Matched concepts: {', '.join(hit_keywords[:3])}]" if hit_keywords else ""
+                matched_str = f" [Matched concepts: {', '.join(hit_keywords[:3])}]"
                 feedback = f"💬 HITL Prompt Accepted!{matched_str} {cfg['success_feedback']}"
                 health_delta = cfg["success_health_delta"]
                 jenga_pulls = cfg["success_pulls"]
             else:
-                outcome = "partial"
+                outcome = "failure"
                 feedback = (
-                    f"💬 Vague Prompt Warning: '{req.custom_prompt_text or ''}'. "
-                    f"{cfg['partial_feedback']} "
-                    f"Tip: Mention architectural concepts like {', '.join(keywords[:3])}."
+                    f"💬 Vague Guidance Flaw: The prompt did not specify concrete architectural solutions for this crisis! "
+                    f"{cfg.get('failure_feedback', 'The AI agent generated an anti-pattern that broke under production load!')}"
                 )
-                health_delta = cfg["partial_health_delta"]
-                jenga_pulls = cfg["partial_pulls"]
+                health_delta = cfg.get("failure_health_delta", -12)
+                jenga_pulls = cfg.get("failure_pulls", 1)
+                adds_debt = True
 
-        # 5. "Suggest Change (Structured Guardrails)"
+        # 5. "AI Suggestions (3 Jumbled Technical Choices: Optimal, Patchwork, Flawed)"
         elif action_type == "suggest_change":
-            action_label = "Suggest Change (Structured Guardrails)"
-            rules = current_stg["suggest_change_rules"]
-            selected_rule = None
-            if req.selected_rule_id:
-                for r in rules:
-                    if r["id"] == req.selected_rule_id:
-                        selected_rule = r
+            action_label = "AI Suggestion"
+            sugs = current_stg.get("ai_suggestions", current_stg.get("suggest_change_rules", []))
+            selected_sug = None
+            target_id = req.selected_rule_id
+            if target_id:
+                for s in sugs:
+                    if s["id"] == target_id:
+                        selected_sug = s
                         break
-            if not selected_rule and rules:
-                selected_rule = rules[0]
+            if not selected_sug and sugs:
+                selected_sug = sugs[0]
 
-            outcome = "success"
-            feedback = f"🛡️ Architectural Guardrail Applied: [{selected_rule['title']}]. {selected_rule['benefit_feedback']}"
-            health_delta = selected_rule["health_delta"]
-            jenga_pulls = selected_rule["pulls"]
+            tier = selected_sug.get("tier", "optimal")
+            if tier == "optimal":
+                outcome = "success"
+                health_delta = selected_sug.get("health_delta", 8)
+                jenga_pulls = selected_sug.get("pulls", 0)
+                feedback = f"🤖 AI Suggestion [Optimal Match]: [{selected_sug['title']}]. {selected_sug.get('benefit_feedback', '')}"
+            elif tier == "patchwork":
+                outcome = "partial"
+                health_delta = selected_sug.get("health_delta", 4)
+                jenga_pulls = selected_sug.get("pulls", 1)
+                feedback = f"🤖 AI Suggestion [Patchwork Quick-Fix]: [{selected_sug['title']}]. {selected_sug.get('benefit_feedback', '')}"
+            else:  # flawed
+                outcome = "failure"
+                health_delta = selected_sug.get("health_delta", -10)
+                jenga_pulls = selected_sug.get("pulls", 2)
+                adds_debt = True
+                feedback = f"🤖 AI Suggestion [Flawed Anti-Pattern]: [{selected_sug['title']}]. {selected_sug.get('benefit_feedback', '')}"
 
         else:
             raise ValueError(f"Unknown action type: {action_type}")
+
+        # Update Technical Debt & Fragility Escalation (0-3: normal, 4: critical fragility, 5: systemic debt crisis)
+        if adds_debt:
+            self.technical_debt += 1
+            if self.technical_debt >= 4:
+                jenga_pulls = max(jenga_pulls, 3)
+                health_delta = min(health_delta, -25)
+                feedback += (
+                    f"\n⚠️ CRITICAL DEBT FRAGILITY (Debt: {self.technical_debt}/5): Cumulative architectural debt "
+                    f"triggered structural failure (-25% Health, 3 Blocks Pulled)!"
+                )
+            if self.technical_debt >= 5:
+                feedback += (
+                    f"\n🚨 SYSTEMIC DEBT CRISIS: Tech Debt reached 5! Base Accept As-Is success rate permanently degraded to 15%!"
+                )
 
         # Update Health (Clamped 0 - 100)
         new_health = max(0, min(100, self.health + health_delta))
@@ -517,6 +574,7 @@ class GameStateManager:
                 "roll_threshold": roll_threshold,
                 "custom_prompt": req.custom_prompt_text,
                 "selected_rule_id": req.selected_rule_id,
+                "technical_debt": self.technical_debt,
             }
         )
         self.history.append(summary_rec)
@@ -543,7 +601,9 @@ class GameStateManager:
             is_game_over=self.is_game_over,
             game_over_reason=self.game_over_reason,
             is_victory=self.is_victory,
-            next_stage_ready=True
+            next_stage_ready=True,
+            technical_debt=self.technical_debt,
+            stage_restart_count=getattr(self, "stage_restart_count", 0)
         )
         self.stage_action_taken = True
         self.last_action_result = resp.dict()

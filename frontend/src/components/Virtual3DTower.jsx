@@ -516,6 +516,7 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
   {
     totalPulls = 0,
     instabilityPct = 0,
+    technicalDebt = 0,
     isGameOver = false,
     onBlockSlide,
     onBlockLand,
@@ -1397,6 +1398,15 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {technicalDebt > 0 && (
+              <span className={`text-[9px] px-2 py-0.5 mc-font border font-bold ${
+                technicalDebt >= 4
+                  ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000] animate-pulse'
+                  : 'text-[#ffaa00] border-[#aa5500] bg-[#3a2200]'
+              }`}>
+                DEBT: {technicalDebt}/5 {technicalDebt >= 4 ? '⚠️ FRAGILE' : ''}
+              </span>
+            )}
             <span className={`text-[9px] px-2 py-0.5 mc-font border ${
               instabilityPct >= 65
                 ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000]'

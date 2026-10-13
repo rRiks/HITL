@@ -38,6 +38,7 @@ export default function StageArena({
   myVote = null,
   customPromptDraft = null,
   guardrailRuleDraft = null,
+  technicalDebt = 0,
   onOpenDraftPrompt,
   onOpenDraftRule,
 }) {
@@ -65,6 +66,16 @@ export default function StageArena({
             <span className="text-[9px] mc-font text-[#aaa]">
               STAGE: <strong className="text-[#ffd700]">{stage.phase_name}</strong>
             </span>
+            {technicalDebt > 0 && (
+              <span className={`px-1.5 py-0.5 text-[8px] mc-font border flex items-center gap-1 ${
+                technicalDebt >= 4
+                  ? 'bg-[#3a0000] text-[#ff5555] border-[#ff0000] animate-pulse'
+                  : 'bg-[#261b0a] text-[#ffaa00] border-[#885500]'
+              }`}>
+                <span>⚠️ DEBT: {technicalDebt}/5</span>
+                {technicalDebt >= 4 && <span className="text-[7px] text-[#ff3333] font-bold">[FRAGILE]</span>}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-1.5 text-[9px] mc-font text-[#ffd700] bg-[#221a0f] border border-[#553311] px-2 py-0.5">
@@ -477,7 +488,7 @@ export default function StageArena({
             </div>
           </div>
 
-          {/* Slot 4: Guardrail Armor (Redstone Repeater / Enchanted Book) */}
+          {/* Slot 4: AI Suggestions (3 Jumbled Technical Fixes) */}
           <div
             onClick={() => !disabled && onSelectAction('suggest_change')}
             className={`mc-slot ${
@@ -488,7 +499,7 @@ export default function StageArena({
           >
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[8px] mc-font text-[#55ff55] bg-[#002b00] px-1 border border-[#00aa00]">
+                <span className="text-[8px] mc-font text-[#ffaa00] bg-[#2a1a00] px-1 border border-[#885500]">
                   SLOT 4
                 </span>
                 <div className="flex items-center gap-1">
@@ -497,21 +508,21 @@ export default function StageArena({
                       +{votesTally['suggest_change']}
                     </span>
                   )}
-                  <span className="text-base pointer-events-none">⚡</span>
+                  <span className="text-base pointer-events-none">🤖</span>
                 </div>
               </div>
 
               <h4 className="text-xs font-bold text-white mc-font mb-0.5 flex items-center justify-between">
-                <span>Guardrail Armor</span>
+                <span>AI Suggestions</span>
                 {myVote === 'suggest_change' && (
                   <span className="text-[8px] text-[#55ff55] mc-font">[EQUIPPED]</span>
                 )}
               </h4>
 
-              {/* Selected Guardrail Rule Preview */}
+              {/* Selected AI Suggestion Preview */}
               {guardrailRuleDraft?.title ? (
-                <div className="bg-[#111] border border-[#00aa00] p-1 my-1 text-[9px] text-[#aaffaa]">
-                  <div className="flex items-center justify-between mb-0.5 text-[8px] text-[#55ff55] mc-font">
+                <div className="bg-[#111] border border-[#ffaa00] p-1 my-1 text-[9px] text-[#ffddaa]">
+                  <div className="flex items-center justify-between mb-0.5 text-[8px] text-[#ffd700] mc-font">
                     <span>BY {guardrailRuleDraft.player_name}:</span>
                     <button
                       type="button"
@@ -529,13 +540,13 @@ export default function StageArena({
                 </div>
               ) : (
                 <p className="text-[10px] text-[#aaa] line-clamp-2 font-sans leading-tight">
-                  Enforce strict architectural guardrail rules.
+                  Review 3 AI-proposed technical fixes. Choose carefully!
                 </p>
               )}
             </div>
 
             <div className="mt-2 pt-1 border-t border-[#444] flex items-center justify-between">
-              <span className="text-[8px] mc-font text-[#777]">ARMOR</span>
+              <span className="text-[8px] mc-font text-[#777]">PROPOSALS</span>
               <button
                 type="button"
                 onClick={(e) => {
@@ -547,7 +558,7 @@ export default function StageArena({
                 }`}
               >
                 <span className="pointer-events-none">
-                  {guardrailRuleDraft?.title ? (myVote === 'suggest_change' ? 'EQUIPPED' : 'VOTE') : 'ENCHANT'}
+                  {guardrailRuleDraft?.title ? (myVote === 'suggest_change' ? 'EQUIPPED' : 'VOTE') : 'REVIEW'}
                 </span>
               </button>
             </div>
