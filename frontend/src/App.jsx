@@ -707,11 +707,11 @@ export default function App() {
         totalPulls={gameState?.total_jenga_pulls ?? 0}
       />
 
-      {/* 3. Main Cockpit Arena (Responsive on smaller screens, zero-scroll on large) */}
-      <main className="flex-1 p-2 sm:p-3 overflow-y-auto lg:overflow-hidden min-h-0">
+      {/* 3. Main Cockpit Arena (Dynamic Flexbox Layout: Zero Hardcoded Heights) */}
+      <main className="flex-1 p-2 sm:p-3 overflow-y-auto min-h-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0 lg:h-full items-stretch">
           {/* Left Wing (6 cols): Stage Scenario & 4 Arcade Action Consoles */}
-          <div className="lg:col-span-6 min-h-[500px] lg:h-full flex flex-col overflow-hidden">
+          <div className="lg:col-span-6 min-h-0 lg:h-full flex flex-col overflow-hidden">
             <StageArena
               stage={currentStage}
               onSelectAction={handleSelectAction}
@@ -735,7 +735,7 @@ export default function App() {
           </div>
 
           {/* Right Wing (6 cols): Majestic 3D Virtual Architecture Tower */}
-          <div className="lg:col-span-6 min-h-[520px] lg:h-full flex flex-col overflow-hidden">
+          <div className="lg:col-span-6 min-h-[380px] lg:h-full flex flex-col overflow-hidden">
             <Virtual3DTower
               key="beige-tower-scene"
               ref={towerRef}
