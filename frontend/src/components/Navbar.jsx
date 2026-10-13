@@ -11,6 +11,7 @@ import {
   Check,
   User,
   Home,
+  BookOpen,
 } from 'lucide-react';
 import { getPlayerName } from '../services/api';
 
@@ -102,6 +103,7 @@ export default function Navbar({
   onToggleSound,
   musicEnabled = true,
   onToggleMusic,
+  onOpenFieldGuide,
 }) {
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -272,6 +274,18 @@ export default function Navbar({
         >
           <RotateCcw className="w-3.5 h-3.5" />
         </button>
+
+        {/* In-Game Cockpit Field Guide (Manual & Rules) */}
+        {onOpenFieldGuide && (
+          <button
+            onClick={onOpenFieldGuide}
+            title="Open Interactive Cockpit Field Guide (Help & Rules Manual)"
+            className="mc-btn px-2.5 py-1 text-[8px] sm:text-[9px] mc-font text-[#55ffff] hover:text-white cursor-pointer flex items-center gap-1 shrink-0 bg-[#0c1c28] border-[#38bdf8]"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-[#55ffff]" />
+            <span className="hidden sm:inline">GUIDE</span>
+          </button>
+        )}
 
         {/* Exit to Lobby */}
         {onExitToLobby && (

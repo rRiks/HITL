@@ -11,6 +11,7 @@ import {
   GuardrailsModal,
   ResultModal,
 } from './components/ActionModals';
+import CockpitFieldGuide from './components/CockpitFieldGuide';
 import { useSound } from './hooks/useSound';
 import * as api from './services/api';
 import { ArrowRight, Rotate3d, CheckCircle2, AlertTriangle, Layers, Zap } from 'lucide-react';
@@ -43,6 +44,7 @@ export default function App() {
   const [promptModalOpen, setPromptModalOpen] = useState(false);
   const [guardrailsModalOpen, setGuardrailsModalOpen] = useState(false);
   const [resultModalOpen, setResultModalOpen] = useState(false);
+  const [fieldGuideOpen, setFieldGuideOpen] = useState(false);
   const [actionResult, setActionResult] = useState(null);
   const [isWatchingRemoval, setIsWatchingRemoval] = useState(false);
   const [isWatchingCollapse, setIsWatchingCollapse] = useState(false);
@@ -695,6 +697,7 @@ export default function App() {
         onToggleSound={sound.toggleSound}
         musicEnabled={sound.musicEnabled}
         onToggleMusic={sound.toggleMusic}
+        onOpenFieldGuide={() => setFieldGuideOpen(true)}
       />
 
       {/* 2. Room Rivalry Leaderboard Ticker */}
@@ -856,6 +859,15 @@ export default function App() {
           onRestart={handleResetGame}
           onRetryStage={handleRetryStage}
           onExitToLobby={handleExitToLobby}
+        />
+      )}
+
+      {/* In-Game Interactive Cockpit Field Guide (Help & Rules Fullscreen Popup) */}
+      {fieldGuideOpen && (
+        <CockpitFieldGuide
+          onClose={() => setFieldGuideOpen(false)}
+          isWalkthrough={false}
+          teamName={gameState?.team_name || 'Alpha Devs'}
         />
       )}
     </div>
