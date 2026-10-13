@@ -71,6 +71,7 @@ class GameStateManager:
         failed stage with 35 HP restored, enabling workshop teams to learn and
         try a proper guardrail rule without losing entire session progress.
         """
+        previous_health = self.health
         self.health = max(25, restore_health)
         self.is_game_over = False
         self.game_over_reason = None
@@ -84,6 +85,37 @@ class GameStateManager:
         self.tied_options = None
         self.custom_prompt_draft = None
         self.guardrail_rule_draft = None
+
+        # Record Stage Restart in SDLC Audit Log
+        current_stg = self.get_current_stage()
+        stg_id = current_stg["id"] if current_stg else (self.current_stage_index + 1)
+        stg_title = current_stg["title"] if current_stg else f"Wave {stg_id}"
+        phase_name = current_stg["phase_name"] if current_stg else "Incident Remediation"
+
+        health_restored = self.health - previous_health if previous_health < self.health else self.health
+
+        restart_record = StageSummaryRecord(
+            stage_id=stg_id,
+            stage_title=stg_title,
+            phase_name=phase_name,
+            action_type="stage_restart",
+            action_label="Hotfix & Retry (Incident Remediation)",
+            outcome="retry",
+            feedback=(
+                f"🔧 SRE Emergency Hotfix Applied: Restored +{health_restored}% Health to {self.health}% "
+                f"and stabilized tower structure for second-chance retry."
+            ),
+            health_delta=health_restored,
+            jenga_pulls=0,
+            health_after=self.health,
+            time_spent_seconds=0,
+            details={
+                "type": "stage_restart",
+                "restored_health": self.health,
+                "previous_health": previous_health,
+            }
+        )
+        self.history.append(restart_record)
 
     def get_current_stage(self) -> Optional[Dict[str, Any]]:
         if 0 <= self.current_stage_index < len(STAGES):
@@ -384,9 +416,12 @@ class GameStateManager:
 
             if roll_val < roll_threshold:
                 outcome = "success"
-                feedback = f"🎲 Roll {int(roll_val*100)}% (Threshold: {int(roll_threshold*100)}%): SUCCESS! {cfg['success_feedback']}"
-                health_delta = cfg["success_health_delta"]
-                jenga_pulls = cfg["success_pulls"]
+                health_delta = cfg.get("success_health_delta", 5)
+                jenga_pulls = cfg.get("success_pulls", 0)
+                feedback = (
+                    f"🎲 Roll {int(roll_val*100)}% (Threshold: {int(roll_threshold*100)}%): SUCCESS! "
+                    f"{cfg['success_feedback']} (+{health_delta}% Health gained for rapid velocity delivery!)"
+                )
             else:
                 outcome = "failure"
                 feedback = f"🎲 Roll {int(roll_val*100)}% (Threshold: {int(roll_threshold*100)}%): HALLUCINATION DETECTED! {cfg['failure_feedback']}"

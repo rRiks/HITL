@@ -31,7 +31,7 @@ STAGES = [
         "accept_as_is": {
             "success_rate": 0.40,
             "success_feedback": "Only individual records were saved today, so the 100-query governor limit was narrowly avoided! But the technical debt will detonate the moment Data Loader or MuleSoft runs a batch.",
-            "success_health_delta": 0,
+            "success_health_delta": 5,
             "success_pulls": 0,
             "failure_feedback": "GOVERNOR LIMIT BREACH: An incoming MuleSoft ETL batch pushed 200 accounts! System.LimitException: Too many SOQL queries: 101 crashed all transactions and rolled back 4,800 records!",
             "failure_health_delta": -28,
@@ -104,7 +104,7 @@ STAGES = [
         "accept_as_is": {
             "success_rate": 0.40,
             "success_feedback": "Community users only entered simple company names today, so the injection flaw went undetected, but customer SSNs remain exposed via open browser API calls.",
-            "success_health_delta": 0,
+            "success_health_delta": 5,
             "success_pulls": 0,
             "failure_feedback": "SECURITY BREACH: A security researcher discovered that the community portal leaked confidential SSN__c data! Salesforce Trust notified executive SecOps and the portal was taken offline immediately!",
             "failure_health_delta": -32,
@@ -176,7 +176,7 @@ STAGES = [
         "accept_as_is": {
             "success_rate": 0.40,
             "success_feedback": "The developer tested it in a scratch org with an existing user mock so the Mixed DML wasn't executed today, but production automated onboarding will crash.",
-            "success_health_delta": 0,
+            "success_health_delta": 5,
             "success_pulls": 0,
             "failure_feedback": "PRODUCTION RUNTIME CRASH: First new employee attempted self-registration! System.DmlException: MIXED_DML_OPERATION threw unhandled fault, breaking employee portal onboarding completely!",
             "failure_health_delta": -26,
@@ -246,7 +246,7 @@ STAGES = [
         "accept_as_is": {
             "success_rate": 0.40,
             "success_feedback": "The component rendered on desktop because Lightning Web Security was temporarily in report-only mode! But mobile Salesforce App users experienced broken modal layouts.",
-            "success_health_delta": 0,
+            "success_health_delta": 5,
             "success_pulls": 0,
             "failure_feedback": "LIGHTNING LOCKER EXCEPTION: Salesforce enabled Lightning Web Security in the production release! The component threw SecurityError: Blocked cross-origin DOM query, rendering a blank white screen on Quote pages!",
             "failure_health_delta": -28,
@@ -315,7 +315,7 @@ STAGES = [
         "accept_as_is": {
             "success_rate": 0.40,
             "success_feedback": "ERP volume stayed below 200 messages today, so the async limit was not exhausted, but the queueable loop will breach limits during nightly bulk syncs.",
-            "success_health_delta": 0,
+            "success_health_delta": 5,
             "success_pulls": 0,
             "failure_feedback": "ASYNC RUNTIME STARVATION: Org exceeded 250,000 daily async executions! Salesforce paused all Batch Apex, nightly billing stopped, and critical customer emails were blocked!",
             "failure_health_delta": -30,
@@ -384,7 +384,7 @@ STAGES = [
         "accept_as_is": {
             "success_rate": 0.40,
             "success_feedback": "The routing engine worked in the specific developer sandbox where the IDs originated, but deployment to UAT and Production will fail immediately.",
-            "success_health_delta": 0,
+            "success_health_delta": 5,
             "success_pulls": 0,
             "failure_feedback": "DEPLOYMENT & ROUTING FAILURE: In Production, those IDs do not exist! Over 1,200 high-value enterprise leads were assigned to deleted queue IDs and vanished from rep dashboards!",
             "failure_health_delta": -28,
@@ -452,7 +452,7 @@ STAGES = [
         "accept_as_is": {
             "success_rate": 0.40,
             "success_feedback": "The metadata deployed because overall org test coverage was barely 75.2%! But several untracked validation rule conflicts now break sales rep opportunity closing.",
-            "success_health_delta": 0,
+            "success_health_delta": 5,
             "success_pulls": 0,
             "failure_feedback": "CATASTROPHIC DEPLOYMENT ROLLBACK: In Production, overall org test coverage plummeted to 71.8%! Salesforce aborted the release, but partially locked metadata created an outage that blocked reps all weekend!",
             "failure_health_delta": -35,
@@ -519,7 +519,7 @@ STAGES = [
         "accept_as_is": {
             "success_rate": 0.35,
             "success_feedback": "Only a few reps checked out simultaneously today, so row lock contention didn't trigger timeouts, but peak quarter-end load will deadlock all carts.",
-            "success_health_delta": 0,
+            "success_health_delta": 5,
             "success_pulls": 0,
             "failure_feedback": "ROW LOCKING DEADLOCK: Quarter-end sales surge hit 120 concurrent checkouts! System.DmlException: UNABLE_TO_LOCK_ROW crashed all order submissions and rolled back $4.2M in enterprise deals!",
             "failure_health_delta": -30,
@@ -586,7 +586,7 @@ STAGES = [
         "accept_as_is": {
             "success_rate": 0.35,
             "success_feedback": "Incoming test payloads were small (2KB), so the regex executed within 400ms today, but production payload sizes will freeze the CPU thread.",
-            "success_health_delta": 0,
+            "success_health_delta": 5,
             "success_pulls": 0,
             "failure_feedback": "CPU LIMIT BREACH: An inbound SAP telemetry batch triggered exponential regex backtracking! System.LimitException: Apex CPU time limit exceeded (10000ms) aborted the REST thread, failing 1,800 supplier shipments!",
             "failure_health_delta": -30,
@@ -653,7 +653,7 @@ STAGES = [
         "accept_as_is": {
             "success_rate": 0.35,
             "success_feedback": "No external systems sent inventory updates today, so the echo loop wasn't tripped, but the first live event will trigger an infinite event storm.",
-            "success_health_delta": 0,
+            "success_health_delta": 5,
             "success_pulls": 0,
             "failure_feedback": "EVENTBUS BLOWOUT: Infinite echo loop published 250,000 events in 2 minutes! Org-wide hourly event publishing allocation reached 100%! Salesforce halted all streaming integrations enterprise-wide!",
             "failure_health_delta": -32,
@@ -721,7 +721,7 @@ STAGES = [
         "accept_as_is": {
             "success_rate": 0.35,
             "success_feedback": "The payment callout returned 200 OK during live smoke testing, but the live banking API key is now permanently indexed in sandbox git commit history and debug logs.",
-            "success_health_delta": 0,
+            "success_health_delta": 5,
             "success_pulls": 0,
             "failure_feedback": "CRITICAL SECURITY COMPROMISE: Production banking API secret was scraped from sandbox debug logs! SecOps triggered an emergency killswitch, revoking keys and blocking all end-of-month payments across 14 subsidiaries!",
             "failure_health_delta": -35,

@@ -406,29 +406,32 @@ export function ResultModal({
             </button>
           ) : hasBlocksToRemove ? (
             <button
+              type="button"
               onClick={onWatchRemoval}
-              className="mc-btn mc-btn-green w-full py-3 px-4 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer mc-font shadow-lg"
+              className="mc-btn mc-btn-green w-full py-3 px-4 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer mc-font shadow-lg active:scale-[0.98] transition-transform"
             >
-              <Rotate3d className="w-4 h-4" />
-              <span>Watch Block Removal (-{actionResult.jenga_pulls} Blocks)</span>
-              <ArrowRight className="w-4 h-4" />
+              <Rotate3d className="w-4 h-4 pointer-events-none" />
+              <span className="pointer-events-none">Watch Block Removal (-{actionResult.jenga_pulls} Blocks)</span>
+              <ArrowRight className="w-4 h-4 pointer-events-none" />
             </button>
           ) : (
             <button
+              type="button"
               onClick={onProceed}
-              className="mc-btn mc-btn-green w-full py-3 px-4 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer mc-font shadow-lg"
+              className="mc-btn mc-btn-green w-full py-3 px-4 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer mc-font shadow-lg active:scale-[0.98] transition-transform"
             >
-              <span>{actionResult.is_victory ? 'View Final Audit & Victory' : 'Proceed to Next Stage'}</span>
-              <ArrowRight className="w-4 h-4" />
+              <span className="pointer-events-none">{actionResult.is_victory ? 'View Final Audit & Victory' : 'Proceed to Next Stage'}</span>
+              <ArrowRight className="w-4 h-4 pointer-events-none" />
             </button>
           )}
 
           {hasBlocksToRemove && !isGameOver && (
             <button
+              type="button"
               onClick={onProceed}
               className="w-full py-1.5 text-[8px] mc-font text-[#888] hover:text-white transition-colors cursor-pointer text-center"
             >
-              Skip Animation & Proceed Directly ➔
+              <span className="pointer-events-none">Skip Animation & Proceed Directly ➔</span>
             </button>
           )}
         </div>

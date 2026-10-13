@@ -50,6 +50,7 @@ export default function App() {
   const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [myVote, setMyVote] = useState(null);
   const lastHandledStageResultRef = useRef(-1);
+  const isAdvancingStageRef = useRef(false);
 
   // Tower 3D Ref
   const towerRef = useRef(null);
@@ -86,6 +87,7 @@ export default function App() {
     if (!gameStarted) return;
     const pollInterval = setInterval(async () => {
       try {
+        if (isAdvancingStageRef.current) return;
         const remoteState = await api.fetchGameState();
 
         // Sync local voter status
@@ -515,29 +517,41 @@ export default function App() {
   };
 
   // Proceed to Next Stage
-  const handleProceedNextStage = async () => {
+  const handleProceedNextStage = useCallback(async () => {
+    if (isAdvancingStageRef.current) return;
+    isAdvancingStageRef.current = true;
     setResultModalOpen(false);
     setIsWatchingRemoval(false);
+    setActionResult(null);
 
     if (actionResult?.is_victory) {
-      await refreshState();
+      try {
+        await refreshState();
+      } finally {
+        isAdvancingStageRef.current = false;
+      }
       return;
     }
     try {
       setLoading(true);
       const nextState = await api.nextStage();
+      lastHandledStageResultRef.current = nextState.current_stage_index;
       setGameState(nextState);
       setTimeLeft(120);
       setIsTimerRunning(true);
-      setActionResult(null);
       setMyVote(null);
       towerRef.current?.restoreTowerStructure(nextState.total_jenga_pulls);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to advance stage:', err);
+      try {
+        const fallback = await api.fetchGameState();
+        setGameState(fallback);
+      } catch {}
     } finally {
       setLoading(false);
+      isAdvancingStageRef.current = false;
     }
-  };
+  }, [actionResult, refreshState]);
 
   // Immediate Team / Solo Decision Lock-In (Forces immediate consensus resolution)
   const handleCommitDecision = async () => {
@@ -751,11 +765,12 @@ export default function App() {
             </div>
 
             <button
+              type="button"
               onClick={handleProceedNextStage}
-              className="mc-btn mc-btn-green px-3.5 py-2 text-[9px] mc-font text-white flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              className="mc-btn mc-btn-green px-3.5 py-2 text-[9px] mc-font text-white flex items-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-[0.98] transition-transform"
             >
-              <span>NEXT STAGE [SPACE]</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span className="pointer-events-none">NEXT STAGE [SPACE]</span>
+              <ArrowRight className="w-3.5 h-3.5 pointer-events-none" />
             </button>
           </div>
         </div>

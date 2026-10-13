@@ -138,32 +138,45 @@ Completed all 11 Salesforce SDLC Stages with 3D Virtual Tower Standing!`;
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#2a2a2a]">
-                {history.map((rec, idx) => (
-                  <tr key={idx} className="hover:bg-[#252525] transition-colors">
-                    <td className="py-2.5 px-2.5">
-                      <span className="font-bold text-white">Wave {rec.stage_id}</span>
-                      <span className="block text-[9px] text-[#aaa] font-sans truncate max-w-[140px]">{rec.stage_title}</span>
-                    </td>
-                    <td className="py-2.5 px-2.5 text-[#ffd700]">
-                      <span>{rec.action_label}</span>
-                    </td>
-                    <td className="py-2.5 px-2.5">
-                      <span
-                        className={`font-bold ${
-                          rec.health_delta >= 0 ? 'text-[#55ff55]' : 'text-[#ff5555]'
-                        }`}
-                      >
-                        {rec.health_delta >= 0 ? `+${rec.health_delta}%` : `${rec.health_delta}%`}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-2.5 text-[#ffd700]">
-                      {rec.jenga_pulls > 0 ? `-${rec.jenga_pulls} blocks` : '0 loss'}
-                    </td>
-                    <td className="py-2.5 px-2.5 font-bold text-white">
-                      {rec.health_after}%
-                    </td>
-                  </tr>
-                ))}
+                {history.map((rec, idx) => {
+                  const isRestart = rec.action_type === 'stage_restart';
+                  return (
+                    <tr
+                      key={idx}
+                      className={`transition-colors ${
+                        isRestart
+                          ? 'bg-[#152e22]/60 hover:bg-[#1a3829]/70 border-l-2 border-[#55ff55]'
+                          : 'hover:bg-[#252525]'
+                      }`}
+                    >
+                      <td className="py-2.5 px-2.5">
+                        <span className="font-bold text-white">Wave {rec.stage_id}</span>
+                        <span className="block text-[9px] text-[#aaa] font-sans truncate max-w-[140px]">{rec.stage_title}</span>
+                      </td>
+                      <td className={`py-2.5 px-2.5 ${isRestart ? 'text-[#55ffff]' : 'text-[#ffd700]'}`}>
+                        <span className="flex items-center gap-1.5">
+                          {isRestart && <span>🔧</span>}
+                          <span>{rec.action_label}</span>
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-2.5">
+                        <span
+                          className={`font-bold ${
+                            rec.health_delta >= 0 ? 'text-[#55ff55]' : 'text-[#ff5555]'
+                          }`}
+                        >
+                          {rec.health_delta >= 0 ? `+${rec.health_delta}%` : `${rec.health_delta}%`}
+                        </span>
+                      </td>
+                      <td className={`py-2.5 px-2.5 ${isRestart ? 'text-[#888]' : 'text-[#ffd700]'}`}>
+                        {rec.jenga_pulls > 0 ? `-${rec.jenga_pulls} blocks` : '0 loss'}
+                      </td>
+                      <td className="py-2.5 px-2.5 font-bold text-white">
+                        {rec.health_after}%
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
