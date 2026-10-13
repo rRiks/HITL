@@ -86,7 +86,7 @@ class GameStateManager:
         self.custom_prompt_draft = None
         self.guardrail_rule_draft = None
 
-        # Record Stage Restart in SDLC Audit Log
+        # Record Stage Restart in AIDLC Audit Log
         current_stg = self.get_current_stage()
         stg_id = current_stg["id"] if current_stg else (self.current_stage_index + 1)
         stg_title = current_stg["title"] if current_stg else f"Wave {stg_id}"
@@ -407,9 +407,9 @@ class GameStateManager:
                     f"DOUBLE TIMEOUT PENALTY: {health_delta}% Health, MUST PULL {jenga_pulls} JENGA BLOCKS!"
                 )
 
-        # 2. STANDARD "Accept as-is (Blind Velocity)"
+        # 2. STANDARD "Accept as-is"
         elif action_type == "accept_as_is":
-            action_label = "Accept As-Is (Blind Velocity)"
+            action_label = "Accept As-Is"
             cfg = current_stg["accept_as_is"]
             roll_val = round(random.random(), 3)
             roll_threshold = cfg["success_rate"]

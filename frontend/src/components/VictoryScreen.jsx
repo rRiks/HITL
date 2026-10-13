@@ -54,7 +54,7 @@ export default function VictoryScreen({
 - Final App Health: ${health}%
 - Virtual 3D Components Extracted: ${totalPulls} / 54
 - Architectural Rating: ${rating} (${badgeTitle})
-Completed all 11 Salesforce SDLC Stages with 3D Virtual Tower Standing!`;
+Completed all 11 Salesforce AIDLC Stages with 3D Virtual Tower Standing!`;
     navigator.clipboard.writeText(summaryText);
     alert('Summary copied to clipboard!');
   };
@@ -71,7 +71,7 @@ Completed all 11 Salesforce SDLC Stages with 3D Virtual Tower Standing!`;
                 ADVANCEMENT MADE!
               </span>
               <span className="text-xs sm:text-sm text-[#55ff55] mc-font font-bold">
-                Master of Voxel SDLC
+                Master of Voxel AIDLC
               </span>
             </div>
           </div>
@@ -114,7 +114,7 @@ Completed all 11 Salesforce SDLC Stages with 3D Virtual Tower Standing!`;
             <div className="bg-[#1b1b1b] border border-[#444] p-3 shadow-xs">
               <span className="text-[9px] text-[#aaa] block mb-1">Waves Survived</span>
               <span className="text-2xl font-bold text-white">11 / 11</span>
-              <span className="text-[8px] text-[#888] block mt-1">Full SDLC Lifecycle</span>
+              <span className="text-[8px] text-[#888] block mt-1">Full AIDLC Lifecycle</span>
             </div>
           </div>
         </div>
@@ -123,7 +123,7 @@ Completed all 11 Salesforce SDLC Stages with 3D Virtual Tower Standing!`;
         <div className="mc-panel-dark p-4 shadow-2xl mb-6">
           <h3 className="font-bold text-white text-xs sm:text-sm mb-3 flex items-center gap-2 mc-font">
             <Activity className="w-4 h-4 text-[#ffd700]" />
-            <span>SDLC AUDIT LOG & MINED BLOCKS</span>
+            <span>AIDLC AUDIT LOG & MINED BLOCKS</span>
           </h3>
 
           <div className="overflow-x-auto">
@@ -151,7 +151,7 @@ Completed all 11 Salesforce SDLC Stages with 3D Virtual Tower Standing!`;
                     >
                       <td className="py-2.5 px-2.5">
                         <span className="font-bold text-white">Wave {rec.stage_id}</span>
-                        <span className="block text-[9px] text-[#aaa] font-sans truncate max-w-[140px]">{rec.stage_title}</span>
+                        <span className="block text-[9px] text-[#aaa] font-sans">{rec.stage_title}</span>
                       </td>
                       <td className={`py-2.5 px-2.5 ${isRestart ? 'text-[#55ffff]' : 'text-[#ffd700]'}`}>
                         <span className="flex items-center gap-1.5">

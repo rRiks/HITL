@@ -1391,7 +1391,7 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
               <h3 className="text-white text-xs sm:text-sm font-bold flex items-center gap-2 mc-font tracking-wide">
                 <span>REDSTONE TOWER</span>
                 <span className="text-[9px] bg-[#1a110a] text-[#ffd700] border border-[#555] px-1.5 py-0.5 mc-font">
-                  VOXEL SDLC
+                  VOXEL AIDLC
                 </span>
               </h3>
             </div>

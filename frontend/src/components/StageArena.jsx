@@ -77,20 +77,20 @@ export default function StageArena({
         <h2 className="text-sm sm:text-base font-bold text-white tracking-wide mb-1 shrink-0 mc-font text-[#ffff55]">
           {stage.title}
         </h2>
-        <p className="text-[11px] text-[#ccc] leading-relaxed mb-2 line-clamp-2 shrink-0 font-sans">
+        <p className="text-[11px] sm:text-xs text-[#ccc] leading-relaxed mb-2 shrink-0 font-sans select-text">
           {stage.story}
         </p>
 
         {/* AI Commit / PR Summary Bar (Minecraft Anvil / Crafting Box) */}
-        <div className="bg-[#181818] border-2 border-[#333] px-3 py-1.5 mb-2 flex items-center justify-between gap-2 shrink-0">
-          <div className="flex items-center gap-2 text-xs truncate">
-            <GitPullRequest className="w-3.5 h-3.5 text-[#ffd700] shrink-0" />
+        <div className="bg-[#181818] border-2 border-[#333] px-3 py-1.5 mb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 shrink-0">
+          <div className="flex items-start sm:items-center gap-2 text-xs min-w-0">
+            <GitPullRequest className="w-3.5 h-3.5 text-[#ffd700] shrink-0 mt-0.5 sm:mt-0" />
             <span className="text-[9px] font-bold text-[#aaa] uppercase mc-font shrink-0">PROPOSAL:</span>
-            <span className="text-[11px] text-[#ddd] italic truncate font-sans">
+            <span className="text-[11px] text-[#ddd] italic font-sans select-text leading-snug">
               "{stage.ai_proposal_summary}"
             </span>
           </div>
-          <code className="text-[#55ff55] font-mono text-[9px] bg-[#101010] px-2 py-0.5 border border-[#333] shrink-0">
+          <code className="text-[#55ff55] font-mono text-[9px] bg-[#101010] px-2 py-0.5 border border-[#333] shrink-0 self-start sm:self-auto select-all">
             {stage.file_name}
           </code>
         </div>
@@ -325,7 +325,7 @@ export default function StageArena({
                 </div>
               </div>
               <h4 className="text-xs font-bold text-white mc-font mb-0.5 flex items-center justify-between">
-                <span>Blind Velocity</span>
+                <span>Accept as-is</span>
                 {myVote === 'accept_as_is' && (
                   <span className="text-[8px] text-[#55ff55] mc-font">[EQUIPPED]</span>
                 )}

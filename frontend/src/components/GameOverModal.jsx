@@ -55,7 +55,7 @@ export default function GameOverModal({
 
         {/* Workshop Pro-Tip */}
         <p className="text-[9px] mc-font text-[#aaa] leading-relaxed mb-4 text-left">
-          PRO-TIP: Use <span className="text-[#ffd700]">Enforce Guardrail Rules</span> or collaborative custom prompts to shield your voxel SDLC from unexpected limits!
+          PRO-TIP: Use <span className="text-[#ffd700]">Enforce Guardrail Rules</span> or collaborative custom prompts to shield your voxel AIDLC from unexpected limits!
         </p>
 
         {/* Designated Screenplay Options (NO Replay Options) */}

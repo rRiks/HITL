@@ -81,12 +81,12 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
         <div className="text-center mb-8 relative">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#1a110a] border-2 border-[#553311] text-[#ffd700] text-[10px] font-mono font-bold uppercase tracking-wider mb-3 shadow-lg">
             <Zap className="w-3.5 h-3.5 text-[#ffd700]" />
-            <span>45-MINUTE SDLC VOXEL WORKSHOP</span>
+            <span>45-MINUTE AIDLC VOXEL WORKSHOP</span>
           </div>
 
           <div className="relative inline-block mb-3">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-widest text-[#e0e0e0] mc-font drop-shadow-[0_5px_0_#222]">
-              MINECRAFT <span className="text-[#ffd700]">SDLC</span>
+              MINECRAFT <span className="text-[#ffd700]">AIDLC</span>
             </h1>
             {/* Bouncing Classic Minecraft Yellow Splash Text */}
             <div
@@ -283,7 +283,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
 
       {/* Footer */}
       <footer className="text-center text-[10px] font-mono text-[#888] mt-8">
-        Developer Day Workshop Edition • Real-Time 3D Voxel SDLC Simulation
+        Developer Day Workshop Edition • Real-Time 3D Voxel AIDLC Simulation
       </footer>
     </div>
   );

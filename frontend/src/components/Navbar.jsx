@@ -134,7 +134,7 @@ export default function Navbar({
   const isLowHealth = health <= 25;
 
   return (
-    <header className="h-[64px] bg-[#1c1c1c] border-b-4 border-[#101010] px-2.5 sm:px-4 flex items-center justify-between gap-2 sm:gap-3 shrink-0 select-none z-30 shadow-lg text-white">
+    <header className="h-[64px] w-full max-w-full overflow-hidden bg-[#1c1c1c] border-b-4 border-[#101010] px-2 sm:px-3 flex items-center justify-between gap-1.5 sm:gap-2 shrink-0 select-none z-30 shadow-lg text-white">
       {/* Left: Branding & 11-Stage Circuit Nodes */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <div className="flex items-center gap-2">
@@ -147,7 +147,7 @@ export default function Navbar({
                 HITL MINECRAFT
               </span>
               <span className="hidden md:inline text-[8px] mc-font px-1.5 py-0.5 bg-[#2a2a2a] text-[#aaa] border border-[#444]">
-                WORLD SDLC
+                WORLD AIDLC
               </span>
               <button
                 onClick={handleCopyInvite}
@@ -172,33 +172,35 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* 11-Stage Progression Pipeline */}
-        <div className="hidden xl:flex items-center gap-1 ml-2 pl-2 border-l border-[#333]">
-          {Array.from({ length: totalStages }).map((_, i) => {
-            const stgNum = i + 1;
-            const isCompleted = stgNum < stageNumber;
-            const isCurrent = stgNum === stageNumber;
+        {/* Compact 11-Segment Stage Progression Indicator */}
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#15120e] border border-[#ffaa00]/40 shrink-0">
+          <span className="text-[9px] mc-font text-[#ffd700] whitespace-nowrap">LV{stageNumber}/{totalStages}</span>
+          <div className="hidden sm:flex items-center gap-0.5">
+            {Array.from({ length: totalStages }).map((_, i) => {
+              const stgNum = i + 1;
+              const isCompleted = stgNum < stageNumber;
+              const isCurrent = stgNum === stageNumber;
 
-            return (
-              <div
-                key={i}
-                className={`flex items-center gap-0.5 px-1.5 py-0.5 text-[8px] mc-font transition-all ${
-                  isCurrent
-                    ? 'bg-[#3b2b1a] text-[#ffd700] border-2 border-[#ffaa00] shadow-sm animate-pulse'
-                    : isCompleted
-                    ? 'bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]'
-                    : 'bg-[#222] text-[#666] border border-[#333]'
-                }`}
-              >
-                <span>LV{stgNum}</span>
-              </div>
-            );
-          })}
+              return (
+                <div
+                  key={i}
+                  title={`Stage ${stgNum}`}
+                  className={`w-2 h-3.5 border transition-all ${
+                    isCurrent
+                      ? 'bg-[#ffd700] border-[#ffffff] shadow-sm animate-pulse'
+                      : isCompleted
+                      ? 'bg-[#55ff55] border-[#2d5a2d]'
+                      : 'bg-[#2a2a2a] border-[#444]'
+                  }`}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
 
       {/* Center: Authentic 10 Minecraft Hearts Bar */}
-      <div className="flex items-center gap-2 bg-[#121212] border-2 border-[#333] px-2.5 py-1 shadow-inner">
+      <div className="hidden md:flex items-center gap-2 bg-[#121212] border-2 border-[#333] px-2 sm:px-2.5 py-1 shadow-inner shrink-0">
         <div className="flex items-center gap-0.5">
           {hearts.map((state, idx) => (
             <MinecraftHeart key={idx} state={state} shake={isLowHealth} />
@@ -212,10 +214,10 @@ export default function Navbar({
       </div>
 
       {/* Right: Minecraft Timer & Audio / Controls */}
-      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 ml-auto">
         {/* Minecraft Clock Timer */}
         <div
-          className={`flex items-center gap-1.5 px-2.5 py-1 border-2 mc-font transition-all ${
+          className={`flex items-center gap-1.5 px-2 py-1 border-2 mc-font transition-all shrink-0 ${
             isUrgent
               ? 'bg-[#3a0000] border-[#ff3333] text-[#ff5555] animate-pulse shadow-md shadow-red-900/40'
               : isZero
@@ -243,30 +245,30 @@ export default function Navbar({
         <button
           onClick={onToggleMusic}
           title={musicEnabled ? 'Mute Atmosphere Music' : 'Enable Atmosphere Music'}
-          className={`mc-btn p-1.5 text-xs flex items-center gap-1 cursor-pointer ${
+          className={`mc-btn p-1.5 text-xs flex items-center gap-1 cursor-pointer shrink-0 ${
             musicEnabled ? 'text-[#55ff55]' : 'text-[#888]'
           }`}
         >
           <Music className="w-3.5 h-3.5" />
-          <span className="hidden md:inline text-[8px] mc-font">NOTE</span>
+          <span className="hidden xl:inline text-[8px] mc-font">NOTE</span>
         </button>
 
         {/* Sound FX Toggle */}
         <button
           onClick={onToggleSound}
           title={soundEnabled ? 'Mute Sound FX' : 'Enable Sound FX'}
-          className={`mc-btn p-1.5 text-xs cursor-pointer ${
+          className={`mc-btn p-1.5 text-xs cursor-pointer shrink-0 ${
             soundEnabled ? 'text-white' : 'text-[#666]'
           }`}
         >
           {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
         </button>
 
-        {/* Reset SDLC / World */}
+        {/* Reset AIDLC / World */}
         <button
           onClick={onResetGame}
           title="Respawn / Reset World"
-          className="mc-btn p-1.5 text-xs text-[#ffaa00] hover:text-[#ff5555] cursor-pointer"
+          className="mc-btn p-1.5 text-xs text-[#ffaa00] hover:text-[#ff5555] cursor-pointer shrink-0"
         >
           <RotateCcw className="w-3.5 h-3.5" />
         </button>
@@ -276,10 +278,10 @@ export default function Navbar({
           <button
             onClick={onExitToLobby}
             title="Return to Main Menu"
-            className="mc-btn px-2 py-1 text-[8px] mc-font text-white cursor-pointer flex items-center gap-1"
+            className="mc-btn px-2.5 py-1 text-[8px] sm:text-[9px] mc-font text-[#ffd700] hover:text-white cursor-pointer flex items-center gap-1 shrink-0 bg-[#3a2211] border-[#ffaa00]"
           >
-            <Home className="w-3 h-3 text-[#ffd700]" />
-            <span className="hidden sm:inline">MENU</span>
+            <Home className="w-3.5 h-3.5 text-[#ffd700]" />
+            <span>MENU</span>
           </button>
         )}
       </div>

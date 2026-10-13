@@ -1,6 +1,6 @@
 # 🚀 HITL Jenga: Developer Setup & Local Run Guide
 
-Welcome to the **Human-in-the-Loop (HITL) Jenga: Salesforce SDLC War-Room** project!
+Welcome to the **Human-in-the-Loop (HITL) Jenga: Salesforce AIDLC War-Room** project!
 
 This guide walks a new engineer through cloning the repository, setting up both backend and frontend environments, and running the simulation locally on **Windows (PowerShell)** or **macOS / Linux (Bash)**.
 
@@ -96,7 +96,7 @@ npm run dev
 ## ✅ Verifying Your Local Setup
 
 1. Open **[http://localhost:5173](http://localhost:5173)** in your browser.
-2. You will see the **Salesforce HITL Jenga SDLC Challenge** Welcome Screen.
+2. You will see the **Salesforce HITL Jenga AIDLC Challenge** Welcome Screen.
 3. Select a table preset (e.g. `Table 1`), enter your name (e.g. `Alice`), and click **"Start Mission & Initialize Tower"**.
 4. The 3D Cockpit Arena will load with:
    - The interactive **3D Virtual Architecture Tower** (rendered via Three.js with full 360° mouse drag orbit and zoom).
@@ -199,5 +199,5 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `frontend/vite.config.js` proxies `/api` requests to `http://127.0.0.1:8000`. If you change the backend port, update the proxy target in `vite.config.js`.
 
 ### 4. How to reset a table to Stage 1
-- Click the **Reset SDLC** icon (counter-clockwise arrow) in the top navigation bar.
+- Click the **Reset AIDLC** icon (counter-clockwise arrow) in the top navigation bar.
 - Or visit the Welcome Screen (`?lobby=true`) and select another table (`table-1` through `table-5`).
