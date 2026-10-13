@@ -141,6 +141,14 @@ export async function resetGame(roomId = getRoomId()) {
   return res.json();
 }
 
+export async function retryStage(roomId = getRoomId()) {
+  const res = await fetch(`${API_BASE}/game/${roomId}/retry-stage`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error(`Failed to retry stage: ${res.statusText}`);
+  return res.json();
+}
+
 export async function joinPlayer(playerId = getPlayerId(), playerName = getPlayerName(), roomId = getRoomId()) {
   const res = await fetch(`${API_BASE}/game/${roomId}/join-player`, {
     method: 'POST',
@@ -194,6 +202,14 @@ export async function resolveTimeout(roomId = getRoomId()) {
     method: 'POST',
   });
   if (!res.ok) throw new Error(`Failed to resolve timeout: ${res.statusText}`);
+  return res.json();
+}
+
+export async function commitDecision(roomId = getRoomId()) {
+  const res = await fetch(`${API_BASE}/game/${roomId}/commit-decision`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error(`Failed to commit decision: ${res.statusText}`);
   return res.json();
 }
 

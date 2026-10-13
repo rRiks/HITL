@@ -65,15 +65,38 @@ class GameStateManager:
         self.tie_broken = False
         self.tied_options = None
 
+    def retry_current_stage(self, restore_health: int = 35):
+        """
+        Hotfix & Retry: restores the session from failure back to the current
+        failed stage with 35 HP restored, enabling workshop teams to learn and
+        try a proper guardrail rule without losing entire session progress.
+        """
+        self.health = max(25, restore_health)
+        self.is_game_over = False
+        self.game_over_reason = None
+        self.stage_action_taken = False
+        self.last_action_result = None
+        self.stage_start_time = time.time()
+        self.last_active = time.time()
+        self.pending_stage_advance = False
+        self.votes = {}
+        self.tie_broken = False
+        self.tied_options = None
+        self.custom_prompt_draft = None
+        self.guardrail_rule_draft = None
+
     def get_current_stage(self) -> Optional[Dict[str, Any]]:
         if 0 <= self.current_stage_index < len(STAGES):
             return STAGES[self.current_stage_index]
         return None
 
     def calculate_instability(self) -> int:
-        # Standard Jenga has 54 blocks. Pulling ~16-20 blocks causes high risk of collapse.
-        # Scale 0 to 100%
-        instability = int((self.total_jenga_pulls / 18.0) * 100)
+        # Tower health directly represents the stability state of the tower:
+        # 100 HP = 0% instability (rock solid)
+        # Degrading HP directly destabilizes the tower, combined with physical block pulls.
+        health_instability = max(0, 100 - self.health)
+        pull_instability = int((self.total_jenga_pulls / 18.0) * 100)
+        instability = max(health_instability, pull_instability)
         return min(100, max(0, instability))
 
     def touch_player(self, player_id: str, player_name: str) -> None:
@@ -90,8 +113,14 @@ class GameStateManager:
             self.players[pid]["player_name"] = pname
             self.players[pid]["last_seen"] = time.time()
 
-    def get_active_players(self, timeout_sec: float = 25.0) -> List[PlayerInfo]:
+    def get_active_players(self, timeout_sec: float = 12.0) -> List[PlayerInfo]:
         now = time.time()
+        # Clean up stale connections older than 45s
+        stale_pids = [pid for pid, pdata in self.players.items() if now - pdata.get("last_seen", 0) > 45.0]
+        for pid in stale_pids:
+            self.players.pop(pid, None)
+            self.votes.pop(pid, None)
+
         active = []
         for pid, pdata in self.players.items():
             if now - pdata.get("last_seen", 0) <= timeout_sec:
@@ -151,10 +180,15 @@ class GameStateManager:
         # Record or update vote
         self.votes[req.player_id] = req.action_type
 
-        # Check if ALL active connected players have voted
+        # Check if decision should resolve immediately:
         active = self.get_active_players()
-        if len(active) > 0 and all(p.player_id in self.votes for p in active):
-            # All active teammates have voted! Trigger resolution immediately
+        tally = self.get_votes_tally()
+        max_v = max(tally.values(), default=0)
+
+        # 1. Only 1 active player online in room (solo / test) -> resolve immediately
+        # 2. All active players have voted -> resolve immediately
+        # 3. An action holds strict mathematical majority (> active / 2) -> resolve immediately
+        if len(active) <= 1 or all(p.player_id in self.votes for p in active) or (len(active) > 1 and max_v > len(active) / 2):
             self.resolve_voting(is_timeout=False, time_spent_seconds=req.time_spent_seconds)
 
         return self.get_state()

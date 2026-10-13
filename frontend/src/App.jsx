@@ -45,9 +45,11 @@ export default function App() {
   const [resultModalOpen, setResultModalOpen] = useState(false);
   const [actionResult, setActionResult] = useState(null);
   const [isWatchingRemoval, setIsWatchingRemoval] = useState(false);
+  const [isWatchingCollapse, setIsWatchingCollapse] = useState(false);
   const [screenShaking, setScreenShaking] = useState(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [myVote, setMyVote] = useState(null);
+  const lastHandledStageResultRef = useRef(-1);
 
   // Tower 3D Ref
   const towerRef = useRef(null);
@@ -96,7 +98,15 @@ export default function App() {
         }
 
         // 1. If team consensus or timeout committed a decision on this stage
-        if (remoteState.stage_action_taken && remoteState.last_action_result && !resultModalOpen && !isWatchingRemoval) {
+        if (
+          remoteState.stage_action_taken &&
+          remoteState.last_action_result &&
+          lastHandledStageResultRef.current !== remoteState.current_stage_index &&
+          !isWatchingRemoval &&
+          !isWatchingCollapse &&
+          !showGameOverModal
+        ) {
+          lastHandledStageResultRef.current = remoteState.current_stage_index;
           setPromptModalOpen(false);
           setGuardrailsModalOpen(false);
           setIsTimerRunning(false);
@@ -113,8 +123,10 @@ export default function App() {
         setGameState((prev) => {
           if (!prev) return remoteState;
           if (prev.current_stage_index !== remoteState.current_stage_index) {
+            lastHandledStageResultRef.current = -1;
             setResultModalOpen(false);
             setIsWatchingRemoval(false);
+            setIsWatchingCollapse(false);
             setActionResult(null);
             setMyVote(null);
             setTimeLeft(120);
@@ -139,7 +151,7 @@ export default function App() {
       } catch {}
     }, 2000);
     return () => clearInterval(pollInterval);
-  }, [gameStarted, resultModalOpen, isWatchingRemoval, sound]);
+  }, [gameStarted, isWatchingRemoval, isWatchingCollapse, showGameOverModal, sound]);
 
   // Ambient tension synth pulse heartbeat
   useEffect(() => {
@@ -244,6 +256,7 @@ export default function App() {
 
       // Check if all active connected players have voted (instant consensus resolution)
       if (updatedState.stage_action_taken && updatedState.last_action_result) {
+        lastHandledStageResultRef.current = updatedState.current_stage_index;
         setIsTimerRunning(false);
         setActionResult(updatedState.last_action_result);
         setResultModalOpen(true);
@@ -271,7 +284,7 @@ export default function App() {
         guardrailsModalOpen ||
         loading ||
         !gameStarted ||
-        gameState?.is_game_over ||
+        isWatchingCollapse ||
         gameState?.is_victory
       ) {
         return;
@@ -279,7 +292,9 @@ export default function App() {
 
       if (resultModalOpen) {
         if (e.key === ' ' || e.key === 'Enter') {
-          if (actionResult?.jenga_pulls > 0) {
+          if (actionResult?.is_game_over || (actionResult?.new_health !== undefined && actionResult.new_health <= 0)) {
+            handleWatchCollapse();
+          } else if (actionResult?.jenga_pulls > 0) {
             handleWatchRemoval();
           } else {
             handleProceedNextStage();
@@ -386,9 +401,13 @@ export default function App() {
         setActionResult(null);
         setResultModalOpen(false);
         setIsWatchingRemoval(false);
+        setIsWatchingCollapse(false);
+        setShowGameOverModal(false);
         setPromptModalOpen(false);
         setGuardrailsModalOpen(false);
         setMyVote(null);
+        lastHandledStageResultRef.current = -1;
+        towerRef.current?.restoreTowerStructure(0);
       } catch (err) {
         alert(err.message);
       }
@@ -417,6 +436,7 @@ export default function App() {
 
       setGameState(updatedState);
       if (updatedState.stage_action_taken && updatedState.last_action_result) {
+        lastHandledStageResultRef.current = updatedState.current_stage_index;
         setIsTimerRunning(false);
         setActionResult(updatedState.last_action_result);
         setResultModalOpen(true);
@@ -457,6 +477,7 @@ export default function App() {
 
       setGameState(updatedState);
       if (updatedState.stage_action_taken && updatedState.last_action_result) {
+        lastHandledStageResultRef.current = updatedState.current_stage_index;
         setIsTimerRunning(false);
         setActionResult(updatedState.last_action_result);
         setResultModalOpen(true);
@@ -503,12 +524,40 @@ export default function App() {
       return;
     }
     try {
+      setLoading(true);
       const nextState = await api.nextStage();
       setGameState(nextState);
       setTimeLeft(120);
       setIsTimerRunning(true);
+      setActionResult(null);
+      setMyVote(null);
+      towerRef.current?.restoreTowerStructure(nextState.total_jenga_pulls);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Immediate Team / Solo Decision Lock-In (Forces immediate consensus resolution)
+  const handleCommitDecision = async () => {
+    try {
+      setLoading(true);
+      const res = await api.commitDecision();
+      lastHandledStageResultRef.current = gameState?.current_stage_index ?? -1;
+      setActionResult(res);
+      setResultModalOpen(true);
+      setIsTimerRunning(false);
+      await refreshState();
+      if (res.outcome === 'failure') {
+        sound.playWarning();
+      } else {
+        sound.playSuccess();
+      }
+    } catch (err) {
+      console.error('Commit decision error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -526,34 +575,56 @@ export default function App() {
       }
     }
   };
-  // Catastrophic Game Over: Trigger 3D tower collapse first, then present incident telemetry
-  useEffect(() => {
-    if (gameState?.is_game_over) {
-      sound.playCrash();
-      setScreenShaking(true);
-      setTimeout(() => setScreenShaking(false), 1400);
-      towerRef.current?.triggerCatastrophicCollapse();
+  // Cinematic Tower Collapse Triggered AFTER player views Dice Roll & clicks See Status
+  const handleWatchCollapse = useCallback(() => {
+    setResultModalOpen(false);
+    setIsWatchingRemoval(false);
+    setIsWatchingCollapse(true);
+    setShowGameOverModal(false);
 
-      // Ensure intermediate extraction and result HUDs are dismissed
-      setIsWatchingRemoval(false);
-      setResultModalOpen(false);
-
-      const timer = setTimeout(() => {
-        setShowGameOverModal(true);
-      }, 2500);
-
-      return () => clearTimeout(timer);
-    } else {
-      setShowGameOverModal(false);
-    }
-  }, [gameState?.is_game_over, sound]);
-
-  const handleReplayCollapse = useCallback(() => {
     sound.playCrash();
     setScreenShaking(true);
     setTimeout(() => setScreenShaking(false), 1400);
+
+    // 1. Trigger realistic 3D directional buckling collapse
     towerRef.current?.triggerCatastrophicCollapse();
+
+    // 2. The camera and scene stay on the rubble pile undisturbed for 3.8 seconds
+    setTimeout(() => {
+      setIsWatchingCollapse(false);
+      setShowGameOverModal(true);
+    }, 3800);
   }, [sound]);
+
+  // If restoring an already-collapsed session from reload without an active result modal or collapse sequence
+  useEffect(() => {
+    if (gameState?.is_game_over && !resultModalOpen && !isWatchingCollapse && !actionResult) {
+      setShowGameOverModal(true);
+      towerRef.current?.triggerCatastrophicCollapse();
+    }
+  }, [gameState?.is_game_over, resultModalOpen, isWatchingCollapse, actionResult]);
+
+  const handleRetryStage = useCallback(async () => {
+    try {
+      setLoading(true);
+      const updated = await api.retryStage();
+      setGameState(updated);
+      setShowGameOverModal(false);
+      setIsWatchingCollapse(false);
+      setIsWatchingRemoval(false);
+      setResultModalOpen(false);
+      setActionResult(null);
+      setTimeLeft(120);
+      setIsTimerRunning(true);
+      setMyVote(null);
+      // Immediately restore and reconstruct 3D tower upright
+      towerRef.current?.restoreTowerStructure(updated.total_jenga_pulls);
+    } catch (err) {
+      console.error('Failed to retry stage:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // Welcome Screen
   if (!gameStarted) {
@@ -584,7 +655,7 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen min-h-[100dvh] w-full lg:h-screen lg:overflow-hidden bg-[#f7f4ed] text-stone-900 flex flex-col justify-between select-none bg-mesh-radial ${
+      className={`min-h-screen min-h-[100dvh] w-full lg:h-screen lg:overflow-hidden bg-[#14161a] text-white flex flex-col justify-between select-none ${
         screenShaking ? 'animate-screen-shake' : ''
       }`}
     >
@@ -625,7 +696,14 @@ export default function App() {
             <StageArena
               stage={currentStage}
               onSelectAction={handleSelectAction}
-              disabled={loading || gameState?.is_game_over || resultModalOpen || isWatchingRemoval}
+              disabled={loading || gameState?.is_game_over || gameState?.stage_action_taken || resultModalOpen || isWatchingRemoval}
+              stageActionTaken={gameState?.stage_action_taken}
+              lastActionResult={gameState?.last_action_result}
+              onProceedNextStage={handleProceedNextStage}
+              onWatchRemoval={handleWatchRemoval}
+              onWatchCollapse={handleWatchCollapse}
+              onReopenResult={() => setResultModalOpen(true)}
+              onCommitDecision={handleCommitDecision}
               votesTally={gameState?.votes_tally || {}}
               activePlayers={gameState?.active_players || []}
               myVote={myVote}
@@ -642,7 +720,7 @@ export default function App() {
               key="beige-tower-scene"
               ref={towerRef}
               totalPulls={gameState?.total_jenga_pulls ?? 0}
-              instabilityPct={gameState?.tower_instability_pct ?? 0}
+              instabilityPct={Math.min(100, Math.max(0, Math.max(100 - (gameState?.health ?? 100), gameState?.tower_instability_pct ?? 0)))}
               isGameOver={gameState?.is_game_over ?? false}
               onBlockSlide={sound.playSlide}
               onBlockLand={handleBlockLand}
@@ -655,29 +733,29 @@ export default function App() {
       {/* Cinematic Extraction Floating HUD Bar */}
       {isWatchingRemoval && !gameState?.is_game_over && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-full max-w-xl px-4 animate-bounce">
-          <div className="bg-[#faf7f0]/95 border border-[#ded5c5] text-stone-900 rounded-2xl p-3.5 shadow-2xl backdrop-blur-md flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-100 border border-rose-300 flex items-center justify-center shrink-0">
-                <Rotate3d className="w-5 h-5 text-amber-600 animate-spin" style={{ animationDuration: '3s' }} />
+          <div className="mc-panel-dark p-3 shadow-2xl flex items-center justify-between gap-3 border-2 border-[#ffd700]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 bg-[#251505] border border-[#ffd700] flex items-center justify-center shrink-0">
+                <Rotate3d className="w-5 h-5 text-[#ffd700] animate-spin" style={{ animationDuration: '3s' }} />
               </div>
               <div>
-                <span className="text-[10px] font-mono font-bold text-amber-800 uppercase tracking-wider block">
-                  3D Destabilization Live Feed
+                <span className="text-[9px] mc-font text-[#ffd700] uppercase block">
+                  VOXEL DESTABILIZATION CAMERA
                 </span>
-                <p className="text-xs text-stone-900 font-mono font-bold">
+                <p className="text-[10px] text-white mc-font">
                   {actionResult?.jenga_pulls > 0
-                    ? `Watching ${actionResult.jenga_pulls} block(s) slide out & crash to the floor!`
-                    : 'Components Resilient.'}
+                    ? `Mining ${actionResult.jenga_pulls} structural block(s) from the tower!`
+                    : 'Blocks Resilient.'}
                 </p>
               </div>
             </div>
 
             <button
               onClick={handleProceedNextStage}
-              className="px-5 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-amber-600/20 whitespace-nowrap active:scale-95"
+              className="mc-btn mc-btn-green px-3.5 py-2 text-[9px] mc-font text-white flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
-              <span>Proceed to Next Stage [SPACE]</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>NEXT STAGE [SPACE]</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -728,52 +806,35 @@ export default function App() {
         actionResult={actionResult}
         onProceed={handleProceedNextStage}
         onWatchRemoval={handleWatchRemoval}
+        onWatchCollapse={handleWatchCollapse}
       />
 
-      {/* Catastrophic Outage / Collapse Screen */}
-      {gameState?.is_game_over && (
-        <>
-          {/* Emergency Alarm Banner during initial 3D tumble */}
-          {!showGameOverModal && (
-            <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-xl px-4 animate-bounce">
-              <div className="bg-[#faf7f0]/95 border-2 border-rose-500 text-stone-900 rounded-2xl p-4 shadow-2xl backdrop-blur-md flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-rose-100 border border-rose-400 flex items-center justify-center shrink-0">
-                    <Rotate3d className="w-6 h-6 text-amber-600 animate-spin" style={{ animationDuration: '3s' }} />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-mono font-black uppercase tracking-widest text-rose-700 block">
-                      🚨 CATASTROPHIC 3D COLLAPSE IN PROGRESS
-                    </span>
-                    <p className="text-xs sm:text-sm font-black text-stone-900 font-mono">
-                      Watching Salesforce Architecture Tower Topple...
-                    </p>
-                  </div>
-                </div>
+      {/* Cinematic Falling Tower Banner (Visible while tower topples and during the 3.8s rubble pause) */}
+      {isWatchingCollapse && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-lg px-4 pointer-events-none animate-fadeIn">
+          <div className="bg-[#240505]/95 border-2 border-[#ff3333] p-3 text-center shadow-2xl backdrop-blur-sm animate-pulse">
+            <span className="text-[10px] mc-font text-[#ff5555] uppercase block font-bold">
+              ⚠️ CRITICAL SYSTEM FAILURE • TOWER BUCKLING & COLLAPSING
+            </span>
+            <p className="text-[9px] text-[#ffd700] mc-font mt-1">
+              Cumulative governor limits breached — watching architecture collapse into rubble...
+            </p>
+          </div>
+        </div>
+      )}
 
-                <button
-                  onClick={() => setShowGameOverModal(true)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white transition-all cursor-pointer shadow-md font-mono whitespace-nowrap active:scale-95"
-                >
-                  View Telemetry ➔
-                </button>
-              </div>
-            </div>
-          )}
-
-          {showGameOverModal && (
-            <GameOverModal
-              reason={gameState.game_over_reason || 'Production Build Outage'}
-              stageNumber={(gameState.current_stage_index ?? 0) + 1}
-              totalStages={gameState.total_stages ?? 11}
-              health={gameState.health}
-              totalPulls={gameState.total_jenga_pulls}
-              onRestart={handleResetGame}
-              onReplayCollapse={handleReplayCollapse}
-              onExitToLobby={handleExitToLobby}
-            />
-          )}
-        </>
+      {/* Catastrophic Outage / Collapse Screen (Appears ONLY after 3.8s rubble pause) */}
+      {gameState?.is_game_over && showGameOverModal && !resultModalOpen && !isWatchingCollapse && (
+        <GameOverModal
+          reason={gameState.game_over_reason || 'Production Build Outage'}
+          stageNumber={(gameState.current_stage_index ?? 0) + 1}
+          totalStages={gameState.total_stages ?? 11}
+          health={gameState.health}
+          totalPulls={gameState.total_jenga_pulls}
+          onRestart={handleResetGame}
+          onRetryStage={handleRetryStage}
+          onExitToLobby={handleExitToLobby}
+        />
       )}
     </div>
   );

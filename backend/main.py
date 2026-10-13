@@ -87,6 +87,11 @@ def resolve_timeout_room(room_id: str):
     manager = room_manager.get_room(room_id)
     return manager.resolve_voting(is_timeout=True, time_spent_seconds=120)
 
+@app.post("/api/game/{room_id}/commit-decision", response_model=ActionResponse)
+def commit_decision_room(room_id: str):
+    manager = room_manager.get_room(room_id)
+    return manager.resolve_voting(is_timeout=False, time_spent_seconds=0)
+
 @app.post("/api/game/{room_id}/action", response_model=ActionResponse)
 def submit_action_room(room_id: str, req: ActionRequest):
     manager = room_manager.get_room(room_id)
@@ -117,6 +122,12 @@ def next_stage_room(room_id: str):
 def reset_game_room(room_id: str):
     manager = room_manager.get_room(room_id)
     manager.reset_game(team_name=manager.team_name, player_count=manager.player_count)
+    return manager.get_state()
+
+@app.post("/api/game/{room_id}/retry-stage", response_model=GameStateResponse)
+def retry_stage_room(room_id: str):
+    manager = room_manager.get_room(room_id)
+    manager.retry_current_stage(restore_health=35)
     return manager.get_state()
 
 # -------------------------------------------------------------

@@ -13,49 +13,55 @@ import {
   Crosshair,
 } from 'lucide-react';
 
-// Salesforce Domain Config
+// Minecraft Voxel Architecture Block Config
 const DOMAIN_CONFIG = {
-  security: {
-    name: 'Security & Sharing',
-    color: '#0284c7', // Deep Azure
-    emissive: '#e0f2fe',
-    roughness: 0.2,
-    metalness: 0.3,
-  },
   governors: {
-    name: 'Apex & Governors',
-    color: '#059669', // Emerald Forest
-    emissive: '#d1fae5',
-    roughness: 0.2,
-    metalness: 0.3,
+    name: 'Redstone Circuit',
+    type: 'redstone',
+    color: '#ff3b30',
+    emissive: '#ff2200',
+    roughness: 0.35,
+    metalness: 0.1,
+  },
+  security: {
+    name: 'Obsidian Shield',
+    type: 'obsidian',
+    color: '#a855f7',
+    emissive: '#7e22ce',
+    roughness: 0.25,
+    metalness: 0.2,
   },
   async: {
-    name: 'Async & Events',
-    color: '#4f46e5', // Deep Indigo
-    emissive: '#e0e7ff',
+    name: 'Diamond Tech',
+    type: 'diamond',
+    color: '#38bdf8',
+    emissive: '#0284c7',
     roughness: 0.25,
-    metalness: 0.3,
+    metalness: 0.2,
   },
   lwc: {
-    name: 'LWC & Lightning',
-    color: '#9333ea', // Royal Purple
-    emissive: '#f3e8ff',
-    roughness: 0.2,
-    metalness: 0.3,
+    name: 'Emerald UI',
+    type: 'emerald',
+    color: '#22c55e',
+    emissive: '#15803d',
+    roughness: 0.3,
+    metalness: 0.1,
   },
   cpq: {
-    name: 'CPQ & Data',
-    color: '#d97706', // Rich Amber / Copper
-    emissive: '#fef3c7',
-    roughness: 0.2,
-    metalness: 0.3,
+    name: 'Enchanted Bookshelf',
+    type: 'bookshelf',
+    color: '#f59e0b',
+    emissive: '#b45309',
+    roughness: 0.45,
+    metalness: 0.05,
   },
   devops: {
-    name: 'DevOps & Metadata',
-    color: '#e11d48', // Vibrant Rose / Terracotta
-    emissive: '#ffe4e6',
-    roughness: 0.25,
-    metalness: 0.3,
+    name: 'TNT Pipeline',
+    type: 'tnt',
+    color: '#ef4444',
+    emissive: '#b91c1c',
+    roughness: 0.35,
+    metalness: 0.1,
   },
 };
 
@@ -153,91 +159,356 @@ const SF_ARCHITECTURE_BLOCKS = [
   { layer: 17, pos: 2, label: 'DML Limit (10k Rows)', domain: 'governors' },
 ];
 
-// Ordered sequence of blocks removed starting from the TOP layers downward
+// Realistic distributed Jenga removal sequence across middle and lower layers (avoiding top-down peeling)
 const REMOVAL_SEQUENCE = [
-  // Stage 1 (Top Layer 17 - Apex Trigger & SOQL):
-  51, 53,
-  // Stage 2 (Layer 16 - Security & Sharing):
-  48, 50,
-  // Stage 3 (Layer 15 - Mixed DML):
-  45, 47,
-  // Stage 4 (Layer 14 - LWC Shadow DOM):
-  42, 44,
-  // Stage 5 (Layer 13 - Async Apex Limits):
-  39, 41,
-  // Stage 6 (Layer 12 - Custom Metadata CMDT):
-  36, 38,
-  // Stage 7 (Layer 11 - Quick Deploy & RunLocalTests):
-  33, 35,
-  // Stage 8 (Layer 10 - CPU Governor & Concurrency):
-  30, 32,
-  // Stage 9 (Layer 9 - Lightning Web Security):
-  27, 29,
-  // Stage 10 (Layer 8 - CPQ Revenue & Calculation):
-  24, 26,
-  // Stage 11 (Layer 7 - Production Release Audit):
-  21, 23,
+  // Early Stages (Holes created across middle and lower layers):
+  21, // Layer 7, pos 0 (CPQ / Order Activation)
+  38, // Layer 12, pos 2 (Describe SObject Cache)
+  13, // Layer 4, pos 1 (Platform Cache - Center block hollowed out!)
+  27, // Layer 9, pos 0 (Lightning Web Security)
+  11, // Layer 3, pos 2 (High-Volume CDC)
+  44, // Layer 14, pos 2 (@salesforce/schema Import)
+  18, // Layer 6, pos 0 (Shield Platform Encryption)
+  34, // Layer 11, pos 1 (Quick Deploy - Center block removed!)
 
-  // Extra / Heavy Risk stress pulls working down lower levels:
-  18, 20, // Layer 6
-  15, 17, // Layer 5
-  12, 14, // Layer 4
-  9, 11,  // Layer 3
-  6, 8,   // Layer 2
-  3, 5,   // Layer 1
+  // Mid Stages (Cantilever stress & precarious balance):
+  26, // Layer 8, pos 2 (Idempotent Order Activation)
+  15, // Layer 5, pos 0 (EventBus Retry)
+  40, // Layer 13, pos 1 (Database.Batchable Scope - Center block!)
+  8,  // Layer 2, pos 2 (Standard Controller Extension)
+  30, // Layer 10, pos 0 (CPU Timeout 10s)
+  47, // Layer 15, pos 2 (System.runAs() Isolation)
+  23, // Layer 7, pos 2 (Leaving only single center spine block 22!)
+  12, // Layer 4, pos 0 (Leaving only block 14 on Layer 4!)
 
-  // Center spine blocks (leaving precarious edge balances):
-  52, 49, 46, 43, 40, 37, 34, 31, 28, 25, 22, 19, 16, 13, 10, 7, 4,
+  // Later Stages (High-risk structural thinning):
+  29, // Layer 9, pos 2 (NavigationMixin Router)
+  36, // Layer 12, pos 0 (Custom Metadata CMDT)
+  9,  // Layer 3, pos 0 (Apex Trigger Handler)
+  20, // Layer 6, pos 2 (Setup Audit Trail)
+  35, // Layer 11, pos 2 (Validation Gate)
+  24, // Layer 8, pos 0 (QCP Calculator)
+  42, // Layer 14, pos 0 (LWC Shadow DOM)
+  17, // Layer 5, pos 2 (Platform Event Replay)
+  41, // Layer 13, pos 2 (Platform Events)
+  6,  // Layer 2, pos 0 (Visualforce ViewState)
+  32, // Layer 10, pos 2 (Apex Callout Limit)
+  45, // Layer 15, pos 0 (Setup Object Lock Guard)
+  50, // Layer 16, pos 2 (WITH USER_MODE)
+  48, // Layer 16, pos 0 (With Sharing)
+  3,  // Layer 1, pos 0 (External ID Index)
+  5,  // Layer 1, pos 2 (Selective SOQL Filter)
 
-  // Bedrock foundation blocks:
+  // Top Pinnacle Layers (Touched only late in high stress):
+  51, // Layer 17, pos 0 (SOQL Governor 101)
+  53, // Layer 17, pos 2 (DML Limit 10k Rows)
+
+  // Center Spine Risky Extractions:
+  22, 37, 28, 19, 16, 25, 43, 31, 46, 49, 10, 7, 4, 52,
+
+  // Bedrock Foundation:
   0, 2, 1
 ];
 
-function createBlockTexture(label, domain, color) {
+// Procedural Minecraft Pixel Textures (Rich, Vibrant & Authentic)
+function drawMinecraftVoxelPattern(ctx, type, width, height) {
+  const pixelSize = 16;
+  const cols = Math.ceil(width / pixelSize);
+  const rows = Math.ceil(height / pixelSize);
+
+  if (type === 'redstone') {
+    // Redstone Block: Vibrant glowing crimson block with darker beveled edges
+    ctx.fillStyle = '#b71515';
+    ctx.fillRect(0, 0, width, height);
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const isBorder = r === 0 || r === rows - 1 || c === 0 || c === cols - 1;
+        if (isBorder) {
+          ctx.fillStyle = '#7a0909';
+          ctx.fillRect(c * pixelSize, r * pixelSize, pixelSize, pixelSize);
+        } else {
+          const rand = (Math.sin(c * 17.3 + r * 31.6) + 1) / 2;
+          if (rand > 0.7) {
+            ctx.fillStyle = '#e62424';
+          } else if (rand > 0.35) {
+            ctx.fillStyle = '#cb1a1a';
+          } else {
+            ctx.fillStyle = '#9e1212';
+          }
+          ctx.fillRect(c * pixelSize, r * pixelSize, pixelSize, pixelSize);
+        }
+      }
+    }
+  } else if (type === 'diamond') {
+    // Diamond Block: Brilliant glowing cyan with crystalline facets
+    ctx.fillStyle = '#1dd1a1';
+    ctx.fillRect(0, 0, width, height);
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const isBorder = r === 0 || r === rows - 1 || c === 0 || c === cols - 1;
+        if (isBorder) {
+          ctx.fillStyle = '#00a896';
+          ctx.fillRect(c * pixelSize, r * pixelSize, pixelSize, pixelSize);
+        } else {
+          const rand = (Math.sin(c * 11.2 + r * 23.4) + 1) / 2;
+          if (rand > 0.65) {
+            ctx.fillStyle = '#e0fcfc';
+          } else if (rand > 0.35) {
+            ctx.fillStyle = '#48dbfb';
+          } else {
+            ctx.fillStyle = '#0abde3';
+          }
+          ctx.fillRect(c * pixelSize, r * pixelSize, pixelSize, pixelSize);
+        }
+      }
+    }
+  } else if (type === 'emerald') {
+    // Emerald Block: Vivid gem green with sparkling geometric facets
+    ctx.fillStyle = '#10ac84';
+    ctx.fillRect(0, 0, width, height);
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const isBorder = r === 0 || r === rows - 1 || c === 0 || c === cols - 1;
+        if (isBorder) {
+          ctx.fillStyle = '#087055';
+          ctx.fillRect(c * pixelSize, r * pixelSize, pixelSize, pixelSize);
+        } else {
+          const rand = (Math.sin(c * 14.1 + r * 19.8) + 1) / 2;
+          if (rand > 0.65) {
+            ctx.fillStyle = '#7bf1a8';
+          } else if (rand > 0.35) {
+            ctx.fillStyle = '#1dd1a1';
+          } else {
+            ctx.fillStyle = '#0e9b75';
+          }
+          ctx.fillRect(c * pixelSize, r * pixelSize, pixelSize, pixelSize);
+        }
+      }
+    }
+  } else if (type === 'obsidian') {
+    // Obsidian: Deep cosmic purple with glowing crystalline magenta veins
+    ctx.fillStyle = '#221133';
+    ctx.fillRect(0, 0, width, height);
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const isBorder = r === 0 || r === rows - 1 || c === 0 || c === cols - 1;
+        if (isBorder) {
+          ctx.fillStyle = '#11081a';
+          ctx.fillRect(c * pixelSize, r * pixelSize, pixelSize, pixelSize);
+        } else {
+          const rand = (Math.sin(c * 9.4 + r * 27.1) + 1) / 2;
+          if (rand > 0.75) {
+            ctx.fillStyle = '#9b59b6';
+          } else if (rand > 0.45) {
+            ctx.fillStyle = '#4b1e6d';
+          } else {
+            ctx.fillStyle = '#2c1340';
+          }
+          ctx.fillRect(c * pixelSize, r * pixelSize, pixelSize, pixelSize);
+        }
+      }
+    }
+  } else if (type === 'tnt') {
+    // TNT Block: Red casing with middle white band
+    ctx.fillStyle = '#c0392b';
+    ctx.fillRect(0, 0, width, height);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if ((c + r) % 3 === 0) {
+          ctx.fillStyle = '#962d22';
+          ctx.fillRect(c * pixelSize, r * pixelSize, pixelSize, pixelSize);
+        }
+      }
+    }
+    // White center TNT band
+    const bandY = Math.floor(height * 0.32);
+    const bandH = Math.floor(height * 0.36);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, bandY, width, bandH);
+    ctx.fillStyle = '#e0e0e0';
+    for (let x = 0; x < width; x += 32) {
+      ctx.fillRect(x, bandY, 16, bandH);
+    }
+    ctx.font = 'bold 36px monospace';
+    ctx.fillStyle = '#000000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('TNT', width / 2, height / 2);
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
+  } else {
+    // Bookshelf / Warm Oak Wood
+    ctx.fillStyle = '#d35400';
+    ctx.fillRect(0, 0, width, height);
+    const plankH = Math.floor(height / 4);
+    for (let p = 0; p < 4; p++) {
+      ctx.fillStyle = p % 2 === 0 ? '#e67e22' : '#ca6f1e';
+      ctx.fillRect(0, p * plankH, width, plankH - 4);
+      ctx.fillStyle = '#783f04';
+      ctx.fillRect(0, (p + 1) * plankH - 4, width, 4);
+    }
+  }
+}
+
+function createMinecraftBlockTextures(label, domain) {
+  const domainInfo = DOMAIN_CONFIG[domain] || DOMAIN_CONFIG.governors;
+  const blockType = domainInfo.type || 'redstone';
+
+  // Body / Side texture (256x256)
+  const bodyCanvas = document.createElement('canvas');
+  bodyCanvas.width = 256;
+  bodyCanvas.height = 256;
+  const bCtx = bodyCanvas.getContext('2d');
+  drawMinecraftVoxelPattern(bCtx, blockType, 256, 256);
+  const bodyTexture = new THREE.CanvasTexture(bodyCanvas);
+  bodyTexture.magFilter = THREE.NearestFilter;
+  bodyTexture.minFilter = THREE.NearestFilter;
+  bodyTexture.generateMipmaps = false;
+
+  // Front face with High-Contrast Readable Plaque (1024x256)
+  const frontCanvas = document.createElement('canvas');
+  frontCanvas.width = 1024;
+  frontCanvas.height = 256;
+  const fCtx = frontCanvas.getContext('2d');
+  drawMinecraftVoxelPattern(fCtx, blockType, 1024, 256);
+
+  // Inset High-Contrast Sign Plaque
+  const plaqueMarginX = 20;
+  const plaqueMarginY = 16;
+  const plaqueW = 1024 - plaqueMarginX * 2;
+  const plaqueH = 256 - plaqueMarginY * 2;
+
+  fCtx.fillStyle = 'rgba(10, 12, 16, 0.88)';
+  fCtx.fillRect(plaqueMarginX, plaqueMarginY, plaqueW, plaqueH);
+  fCtx.lineWidth = 6;
+  fCtx.strokeStyle = domainInfo.color;
+  fCtx.strokeRect(plaqueMarginX, plaqueMarginY, plaqueW, plaqueH);
+
+  // Corner rivets / bolts
+  fCtx.fillStyle = '#ffffff';
+  fCtx.fillRect(plaqueMarginX + 8, plaqueMarginY + 8, 10, 10);
+  fCtx.fillRect(plaqueMarginX + plaqueW - 18, plaqueMarginY + 8, 10, 10);
+  fCtx.fillRect(plaqueMarginX + 8, plaqueMarginY + plaqueH - 18, 10, 10);
+  fCtx.fillRect(plaqueMarginX + plaqueW - 18, plaqueMarginY + plaqueH - 18, 10, 10);
+
+  // Domain badge in bright high-contrast color
+  fCtx.font = 'bold 26px "JetBrains Mono", monospace';
+  fCtx.fillStyle = domainInfo.color;
+  fCtx.shadowColor = '#000000';
+  fCtx.shadowOffsetX = 2;
+  fCtx.shadowOffsetY = 2;
+  fCtx.fillText(`★ [${domainInfo.name.toUpperCase()}]`, plaqueMarginX + 30, plaqueMarginY + 54);
+
+  // Component label in large, clean, razor-sharp font
+  fCtx.font = 'bold 46px "Outfit", "JetBrains Mono", sans-serif';
+  fCtx.fillStyle = '#ffffff';
+  fCtx.shadowColor = '#000000';
+  fCtx.shadowOffsetX = 4;
+  fCtx.shadowOffsetY = 4;
+
+  // Text fitting
+  let displayLabel = label;
+  if (displayLabel.length > 30) {
+    displayLabel = displayLabel.slice(0, 28) + '...';
+  }
+  fCtx.fillText(displayLabel, plaqueMarginX + 30, plaqueMarginY + 140);
+
+  const frontTexture = new THREE.CanvasTexture(frontCanvas);
+  frontTexture.magFilter = THREE.LinearFilter;
+  frontTexture.minFilter = THREE.LinearMipmapLinearFilter;
+  frontTexture.generateMipmaps = true;
+
+  return { bodyTexture, frontTexture, domainInfo };
+}
+
+// Minecraft Grass Platform Textures
+function createGrassTopTexture() {
   const canvas = document.createElement('canvas');
-  canvas.width = 512;
+  canvas.width = 128;
   canvas.height = 128;
   const ctx = canvas.getContext('2d');
-
-  // Warm light alabaster / ivory gradient
-  const grad = ctx.createLinearGradient(0, 0, 512, 128);
-  grad.addColorStop(0, '#ffffff');
-  grad.addColorStop(0.5, '#fbf8f2');
-  grad.addColorStop(1, '#f3ece0');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 512, 128);
-
-  // Subtle warm stone border
-  ctx.strokeStyle = '#ded5c5';
-  ctx.lineWidth = 6;
-  ctx.strokeRect(3, 3, 506, 122);
-
-  // Vibrant domain stripe on left
-  ctx.fillStyle = color;
-  ctx.fillRect(3, 3, 26, 122);
-
-  // Architectural fine grid pattern
-  ctx.strokeStyle = 'rgba(120, 100, 80, 0.08)';
-  ctx.lineWidth = 1;
-  for (let x = 40; x < 512; x += 32) {
-    ctx.beginPath();
-    ctx.moveTo(x, 5);
-    ctx.lineTo(x, 123);
-    ctx.stroke();
+  ctx.fillStyle = '#5b8731';
+  ctx.fillRect(0, 0, 128, 128);
+  for (let y = 0; y < 128; y += 8) {
+    for (let x = 0; x < 128; x += 8) {
+      const rand = Math.sin(x * 12.3 + y * 9.7);
+      ctx.fillStyle = rand > 0.4 ? '#6ea137' : rand < -0.4 ? '#4a7224' : '#5b8731';
+      ctx.fillRect(x, y, 8, 8);
+    }
   }
-
-  // Domain badge text in JetBrains Mono
-  ctx.fillStyle = color;
-  ctx.font = 'bold 22px "JetBrains Mono", monospace';
-  ctx.fillText(domain.toUpperCase(), 46, 42);
-
-  // Block Label in Outfit (crisp dark charcoal #1c1917)
-  ctx.fillStyle = '#1c1917';
-  ctx.font = '800 34px "Outfit", sans-serif';
-  ctx.fillText(label, 46, 92);
-
   const texture = new THREE.CanvasTexture(canvas);
-  texture.anisotropy = 4;
+  texture.magFilter = THREE.NearestFilter;
+  texture.minFilter = THREE.NearestFilter;
+  return texture;
+}
+
+function createGrassSideTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#866043';
+  ctx.fillRect(0, 0, 128, 128);
+  for (let y = 0; y < 128; y += 8) {
+    for (let x = 0; x < 128; x += 8) {
+      const rand = Math.sin(x * 15.1 + y * 18.2);
+      ctx.fillStyle = rand > 0.4 ? '#9b6f4c' : rand < -0.4 ? '#6a4a31' : '#866043';
+      ctx.fillRect(x, y, 8, 8);
+    }
+  }
+  ctx.fillStyle = '#5b8731';
+  ctx.fillRect(0, 0, 128, 24);
+  const drops = [0, 8, 16, 8, 0, 16, 24, 16, 8, 0, 8, 16, 8, 0, 8, 16];
+  for (let i = 0; i < 16; i++) {
+    ctx.fillRect(i * 8, 24, 8, drops[i]);
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.magFilter = THREE.NearestFilter;
+  texture.minFilter = THREE.NearestFilter;
+  return texture;
+}
+
+function createDirtTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#866043';
+  ctx.fillRect(0, 0, 128, 128);
+  for (let y = 0; y < 128; y += 8) {
+    for (let x = 0; x < 128; x += 8) {
+      const rand = Math.sin(x * 11.1 + y * 14.2);
+      ctx.fillStyle = rand > 0.3 ? '#9b6f4c' : rand < -0.3 ? '#6a4a31' : '#866043';
+      ctx.fillRect(x, y, 8, 8);
+    }
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.magFilter = THREE.NearestFilter;
+  texture.minFilter = THREE.NearestFilter;
+  return texture;
+}
+
+function createBedrockTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#333333';
+  ctx.fillRect(0, 0, 128, 128);
+  for (let y = 0; y < 128; y += 8) {
+    for (let x = 0; x < 128; x += 8) {
+      const rand = Math.sin(x * 21.1 + y * 31.7);
+      ctx.fillStyle = rand > 0.5 ? '#555555' : rand < -0.4 ? '#111111' : '#282828';
+      ctx.fillRect(x, y, 8, 8);
+    }
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.magFilter = THREE.NearestFilter;
+  texture.minFilter = THREE.NearestFilter;
   return texture;
 }
 
@@ -314,12 +585,12 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     const width = container.clientWidth || 450;
     const height = container.clientHeight || 520;
 
-    // 1. Scene
+    // 1. Scene - Minecraft Atmospheric Twilight Sky
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color('#f4efe6');
+    scene.background = new THREE.Color('#161a22');
     sceneRef.current = scene;
 
-    // 2. Camera - Framed to comfortably fit all 18 layers + cyber pedestal
+    // 2. Camera - Framed to comfortably fit all 18 layers + Minecraft pedestal
     const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 1000);
     camera.position.set(0, DEFAULT_LOOK_AT_Y, DEFAULT_CAMERA_DISTANCE);
     camera.lookAt(0, DEFAULT_LOOK_AT_Y, 0);
@@ -332,76 +603,96 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.35;
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // 4. Studio Lighting - Warm Natural Sunlit Gallery
-    const ambientLight = new THREE.AmbientLight(0xfefcf9, 1.5);
+    // 4. Minecraft Sun / Ambient Lighting
+    const ambientLight = new THREE.AmbientLight(0xfff5ea, 1.4);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xfff7ed, 2.6);
-    keyLight.position.set(22, 42, 28);
-    keyLight.castShadow = true;
-    keyLight.shadow.mapSize.width = 1024;
-    keyLight.shadow.mapSize.height = 1024;
-    scene.add(keyLight);
+    const sunLight = new THREE.DirectionalLight(0xffedd5, 2.8);
+    sunLight.position.set(24, 45, 28);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 1024;
+    sunLight.shadow.mapSize.height = 1024;
+    scene.add(sunLight);
 
-    const rimLight = new THREE.DirectionalLight(0xe0f2fe, 1.5);
-    rimLight.position.set(-25, 35, -20);
+    const rimLight = new THREE.DirectionalLight(0x7dd3fc, 1.2);
+    rimLight.position.set(-25, 30, -20);
     scene.add(rimLight);
 
-    const warmGround = new THREE.PointLight(0xd97706, 2.2, 45);
-    warmGround.position.set(0, 2, 0);
+    const warmGround = new THREE.PointLight(0xf59e0b, 2.0, 45);
+    warmGround.position.set(0, 3, 0);
     scene.add(warmGround);
 
-    // Focused Extraction Laser Spotlight for lock-on tracking
-    const extractionSpotlight = new THREE.SpotLight(0xe11d48, 0, 50, Math.PI / 4, 0.35, 1.2);
+    // Focused Extraction Spotlight for lock-on tracking
+    const extractionSpotlight = new THREE.SpotLight(0xff3b30, 0, 50, Math.PI / 4, 0.35, 1.2);
     extractionSpotlight.position.set(0, 15.5, 20);
     scene.add(extractionSpotlight);
     scene.add(extractionSpotlight.target);
     extractionSpotlightRef.current = extractionSpotlight;
 
-    // 5. Light Travertine / Sandstone Pedestal
-    const pedestalGeo = new THREE.CylinderGeometry(13.5, 15.5, 1.8, 48);
-    const pedestalMat = new THREE.MeshStandardMaterial({
-      color: 0xe8e2d4,
-      roughness: 0.35,
-      metalness: 0.15,
-    });
-    const pedestal = new THREE.Mesh(pedestalGeo, pedestalMat);
-    pedestal.position.y = -0.9;
-    pedestal.receiveShadow = true;
-    scene.add(pedestal);
+    // 5. Authentic Minecraft Voxel Grass & Dirt Platform
+    const platformWidth = 24.0;
+    const platformHeight = 2.4;
+    const platformDepth = 24.0;
+    const platformGeo = new THREE.BoxGeometry(platformWidth, platformHeight, platformDepth);
 
-    const ringGeo1 = new THREE.RingGeometry(13.8, 14.4, 64);
-    const ringMat1 = new THREE.MeshBasicMaterial({
-      color: 0xd97706, // Bronze/Amber accent
-      side: THREE.DoubleSide,
+    const grassTopTexture = createGrassTopTexture();
+    const grassSideTexture = createGrassSideTexture();
+    const dirtBottomTexture = createDirtTexture();
+
+    const grassTopMat = new THREE.MeshStandardMaterial({ map: grassTopTexture, roughness: 0.85 });
+    const grassSideMat = new THREE.MeshStandardMaterial({ map: grassSideTexture, roughness: 0.85 });
+    const dirtMat = new THREE.MeshStandardMaterial({ map: dirtBottomTexture, roughness: 0.9 });
+
+    // Order: +x, -x, +y (top), -y (bottom), +z, -z
+    const platformMats = [
+      grassSideMat,
+      grassSideMat,
+      grassTopMat,
+      dirtMat,
+      grassSideMat,
+      grassSideMat,
+    ];
+
+    const platform = new THREE.Mesh(platformGeo, platformMats);
+    platform.position.y = -platformHeight / 2;
+    platform.receiveShadow = true;
+    scene.add(platform);
+
+    // Bedrock lower foundation tier
+    const baseGeo = new THREE.BoxGeometry(26.4, 1.2, 26.4);
+    const bedrockTexture = createBedrockTexture();
+    const baseMat = new THREE.MeshStandardMaterial({ map: bedrockTexture, roughness: 0.9 });
+    const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+    baseMesh.position.y = -platformHeight - 0.6;
+    baseMesh.receiveShadow = true;
+    scene.add(baseMesh);
+
+    // Drifting Blocky Minecraft Clouds
+    const cloudGroup = new THREE.Group();
+    const cloudMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.32,
     });
-    const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
-    ring1.rotation.x = -Math.PI / 2;
-    ring1.position.y = 0.05;
-    scene.add(ring1);
-
-    const ringGeo2 = new THREE.RingGeometry(9.0, 9.4, 64);
-    const ringMat2 = new THREE.MeshBasicMaterial({
-      color: 0x0284c7, // Azure accent
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.5,
-    });
-    const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
-    ring2.rotation.x = -Math.PI / 2;
-    ring2.position.y = 0.06;
-    scene.add(ring2);
-
-    const grid = new THREE.GridHelper(28, 18, 0xd4cbb9, 0xe5dfd2);
-    grid.position.y = 0.07;
-    scene.add(grid);
+    for (let c = 0; c < 7; c++) {
+      const cw = 16 + Math.random() * 18;
+      const ch = 2.0;
+      const cd = 12 + Math.random() * 14;
+      const cloudGeo = new THREE.BoxGeometry(cw, ch, cd);
+      const cloud = new THREE.Mesh(cloudGeo, cloudMat);
+      cloud.position.set(
+        (Math.random() - 0.5) * 80,
+        34 + Math.random() * 6,
+        -25 - Math.random() * 25
+      );
+      cloudGroup.add(cloud);
+    }
+    scene.add(cloudGroup);
 
     // 6. Tower Group
     const towerGroup = new THREE.Group();
@@ -416,37 +707,30 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     const spacing = 0.08;
     const blockGeo = new THREE.BoxGeometry(blockLength, blockHeight, blockWidth);
 
-    // Build the 18 layers (54 blocks)
+    // Build the 18 layers (54 Minecraft Voxel blocks)
     SF_ARCHITECTURE_BLOCKS.forEach((item, index) => {
       const { layer, pos, label, domain } = item;
       const isEvenLayer = layer % 2 === 0;
 
-      const domainInfo = DOMAIN_CONFIG[domain] || DOMAIN_CONFIG.governors;
-      const texture = createBlockTexture(label, domain, domainInfo.color);
+      const { bodyTexture, frontTexture, domainInfo } = createMinecraftBlockTextures(label, domain);
 
-      // Body material: Warm architectural alabaster / light maple for block top, bottom, and back
+      // Body material: Pixelated Minecraft block texture
       const bodyMat = new THREE.MeshStandardMaterial({
-        color: 0xf6f0e6,
-        roughness: 0.35,
-        metalness: 0.05,
-      });
-
-      // Accent material for the side ends of the block
-      const accentEndMat = new THREE.MeshStandardMaterial({
-        color: domainInfo.color,
-        roughness: 0.25,
-        metalness: 0.1,
+        map: bodyTexture,
+        roughness: domainInfo.roughness || 0.4,
+        metalness: domainInfo.metalness || 0.1,
       });
 
       const frontFaceMat = new THREE.MeshStandardMaterial({
-        map: texture,
-        roughness: 0.2,
+        map: frontTexture,
+        roughness: 0.3,
         metalness: 0.05,
       });
 
+      // Order: +x, -x, +y, -y, +z, -z
       const materials = [
-        accentEndMat,
-        accentEndMat,
+        bodyMat,
+        bodyMat,
         bodyMat,
         bodyMat,
         frontFaceMat,
@@ -604,25 +888,34 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
         let rotZ = 0;
 
         const currentInstability = instabilityPctRef.current || 0;
-        if (currentInstability > 8) {
+        if (currentInstability > 4) {
           const swayFactor = currentInstability / 100;
           const elapsedTime = clock.getElapsedTime();
 
-          // Organic architectural lean & sway
-          const swayX = Math.sin(elapsedTime * 1.6) * 0.04 * swayFactor;
-          const swayZ = Math.cos(elapsedTime * 1.2) * 0.035 * swayFactor;
+          // 1. Permanent off-axis architectural lean scaling with health loss / instability
+          const leanX = swayFactor * 0.065;
+          const leanZ = swayFactor * 0.052;
+          rotX += leanX;
+          rotZ += leanZ;
+
+          // 2. Continuous organic architectural swaying motion
+          const swayX = Math.sin(elapsedTime * 1.5) * 0.05 * swayFactor;
+          const swayZ = Math.cos(elapsedTime * 1.1) * 0.045 * swayFactor;
           rotX += swayX;
           rotZ += swayZ;
 
-          // Realistic jitter / creaking tremor if instability is severe (>= 50%)
-          if (currentInstability >= 50) {
-            const tremor = (Math.sin(elapsedTime * 14) * 0.007 + (Math.random() - 0.5) * 0.004) * swayFactor;
+          // 3. Realistic creaking tremor jitter if instability is high (>= 35%)
+          if (currentInstability >= 35) {
+            const tremorRate = currentInstability >= 65 ? 22 : 14;
+            const tremorMag = (currentInstability >= 65 ? 0.012 : 0.006) * swayFactor;
+            const tremor = (Math.sin(elapsedTime * tremorRate) + (Math.random() - 0.5) * 0.6) * tremorMag;
             rotZ += tremor;
+            rotX += tremor * 0.5;
           }
 
-          // Subtle horizontal shift simulating leaning center of gravity
-          towerGroupRef.current.position.x = Math.sin(elapsedTime * 1.6) * 0.3 * swayFactor;
-          towerGroupRef.current.position.z = Math.cos(elapsedTime * 1.2) * 0.22 * swayFactor;
+          // 4. Off-center gravity shift
+          towerGroupRef.current.position.x = (Math.sin(elapsedTime * 1.5) * 0.35 + leanZ * 3.5) * swayFactor;
+          towerGroupRef.current.position.z = (Math.cos(elapsedTime * 1.1) * 0.28 + leanX * 2.8) * swayFactor;
         } else {
           towerGroupRef.current.position.x = 0;
           towerGroupRef.current.position.z = 0;
@@ -871,49 +1164,121 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     [DEFAULT_LOOK_AT_Y, DEFAULT_CAMERA_DISTANCE]
   );
 
-  // Catastrophic 3D physics collapse simulation (All 54 Blocks Tumble into Ruin)
+  // Realistic Jenga structural failure physics (directional gravity topple, no bomb blast)
   const triggerCatastrophicCollapse = useCallback(() => {
     isCollapsingRef.current = true;
     animatingBlocksRef.current.clear();
     const list = [];
 
-    // Frame wide overview of the collapsing structure
+    // Smoothly pull back camera to an elevated spectator angle
     cameraDistanceRef.current = 42.0;
-    targetLookAtYRef.current = 10.0;
+    targetLookAtYRef.current = 8.0;
+    targetRotationRef.current.x = 0.28;
+
+    // Primary failure topple vector (realistic diagonal forward lean)
+    const fallDirX = 0.82;
+    const fallDirZ = 0.57;
 
     blocksMeshMapRef.current.forEach((mesh) => {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 5.0 + Math.random() * 12.0;
-      const layerWeight = (mesh.userData.layer + 1) / 18.0;
+      const layer = mesh.userData.layer ?? 0;
+      const layerNorm = layer / 17.0; // 0 at foundation, 1 at top pinnacle
+
+      // Realistic column momentum: blocks near top have high forward arc velocity, base stays grounded
+      const horizontalSpeed = 1.2 + Math.pow(layerNorm, 1.4) * 11.5 + (Math.random() - 0.5) * 1.5;
+      const lateralScatter = (Math.random() - 0.5) * (1.0 + layerNorm * 2.8);
+
+      // Tangent to fall vector for realistic lateral slip
+      const perpX = -fallDirZ;
+      const perpZ = fallDirX;
+
+      const vx = fallDirX * horizontalSpeed + perpX * lateralScatter;
+      const vz = fallDirZ * horizontalSpeed + perpZ * lateralScatter;
+      // Downward gravity buckling (NOT shooting upwards like fireworks!)
+      const vy = -0.5 - (1.0 - layerNorm) * 2.0 + Math.random() * 0.8;
 
       list.push({
         mesh,
-        vx: Math.cos(angle) * speed * (0.8 + layerWeight),
-        vy: 3.0 + Math.random() * 6.0 + layerWeight * 5.0,
-        vz: Math.sin(angle) * speed * (0.8 + layerWeight),
-        rotVx: (Math.random() - 0.5) * 0.35,
-        rotVy: (Math.random() - 0.5) * 0.35,
-        rotVz: (Math.random() - 0.5) * 0.35,
-        floorY: 0.8 + Math.random() * 0.6,
+        vx,
+        vy,
+        vz,
+        rotVx: (fallDirZ * 0.12 + (Math.random() - 0.5) * 0.08) * (0.5 + layerNorm),
+        rotVy: ((Math.random() - 0.5) * 0.06) * (0.5 + layerNorm),
+        rotVz: (-fallDirX * 0.12 + (Math.random() - 0.5) * 0.08) * (0.5 + layerNorm),
+        floorY: 0.8 + Math.random() * 0.5,
         isGrounded: false,
       });
-
-      if (mesh.material) {
-        mesh.material.forEach((m) => {
-          if (m && m.emissive) {
-            m.emissive.setHex(0xff0033);
-            m.emissiveIntensity = 2.4;
-          }
-        });
-      }
     });
 
     collapseBlocksRef.current = list;
   }, []);
 
+  // Method to reconstruct and restore tower back to upright position
+  const restoreTowerStructure = useCallback((currentPulls = totalPulls) => {
+    isCollapsingRef.current = false;
+    collapseBlocksRef.current = [];
+    animatingBlocksRef.current.clear();
+
+    if (towerGroupRef.current) {
+      towerGroupRef.current.position.set(0, 0, 0);
+    }
+
+    targetRotationRef.current = { x: 0.12, y: 0.5 };
+    targetLookAtYRef.current = DEFAULT_LOOK_AT_Y;
+    cameraDistanceRef.current = DEFAULT_CAMERA_DISTANCE;
+
+    if (!blocksMeshMapRef.current || blocksMeshMapRef.current.size === 0) return;
+
+    const pullsLimit = Math.max(0, currentPulls);
+    const pulledSet = new Set(REMOVAL_SEQUENCE.slice(0, pullsLimit));
+    pulledIndicesRef.current = new Set(pulledSet);
+
+    const historyItems = [];
+
+    blocksMeshMapRef.current.forEach((mesh, blockIdx) => {
+      const isExtracted = pulledSet.has(blockIdx);
+      mesh.userData.isExtracted = isExtracted;
+      mesh.userData.animTime = 0;
+      mesh.userData.hasPlayedSlideSound = false;
+      mesh.userData.hasPlayedLandSound = false;
+
+      if (isExtracted) {
+        // Resting on floor away from tower
+        const targetY = 0.8 + (mesh.userData.pos % 2) * 0.4;
+        const drift = 14.5;
+        mesh.position.set(
+          mesh.userData.initialPos.x + mesh.userData.slideDirection.x * drift,
+          targetY,
+          mesh.userData.initialPos.z + mesh.userData.slideDirection.z * drift
+        );
+        mesh.rotation.set(0.1, (mesh.userData.pos % 2 === 0 ? 0.35 : -0.35), 0);
+        historyItems.push({
+          label: mesh.userData.label,
+          domain: mesh.userData.domain,
+          layer: mesh.userData.layer,
+        });
+      } else {
+        // Upright in the standing tower column!
+        mesh.position.copy(mesh.userData.initialPos);
+        mesh.rotation.copy(mesh.userData.initialRot);
+      }
+
+      if (mesh.material) {
+        mesh.material.forEach((m) => {
+          if (m && m.emissive) {
+            m.emissive.setHex(0x050a14);
+            m.emissiveIntensity = 0.5;
+          }
+        });
+      }
+    });
+
+    setExtractedHistory(historyItems);
+  }, [totalPulls, DEFAULT_LOOK_AT_Y, DEFAULT_CAMERA_DISTANCE]);
+
   useImperativeHandle(ref, () => ({
     triggerExtractionSequence,
     triggerCatastrophicCollapse,
+    restoreTowerStructure,
     resetCamera: () => {
       targetRotationRef.current = { x: 0.12, y: 0.5 };
       targetLookAtYRef.current = DEFAULT_LOOK_AT_Y;
@@ -921,66 +1286,33 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     },
   }));
 
-  const handleReplayLastExtraction = () => {
-    if (pulledIndicesRef.current.size === 0) return;
-    const lastIdx = Array.from(pulledIndicesRef.current).pop();
-    const mesh = blocksMeshMapRef.current.get(lastIdx);
-    if (mesh) {
-      mesh.position.copy(mesh.userData.initialPos);
-      mesh.rotation.copy(mesh.userData.initialRot);
-      mesh.userData.animTime = 0;
-      mesh.userData.hasPlayedSlideSound = false;
-      mesh.userData.hasPlayedLandSound = false;
-      animatingBlocksRef.current.add(mesh);
-
-      // Focus camera on the replayed block
-      targetLookAtYRef.current = mesh.userData.initialPos.y;
-      cameraDistanceRef.current = 13.5;
-      setActiveExtractionInfo({
-        label: mesh.userData.label,
-        domain: mesh.userData.domain,
-        layer: mesh.userData.layer,
-      });
-
-      setTimeout(() => {
-        setActiveExtractionInfo(null);
-        targetLookAtYRef.current = DEFAULT_LOOK_AT_Y;
-        cameraDistanceRef.current = DEFAULT_CAMERA_DISTANCE;
-      }, 3800);
+  // If game is active (not game over) but tower is collapsed or blocks fallen, restore upright tower
+  useEffect(() => {
+    if (!isGameOver) {
+      let needsRestore = isCollapsingRef.current;
+      if (!needsRestore && blocksMeshMapRef.current && blocksMeshMapRef.current.size > 0) {
+        const pullsLimit = Math.max(0, totalPulls);
+        const pulledSet = new Set(REMOVAL_SEQUENCE.slice(0, pullsLimit));
+        for (const [idx, mesh] of blocksMeshMapRef.current.entries()) {
+          // If a block that is supposed to be standing upright in the tower is found lying on the ground:
+          if (!pulledSet.has(idx) && mesh.position.y < 2.0) {
+            needsRestore = true;
+            break;
+          }
+        }
+      }
+      if (needsRestore) {
+        restoreTowerStructure(totalPulls);
+      }
     }
-  };
+  }, [isGameOver, totalPulls, restoreTowerStructure]);
 
   // Synchronize extracted missing blocks in tower with totalPulls
   useEffect(() => {
     if (!blocksMeshMapRef.current || blocksMeshMapRef.current.size === 0) return;
 
     if (totalPulls <= 0) {
-      // If reset to 0, restore all blocks to their intact slots in the tower
-      isCollapsingRef.current = false;
-      collapseBlocksRef.current = [];
-      if (towerGroupRef.current) {
-        towerGroupRef.current.position.set(0, 0, 0);
-      }
-      if (pulledIndicesRef.current.size > 0) {
-        pulledIndicesRef.current.clear();
-        setExtractedHistory([]);
-        blocksMeshMapRef.current.forEach((mesh) => {
-          mesh.position.copy(mesh.userData.initialPos);
-          mesh.rotation.copy(mesh.userData.initialRot);
-          mesh.userData.isExtracted = false;
-          mesh.userData.animTime = 0;
-          mesh.userData.hasPlayedSlideSound = false;
-          mesh.userData.hasPlayedLandSound = false;
-          if (mesh.material) {
-            mesh.material.forEach((m) => {
-              if (m && m.emissive) {
-                m.emissive.setHex(0x050a14);
-                m.emissiveIntensity = 0.5;
-              }
-            });
-          }
-        });
-      }
+      restoreTowerStructure(0);
       return;
     }
 
@@ -1021,14 +1353,6 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     setExtractedHistory(historyItems.reverse());
   }, [totalPulls]);
 
-
-  // Trigger catastrophic 3D tumble physics when game over occurs
-  useEffect(() => {
-    if (isGameOver) {
-      triggerCatastrophicCollapse();
-    }
-  }, [isGameOver, triggerCatastrophicCollapse]);
-
   const handleZoom = (inOut) => {
     cameraDistanceRef.current = Math.max(
       14,
@@ -1050,162 +1374,172 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
       : 'text-emerald-800 border-emerald-300 bg-emerald-50';
 
   return (
-    <div className="glass-panel rounded-2xl p-4 flex flex-col justify-between h-full relative overflow-hidden select-none border border-[#e5dec9] shadow-md">
+    <div className="mc-panel-dark p-3 sm:p-4 flex flex-col justify-between h-full relative overflow-hidden select-none">
       {/* Background ambient lighting */}
       <div
         className={`absolute -top-16 -right-16 w-64 h-64 rounded-full blur-3xl opacity-15 pointer-events-none transition-colors duration-700 ${
-          instabilityPct >= 70 ? 'bg-rose-400' : instabilityPct >= 40 ? 'bg-amber-400' : 'bg-emerald-400'
+          instabilityPct >= 70 ? 'bg-red-600' : instabilityPct >= 40 ? 'bg-amber-500' : 'bg-emerald-500'
         }`}
       />
 
       {/* Header */}
       <div className="shrink-0 mb-2">
-        <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
           <div className="flex items-center gap-2">
-            <span className="text-xl">☁️</span>
+            <span className="text-xl">⛏️</span>
             <div>
-              <h3 className="font-extrabold text-stone-900 text-base tracking-tight flex items-center gap-2 font-display">
-                <span>Salesforce Architecture Tower</span>
-                <span className="text-[10px] font-mono font-bold bg-[#ede6d8] text-stone-800 border border-[#dfd6c5] px-2 py-0.5 rounded-full shadow-sm">
-                  Apex & LWC
+              <h3 className="text-white text-xs sm:text-sm font-bold flex items-center gap-2 mc-font tracking-wide">
+                <span>REDSTONE TOWER</span>
+                <span className="text-[9px] bg-[#1a110a] text-[#ffd700] border border-[#555] px-1.5 py-0.5 mc-font">
+                  VOXEL SDLC
                 </span>
               </h3>
             </div>
           </div>
-          <span className={`text-xs px-3 py-1 rounded-full border font-mono font-bold ${tensionBadgeColor}`}>
-            {instabilityPct}% Instability
-          </span>
+          <div className="flex items-center gap-2">
+            <span className={`text-[9px] px-2 py-0.5 mc-font border ${
+              instabilityPct >= 65
+                ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000]'
+                : instabilityPct >= 30
+                ? 'text-[#ffaa00] border-[#aa5500] bg-[#3a2200]'
+                : 'text-[#55ff55] border-[#00aa00] bg-[#002b00]'
+            }`}>
+              STABILITY: {Math.max(0, 100 - instabilityPct)}% {instabilityPct >= 65 ? '⚠️ CRITICAL' : instabilityPct >= 30 ? '⚡ LEANING' : '🛡️ SOLID'}
+            </span>
+          </div>
         </div>
 
-        {/* Instability progress bar */}
-        <div className="w-full bg-[#ede6d8] rounded-full h-1.5 overflow-hidden border border-[#ded5c5] mb-2">
-          <div
-            className={`h-full transition-all duration-700 rounded-full ${
-              instabilityPct >= 75
-                ? 'bg-gradient-to-r from-amber-500 to-rose-600'
-                : instabilityPct >= 40
-                ? 'bg-gradient-to-r from-sky-500 to-amber-500'
-                : 'bg-gradient-to-r from-emerald-500 to-sky-500'
-            }`}
-            style={{ width: `${Math.max(4, instabilityPct)}%` }}
-          />
+        {/* Ender Dragon / Boss Bar style Instability progress bar */}
+        <div className="w-full bg-[#111111] p-[2px] border-2 border-[#555555] shadow-inner mb-2">
+          <div className="w-full bg-[#200020] h-2.5 relative overflow-hidden">
+            <div
+              className={`h-full transition-all duration-700 ${
+                instabilityPct >= 75
+                  ? 'bg-gradient-to-r from-[#aa00aa] via-[#ff55ff] to-[#ff5555]'
+                  : instabilityPct >= 40
+                  ? 'bg-gradient-to-r from-[#5500aa] via-[#aa00aa] to-[#ffaa00]'
+                  : 'bg-gradient-to-r from-[#00aa00] via-[#55ff55] to-[#55ffff]'
+              }`}
+              style={{ width: `${Math.max(3, instabilityPct)}%` }}
+            />
+            {/* Boss bar notches */}
+            <div className="absolute inset-0 flex justify-between pointer-events-none opacity-40">
+              <span className="w-[2px] h-full bg-black" />
+              <span className="w-[2px] h-full bg-black" />
+              <span className="w-[2px] h-full bg-black" />
+              <span className="w-[2px] h-full bg-black" />
+              <span className="w-[2px] h-full bg-black" />
+            </div>
+          </div>
         </div>
 
-        {/* Subsystem Domain Badges */}
-        <div className="flex flex-wrap gap-1 text-[10px] font-mono">
+        {/* Subsystem Voxel Domain Badges */}
+        <div className="flex flex-wrap gap-1 text-[9px] mc-font">
           {Object.entries(DOMAIN_CONFIG).map(([key, dom]) => (
             <span
               key={key}
-              className="px-2 py-0.5 rounded-md border border-[#ded5c5] bg-[#fdfbf7] flex items-center gap-1.5 text-stone-700"
+              className="px-1.5 py-0.5 bg-[#2b2b2b] border border-[#555] flex items-center gap-1 text-[#e0e0e0] shadow-xs"
             >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: dom.color }} />
-              <span className="font-medium">{dom.name}</span>
+              <span className="w-2 h-2 inline-block border border-black/40" style={{ backgroundColor: dom.color }} />
+              <span className="truncate">{dom.name}</span>
             </span>
           ))}
         </div>
       </div>
 
-      {/* 3D WebGL Canvas with Close-up Focus & Crosshair */}
-      <div className="relative w-full flex-1 min-h-[280px] sm:min-h-[320px] bg-gradient-to-b from-[#f5f0e6] to-[#eae3d5] rounded-xl border border-[#ded5c5] overflow-hidden group select-none shadow-inner">
+      {/* 3D WebGL Canvas with Close-up Focus & Minecraft Crosshair */}
+      <div className="relative w-full flex-1 min-h-[280px] sm:min-h-[320px] bg-[#101318] border-2 border-[#333] overflow-hidden group select-none shadow-inner">
         <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-        {/* Full-view Target Reticle & Lock-on Banner */}
+        {/* Full-view Target Reticle & Minecraft Mining Banner */}
         {activeExtractionInfo && (
           <div className="absolute inset-0 pointer-events-none z-20 flex flex-col justify-between p-3 select-none">
             {/* Top Targeting Lock-on Banner */}
-            <div className="bg-[#fff5f5]/95 border-2 border-rose-500 text-stone-900 rounded-2xl p-3 shadow-2xl backdrop-blur-md flex items-center justify-between gap-3 animate-pulse">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-rose-100 border border-rose-400 flex items-center justify-center shrink-0 shadow-lg shadow-rose-500/20">
-                  <Crosshair className="w-6 h-6 text-rose-600 animate-spin" style={{ animationDuration: '4s' }} />
+            <div className="bg-[#1b0505]/95 border-2 border-[#ff3333] text-white p-2.5 shadow-2xl backdrop-blur-md flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 bg-[#3a0000] border-2 border-[#ff5555] flex items-center justify-center shrink-0">
+                  <Crosshair className="w-5 h-5 text-[#ff5555] animate-spin" style={{ animationDuration: '3s' }} />
                 </div>
                 <div className="truncate">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono font-black uppercase tracking-widest text-rose-700 bg-rose-100 px-2 py-0.5 rounded border border-rose-300">
-                      TARGET ACQUIRED
+                    <span className="text-[9px] mc-font text-[#ff5555] bg-[#330000] px-1.5 py-0.5 border border-[#aa0000]">
+                      MINING BLOCK
                     </span>
-                    <span className="text-[10px] font-mono text-amber-800 font-bold">
-                      REMOVING FROM TOWER
+                    <span className="text-[9px] mc-font text-[#ffaa00]">
+                      TOWER STABILITY COMPROMISED
                     </span>
                   </div>
-                  <p className="text-sm font-black text-stone-900 font-mono mt-0.5 truncate">
+                  <p className="text-xs font-bold text-white mc-font mt-0.5 truncate">
                     Layer {activeExtractionInfo.layer}: [{activeExtractionInfo.label}]
                   </p>
                 </div>
               </div>
 
               <div className="text-right hidden sm:block shrink-0">
-                <span className="text-[9px] font-mono text-stone-500 uppercase block">Domain</span>
-                <span className="text-xs font-mono font-black text-rose-700 uppercase">
+                <span className="text-[8px] mc-font text-[#aaa] uppercase block">Block Type</span>
+                <span className="text-[10px] mc-font text-[#ff5555] uppercase">
                   {DOMAIN_CONFIG[activeExtractionInfo.domain]?.name || activeExtractionInfo.domain}
                 </span>
               </div>
             </div>
 
-            {/* Center Crosshair Ring */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
-              <div className="w-28 h-28 border border-rose-500/40 rounded-full animate-ping" style={{ animationDuration: '2.5s' }} />
-              <div className="absolute w-20 h-20 border-2 border-dashed border-amber-600/80 rounded-full animate-spin" style={{ animationDuration: '6s' }} />
-              <div className="absolute w-2.5 h-2.5 bg-rose-500 rounded-full shadow-lg shadow-rose-500" />
+            {/* Authentic Minecraft White Crosshair */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
+              <div className="w-5 h-5 relative flex items-center justify-center">
+                <div className="absolute w-5 h-1 bg-white/80 shadow-[0_0_2px_black]" />
+                <div className="absolute w-1 h-5 bg-white/80 shadow-[0_0_2px_black]" />
+              </div>
             </div>
 
             {/* Bottom Live Extraction Status Ticker */}
-            <div className="self-center bg-rose-50/95 border border-rose-400 text-rose-800 px-4 py-1.5 rounded-full text-[11px] font-mono flex items-center gap-2 backdrop-blur-md shadow-xl">
-              <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping" />
-              <span className="font-bold">SLIDING COMPONENT OUT • ARCHITECTURE DESTABILIZING</span>
+            <div className="self-center bg-[#1a110a]/95 border-2 border-[#ffd700] text-[#ffd700] px-3 py-1 text-[9px] mc-font flex items-center gap-2 backdrop-blur-md shadow-xl">
+              <span className="w-2 h-2 bg-[#ff5555] animate-ping inline-block" />
+              <span>BLOCK DESTABILIZATION IN PROGRESS...</span>
             </div>
           </div>
         )}
 
-        {/* 3D Camera Controls */}
-        <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
+        {/* 3D Camera Controls (Minecraft Stone Buttons) */}
+        <div className="absolute top-2 right-2 flex flex-col gap-1.5 z-10">
           <button
             onClick={() => handleZoom(-1)}
             title="Zoom In"
-            className="p-2 rounded-xl bg-white/90 border border-[#ded5c5] text-stone-700 hover:text-stone-900 hover:bg-stone-50 transition-colors cursor-pointer shadow-md backdrop-blur-md"
+            className="mc-btn p-1.5 cursor-pointer text-white shadow-md flex items-center justify-center"
           >
             <ZoomIn className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => handleZoom(1)}
             title="Zoom Out"
-            className="p-2 rounded-xl bg-white/90 border border-[#ded5c5] text-stone-700 hover:text-stone-900 hover:bg-stone-50 transition-colors cursor-pointer shadow-md backdrop-blur-md"
+            className="mc-btn p-1.5 cursor-pointer text-white shadow-md flex items-center justify-center"
           >
             <ZoomOut className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={handleResetCamera}
             title="Reset View"
-            className="p-2 rounded-xl bg-white/90 border border-[#ded5c5] text-stone-700 hover:text-stone-900 hover:bg-stone-50 transition-colors cursor-pointer shadow-md backdrop-blur-md"
+            className="mc-btn p-1.5 cursor-pointer text-white shadow-md flex items-center justify-center"
           >
             <Rotate3d className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {/* Drag Hint */}
-        <div className="absolute bottom-2 left-3 text-[10px] font-mono text-stone-700 pointer-events-none flex items-center gap-1.5 bg-white/80 px-2.5 py-1 rounded-full border border-[#ded5c5] backdrop-blur-sm shadow-sm">
-          <Rotate3d className="w-3 h-3 text-amber-600 animate-spin" style={{ animationDuration: '6s' }} />
-          <span>Click & Drag to Rotate 360° • Camera Zooms In on Removed Blocks</span>
+        <div className="absolute bottom-2 left-2 text-[9px] mc-font text-[#ccc] pointer-events-none flex items-center gap-1.5 bg-[#1e1e1e]/90 px-2 py-1 border border-[#555] backdrop-blur-sm shadow-sm">
+          <Rotate3d className="w-3 h-3 text-[#ffd700]" />
+          <span>DRAG TO ORBIT • VOXEL WORLD 360°</span>
         </div>
       </div>
 
-      {/* Extracted Subsystems List & Replay Control */}
+      {/* Extracted Subsystems List */}
       <div className="shrink-0 mt-2">
-        <div className="flex items-center justify-between text-[11px] font-mono text-stone-600 mb-1">
-          <span>Fallen Salesforce Subsystems ({totalPulls} blocks extracted):</span>
-          {totalPulls > 0 && (
-            <button
-              onClick={handleReplayLastExtraction}
-              className="text-[11px] text-amber-700 hover:text-amber-800 flex items-center gap-1 underline cursor-pointer font-bold"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>Replay Close-up</span>
-            </button>
-          )}
+        <div className="flex items-center justify-between text-[9px] mc-font text-[#aaa] mb-1">
+          <span>MINED BLOCKS ({totalPulls} EXTRACTED):</span>
         </div>
 
         {extractedHistory.length === 0 ? (
-          <div className="p-2 rounded-lg bg-[#f8f5ee] border border-[#ded5c5] text-[11px] text-stone-500 font-mono text-center">
-            All 54 Salesforce components intact and governor-compliant.
+          <div className="p-2 bg-[#1b1b1b] border border-[#444] text-[9px] text-[#888] mc-font text-center">
+            All 54 Voxel Architecture Blocks Intact.
           </div>
         ) : (
           <div className="space-y-1 max-h-16 overflow-y-auto pr-1">
@@ -1214,16 +1548,16 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
               return (
                 <div
                   key={idx}
-                  className="flex items-center justify-between text-[11px] font-mono bg-white border border-[#ded5c5] px-2.5 py-0.5 rounded-lg shadow-xs"
+                  className="flex items-center justify-between text-[9px] mc-font bg-[#252525] border border-[#444] px-2 py-0.5 shadow-xs"
                 >
                   <div className="flex items-center gap-1.5 truncate">
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: dom.color }} />
-                    <span className="text-stone-800 font-bold truncate">
-                      Layer {item.layer}: {item.label}
+                    <span className="w-2 h-2 inline-block border border-black/40" style={{ backgroundColor: dom.color }} />
+                    <span className="text-[#e0e0e0] font-bold truncate">
+                      L{item.layer}: {item.label}
                     </span>
                   </div>
-                  <span className="text-rose-600 text-[10px] shrink-0 font-bold">
-                    Extracted & Fallen
+                  <span className="text-[#ff5555] text-[8px] shrink-0 font-bold">
+                    MINED
                   </span>
                 </div>
               );
@@ -1236,9 +1570,9 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
       <div className="shrink-0 pt-1 text-center">
         <button
           onClick={onTriggerStressCollapse}
-          className="text-[10px] text-stone-500 hover:text-rose-600 transition-colors underline cursor-pointer font-mono"
+          className="text-[8px] text-[#777] hover:text-[#ff5555] transition-colors cursor-pointer mc-font"
         >
-          Simulate Catastrophic Structural Collapse (3D Tumble Demo)
+          [TNT Stress Test: Trigger Full Block Collapse]
         </button>
       </div>
     </div>

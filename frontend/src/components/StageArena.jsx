@@ -16,12 +16,23 @@ import {
   Users,
   Check,
   Edit3,
+  AlertOctagon,
+  CheckCircle2,
+  ArrowRight,
+  Rotate3d,
 } from 'lucide-react';
 
 export default function StageArena({
   stage,
   onSelectAction,
   disabled = false,
+  stageActionTaken = false,
+  lastActionResult = null,
+  onProceedNextStage,
+  onWatchRemoval,
+  onWatchCollapse,
+  onReopenResult,
+  onCommitDecision,
   votesTally = {},
   activePlayers = [],
   myVote = null,
@@ -41,69 +52,69 @@ export default function StageArena({
   const totalVotesCast = Object.values(votesTally).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="flex flex-col h-full justify-between gap-3 overflow-hidden select-none">
+    <div className="flex flex-col h-full justify-between gap-2.5 overflow-hidden select-none">
       {/* 1. Incident Briefing & Code Diff Panel */}
-      <div className="glass-panel rounded-2xl p-4 flex flex-col flex-1 overflow-hidden relative border border-[#e5dec9] shadow-md">
+      <div className="mc-panel-dark p-3 sm:p-4 flex flex-col flex-1 overflow-hidden relative shadow-md">
         {/* Stage Threat Header */}
-        <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
+        <div className="flex items-center justify-between gap-2 mb-2 shrink-0 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-1.5 shadow-xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
-              <span>STAGE {stage.id} // SEV-1 ALERT</span>
+            <span className="px-2 py-0.5 text-[9px] mc-font uppercase tracking-wider bg-[#3a0000] text-[#ff5555] border-2 border-[#aa0000] flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 bg-[#ff3333] animate-ping inline-block" />
+              <span>QUEST WAVE {stage.id}</span>
             </span>
-            <span className="text-xs font-mono text-stone-500">
-              Phase: <strong className="text-stone-800 font-semibold">{stage.phase_name}</strong>
+            <span className="text-[9px] mc-font text-[#aaa]">
+              STAGE: <strong className="text-[#ffd700]">{stage.phase_name}</strong>
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-[10px] font-mono text-amber-900 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded-full">
-            <Sparkles className="w-3 h-3 text-amber-700 animate-spin" style={{ animationDuration: '4s' }} />
-            <span>AI AGENT STREAMING PR</span>
+          <div className="flex items-center gap-1.5 text-[9px] mc-font text-[#ffd700] bg-[#221a0f] border border-[#553311] px-2 py-0.5">
+            <Sparkles className="w-3 h-3 text-[#ffd700] animate-spin" style={{ animationDuration: '4s' }} />
+            <span>AI GOLEM GENERATING PR</span>
           </div>
         </div>
 
         {/* Story Title & Narrative */}
-        <h2 className="text-xl font-extrabold text-stone-900 tracking-tight mb-1 shrink-0 font-display">
+        <h2 className="text-sm sm:text-base font-bold text-white tracking-wide mb-1 shrink-0 mc-font text-[#ffff55]">
           {stage.title}
         </h2>
-        <p className="text-xs text-stone-600 font-normal leading-relaxed mb-2.5 line-clamp-2 shrink-0">
+        <p className="text-[11px] text-[#ccc] leading-relaxed mb-2 line-clamp-2 shrink-0 font-sans">
           {stage.story}
         </p>
 
-        {/* AI Commit / PR Summary Bar */}
-        <div className="bg-[#f5efe3] border border-[#e0d7c6] rounded-xl px-3.5 py-2 mb-2.5 flex items-center justify-between gap-3 shrink-0 shadow-xs">
+        {/* AI Commit / PR Summary Bar (Minecraft Anvil / Crafting Box) */}
+        <div className="bg-[#181818] border-2 border-[#333] px-3 py-1.5 mb-2 flex items-center justify-between gap-2 shrink-0">
           <div className="flex items-center gap-2 text-xs truncate">
-            <GitPullRequest className="w-4 h-4 text-amber-700 shrink-0" />
-            <span className="text-[11px] font-bold text-stone-700 uppercase font-mono shrink-0">PROPOSAL:</span>
-            <span className="text-[11px] text-stone-600 italic font-mono truncate">
+            <GitPullRequest className="w-3.5 h-3.5 text-[#ffd700] shrink-0" />
+            <span className="text-[9px] font-bold text-[#aaa] uppercase mc-font shrink-0">PROPOSAL:</span>
+            <span className="text-[11px] text-[#ddd] italic truncate font-sans">
               "{stage.ai_proposal_summary}"
             </span>
           </div>
-          <code className="text-stone-800 font-mono text-[10px] bg-[#ede6d8] px-2.5 py-0.5 rounded border border-[#d8cfbe] shrink-0 font-semibold">
+          <code className="text-[#55ff55] font-mono text-[9px] bg-[#101010] px-2 py-0.5 border border-[#333] shrink-0">
             {stage.file_name}
           </code>
         </div>
 
-        {/* Unified Code Diff Viewer (Editorial Light Styling) */}
-        <div className="rounded-xl border border-[#ded5c5] bg-[#fbf9f4] flex-1 min-h-[160px] sm:min-h-[180px] flex flex-col overflow-hidden shadow-inner">
-          <div className="bg-[#f0e9dc] px-3.5 py-1.5 border-b border-[#ded5c5] flex items-center justify-between text-xs font-mono text-stone-600 shrink-0">
+        {/* Unified Code Diff Viewer (Obsidian Slate Console) */}
+        <div className="border-2 border-[#333] bg-[#0c0d10] flex-1 min-h-[150px] sm:min-h-[170px] flex flex-col overflow-hidden shadow-inner">
+          <div className="bg-[#1a1c22] px-3 py-1 border-b-2 border-[#333] flex items-center justify-between text-xs mc-font text-[#aaa] shrink-0">
             <div className="flex items-center gap-2">
-              <FileCode className="w-3.5 h-3.5 text-amber-700" />
-              <span className="font-semibold text-stone-800">Inspection View: git diff</span>
+              <FileCode className="w-3.5 h-3.5 text-[#ffd700]" />
+              <span className="text-[9px] text-white">BOOK & QUILL: git diff</span>
             </div>
-            <span className="text-[10px] text-stone-500 font-mono">Unified Diff</span>
+            <span className="text-[8px] text-[#777]">UNIFIED</span>
           </div>
 
-          <div className="p-2 sm:p-2.5 font-mono text-xs overflow-y-auto overflow-x-auto flex-1 leading-relaxed select-text bg-[#fbf9f4]">
+          <div className="p-2 sm:p-2.5 font-mono text-xs overflow-y-auto overflow-x-auto flex-1 leading-relaxed select-text bg-[#0c0d10]">
             {diffLines.map((line, idx) => {
               const isAdd = line.startsWith('+') && !line.startsWith('+++');
               const isRemove = line.startsWith('-') && !line.startsWith('---');
               const isHeader = line.startsWith('@@') || line.startsWith('---') || line.startsWith('+++');
 
-              let rowClass = 'text-stone-700 py-0.5 px-2';
-              if (isAdd) rowClass = 'code-diff-add py-0.5 px-2 font-medium';
-              if (isRemove) rowClass = 'code-diff-remove py-0.5 px-2 font-medium';
-              if (isHeader) rowClass = 'text-amber-900 font-bold py-0.5 px-2 bg-amber-100/70 rounded-xs';
+              let rowClass = 'text-[#ccc] py-0.5 px-2';
+              if (isAdd) rowClass = 'text-[#55ff55] bg-[#0d2a0d]/50 py-0.5 px-2 font-medium';
+              if (isRemove) rowClass = 'text-[#ff5555] bg-[#3a0d0d]/50 py-0.5 px-2 font-medium';
+              if (isHeader) rowClass = 'text-[#ffff55] font-bold py-0.5 px-2 bg-[#2a2400]/50';
 
               return (
                 <div key={idx} className={`font-mono text-[11px] sm:text-[12px] whitespace-pre ${rowClass}`}>
@@ -115,308 +126,429 @@ export default function StageArena({
         </div>
 
         {/* Hidden Architectural Risks Accordion */}
-        <div className="mt-2.5 shrink-0">
+        <div className="mt-2 shrink-0">
           <button
             onClick={() => setShowRiskScanner(!showRiskScanner)}
-            className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl bg-[#f5efe3] hover:bg-[#ede5d6] border border-[#ded5c5] text-xs font-mono text-stone-700 transition-colors cursor-pointer shadow-xs"
+            className="w-full flex items-center justify-between px-2.5 py-1 bg-[#252525] hover:bg-[#2d2d2d] border border-[#444] text-[9px] mc-font text-[#ffd700] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-              <span className="font-bold">Human Inspector Threat Telemetry</span>
+              <AlertTriangle className="w-3 h-3 text-[#ffaa00]" />
+              <span>DETECTED ARCHITECTURE TELEMETRY</span>
             </div>
             {showRiskScanner ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
 
           {showRiskScanner && (
-            <div className="mt-1.5 p-3 rounded-xl bg-amber-50/70 border border-amber-200 text-xs text-amber-950 font-mono leading-relaxed animate-fadeIn shadow-xs">
-              <strong className="text-amber-900 block mb-1 font-bold">DETECTED PATTERN:</strong>
+            <div className="mt-1 p-2.5 bg-[#251505] border-2 border-[#aa5500] text-[10px] text-[#ffddaa] mc-font leading-relaxed">
+              <strong className="text-[#ffd700] block mb-1">SUSPECT PATTERN:</strong>
               {stage.hidden_risks}
             </div>
           )}
         </div>
       </div>
 
-      {/* 2. Team Voting & Decision Consoles */}
-      <div className="shrink-0 space-y-2">
-        {/* Live Active Connected Teammates Roster Bar */}
-        <div className="bg-[#f0e9dc] border border-[#ded5c5] rounded-xl px-3 py-2 flex flex-wrap items-center justify-between gap-2 shadow-xs">
+      {/* 2. Team Voting & Hotbar Action Consoles */}
+      <div className="shrink-0 space-y-1.5">
+        {/* Live Multiplayer Roster Bar */}
+        <div className="bg-[#1b1b1b] border-2 border-[#333] px-2.5 py-1.5 flex flex-wrap items-center justify-between gap-2 shadow-xs">
           <div className="flex items-center gap-2">
-            <Users className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-            <span className="text-[11px] font-mono font-bold text-stone-800 uppercase tracking-wider">
-              Team Consensus:
+            <Users className="w-3.5 h-3.5 text-[#ffd700] shrink-0" />
+            <span className="text-[9px] mc-font text-[#e0e0e0] uppercase tracking-wider">
+              REALM CONSENSUS:
             </span>
-            <span className="text-[11px] font-mono font-black text-amber-900 bg-amber-100 px-2 py-0.5 rounded-md border border-amber-300">
-              {totalVotesCast} / {totalActivePlayers} Votes
+            <span className="text-[9px] mc-font px-1.5 py-0.2 bg-[#2d241e] text-[#55ff55] border border-[#553311]">
+              {totalVotesCast} / {totalActivePlayers} VOTES
             </span>
-            <span className="text-[10px] font-mono text-stone-500 hidden sm:inline">
-              (Auto-triggers when all connected vote or timer ends)
+            <span className="text-[8px] mc-font text-[#888] hidden sm:inline">
+              (LOCKS AT 100% OR 2MIN)
             </span>
+            {!stageActionTaken && totalVotesCast > 0 && onCommitDecision && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCommitDecision();
+                }}
+                className="mc-btn mc-btn-green px-2 py-0.5 text-[8px] mc-font text-white flex items-center gap-1 cursor-pointer ml-1"
+                title="Lock in current votes and resolve immediately without waiting"
+              >
+                <Zap className="w-2.5 h-2.5 text-[#ffd700]" />
+                <span>RESOLVE NOW</span>
+              </button>
+            )}
           </div>
 
-          {/* Active Teammates Chips */}
-          <div className="flex flex-wrap items-center gap-1.5">
+          {/* Active Player Badges */}
+          <div className="flex flex-wrap items-center gap-1">
             {activePlayers.map((player) => {
               const hasVoted = player.has_voted;
               return (
                 <div
                   key={player.player_id}
-                  className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border transition-all ${
+                  className={`flex items-center gap-1 px-1.5 py-0.5 text-[8px] mc-font border transition-all ${
                     hasVoted
-                      ? 'bg-emerald-100 border-emerald-300 text-emerald-900 shadow-2xs'
-                      : 'bg-white border-stone-300 text-stone-600'
+                      ? 'bg-[#1a331a] border-[#2d5a2d] text-[#55ff55]'
+                      : 'bg-[#282828] border-[#444] text-[#888]'
                   }`}
                 >
                   <span
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      hasVoted ? 'bg-emerald-600' : 'bg-amber-400 animate-pulse'
+                    className={`w-1.5 h-1.5 inline-block ${
+                      hasVoted ? 'bg-[#55ff55]' : 'bg-[#ffaa00] animate-pulse'
                     }`}
                   />
                   <span>{player.player_name}</span>
-                  {hasVoted && <Check className="w-3 h-3 text-emerald-700" />}
+                  {hasVoted && <Check className="w-2.5 h-2.5 text-[#55ff55]" />}
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* Voting Action Cards Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-2.5">
-          {/* Option 1: Accept as-is */}
-          <button
+        {/* Stage Decision Resolution Banner (Appears when decision is taken) */}
+        {stageActionTaken && lastActionResult && (
+          <div className="mc-panel-dark p-2.5 sm:p-3 border-2 border-[#ffd700] bg-[#1a1400]/95 flex flex-wrap items-center justify-between gap-2.5 shadow-lg animate-fadeIn">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div
+                className={`w-8 h-8 flex items-center justify-center border-2 shrink-0 ${
+                  lastActionResult.outcome === 'failure'
+                    ? 'bg-[#3a0000] border-[#ff3333] text-[#ff5555]'
+                    : 'bg-[#002b00] border-[#55ff55] text-[#55ff55]'
+                }`}
+              >
+                {lastActionResult.outcome === 'failure' ? (
+                  <AlertOctagon className="w-4.5 h-4.5" />
+                ) : (
+                  <CheckCircle2 className="w-4.5 h-4.5" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[9px] mc-font uppercase text-[#ffd700] font-bold">
+                    RESOLVED: {lastActionResult.action_label}
+                  </span>
+                  <span
+                    className={`text-[8px] mc-font px-1.5 py-0.2 border ${
+                      lastActionResult.outcome === 'failure'
+                        ? 'bg-[#3a0000] text-[#ff5555] border-[#ff3333]'
+                        : 'bg-[#002b00] text-[#55ff55] border-[#55ff55]'
+                    }`}
+                  >
+                    {lastActionResult.outcome === 'failure' ? 'INCIDENT DETECTED' : 'CLEARED'}
+                  </span>
+                  <span className="text-[8px] mc-font text-[#aaa]">
+                    HP: {lastActionResult.health_delta >= 0 ? `+${lastActionResult.health_delta}%` : `${lastActionResult.health_delta}%`} (Now: {lastActionResult.new_health}%)
+                  </span>
+                </div>
+                <p className="text-[10px] text-[#ccc] line-clamp-1 font-sans mt-0.5">
+                  {lastActionResult.feedback_message}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0 ml-auto">
+              {onReopenResult && (
+                <button
+                  type="button"
+                  onClick={onReopenResult}
+                  className="mc-btn px-2.5 py-1 text-[8px] mc-font text-[#ffd700] border border-[#ffd700] cursor-pointer"
+                >
+                  <span>DEBRIEF</span>
+                </button>
+              )}
+              {lastActionResult.jenga_pulls > 0 && onWatchRemoval && (
+                <button
+                  type="button"
+                  onClick={onWatchRemoval}
+                  className="mc-btn px-2.5 py-1 text-[8px] mc-font text-white flex items-center gap-1 cursor-pointer"
+                >
+                  <Rotate3d className="w-3 h-3 text-[#ffd700]" />
+                  <span>MINING (-{lastActionResult.jenga_pulls})</span>
+                </button>
+              )}
+              {(() => {
+                const isGameOver =
+                  lastActionResult.is_game_over ||
+                  (lastActionResult.new_health !== undefined && lastActionResult.new_health <= 0);
+                if (isGameOver && onWatchCollapse) {
+                  return (
+                    <button
+                      type="button"
+                      onClick={onWatchCollapse}
+                      className="mc-btn px-3.5 py-1 text-[9px] mc-font text-white flex items-center gap-1 cursor-pointer font-bold shadow-md bg-[#4a0000] border-2 border-[#ff3333] hover:bg-[#660000] animate-pulse"
+                    >
+                      <AlertOctagon className="w-3.5 h-3.5 text-[#ff5555]" />
+                      <span>SEE STATUS: WATCH COLLAPSE ➔</span>
+                    </button>
+                  );
+                }
+                if (onProceedNextStage) {
+                  return (
+                    <button
+                      type="button"
+                      onClick={onProceedNextStage}
+                      className="mc-btn mc-btn-green px-3.5 py-1 text-[9px] mc-font text-white flex items-center gap-1 cursor-pointer font-bold shadow-md"
+                    >
+                      <span>PROCEED TO NEXT STAGE</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  );
+                }
+                return null;
+              })()}
+            </div>
+          </div>
+        )}
+
+        {/* Minecraft 4-Slot Hotbar Action Cards Grid */}
+        <div className={`grid grid-cols-2 md:grid-cols-4 gap-2 ${stageActionTaken ? 'opacity-50 pointer-events-none' : ''}`}>
+          {/* Slot 1: Accept as-is (Gold Pickaxe / Apple) */}
+          <div
             onClick={() => !disabled && onSelectAction('accept_as_is')}
-            disabled={disabled}
-            className={`group text-left p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between ${
-              myVote === 'accept_as_is'
-                ? 'bg-[#fef3c7] border-amber-500 shadow-md ring-2 ring-amber-400/50'
-                : 'bg-[#fffbeb] hover:bg-[#fef3c7] border-amber-300 hover:border-amber-400 hover:shadow-md'
-            } ${disabled ? 'opacity-50 pointer-events-none' : 'active:scale-98'}`}
+            className={`mc-slot ${
+              myVote === 'accept_as_is' ? 'mc-slot-selected' : 'mc-slot-dark'
+            } p-2.5 flex flex-col justify-between cursor-pointer transition-colors ${
+              disabled ? 'opacity-50' : 'hover:border-[#666]'
+            }`}
           >
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-mono font-bold">
-                  Velocity
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[8px] mc-font text-[#ffd700] bg-[#332200] px-1 border border-[#664400]">
+                  SLOT 1
                 </span>
                 <div className="flex items-center gap-1">
                   {(votesTally['accept_as_is'] || 0) > 0 && (
-                    <span className="text-[10px] font-mono font-black px-1.5 py-0.5 bg-amber-200 text-amber-950 rounded-md border border-amber-300">
-                      {votesTally['accept_as_is']} {votesTally['accept_as_is'] === 1 ? 'vote' : 'votes'}
+                    <span className="text-[9px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                      +{votesTally['accept_as_is']}
                     </span>
                   )}
-                  <Dice5 className="w-4 h-4 text-amber-600 group-hover:rotate-45 transition-transform" />
+                  <span className="text-base pointer-events-none">🍏</span>
                 </div>
               </div>
-              <h4 className="font-bold text-stone-900 text-sm group-hover:text-amber-900 transition-colors leading-tight mb-1 font-display flex items-center justify-between">
+              <h4 className="text-xs font-bold text-white mc-font mb-0.5 flex items-center justify-between">
                 <span>Blind Velocity</span>
                 {myVote === 'accept_as_is' && (
-                  <span className="text-[10px] font-mono text-emerald-700 font-black">✓ YOU</span>
+                  <span className="text-[8px] text-[#55ff55] mc-font">[EQUIPPED]</span>
                 )}
               </h4>
-              <p className="text-[11px] text-stone-600 line-clamp-2 leading-tight">
-                Approve AI PR directly into the pipeline without manual review.
+              <p className="text-[10px] text-[#aaa] line-clamp-2 font-sans leading-tight">
+                Mine ahead rapidly without human review. High risk!
               </p>
             </div>
-            <div className="mt-3 pt-2 border-t border-amber-200 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-stone-500">Unverified</span>
-              <span className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all ${
-                myVote === 'accept_as_is'
-                  ? 'bg-amber-600 text-white shadow-xs'
-                  : 'bg-amber-100 group-hover:bg-amber-200 text-amber-900'
-              }`}>
-                {myVote === 'accept_as_is' ? 'Voted' : 'Vote'}
-              </span>
+            <div className="mt-2 pt-1 border-t border-[#444] flex items-center justify-between">
+              <span className="text-[8px] mc-font text-[#777]">RAW SPEED</span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!disabled) onSelectAction('accept_as_is');
+                }}
+                className={`mc-btn px-2 py-0.5 text-[8px] mc-font cursor-pointer ${
+                  myVote === 'accept_as_is' ? 'mc-btn-green' : ''
+                }`}
+              >
+                <span className="pointer-events-none">{myVote === 'accept_as_is' ? 'EQUIPPED' : 'SELECT'}</span>
+              </button>
             </div>
-          </button>
+          </div>
 
-          {/* Option 2: Deny & Skip */}
-          <button
+          {/* Slot 2: Deny & Skip (Iron Shield) */}
+          <div
             onClick={() => !disabled && onSelectAction('deny_and_move_on')}
-            disabled={disabled}
-            className={`group text-left p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between ${
-              myVote === 'deny_and_move_on'
-                ? 'bg-stone-200 border-stone-600 shadow-md ring-2 ring-stone-400/50'
-                : 'bg-[#fafaf9] hover:bg-[#f5f5f4] border-stone-300 hover:border-stone-400 hover:shadow-md'
-            } ${disabled ? 'opacity-50 pointer-events-none' : 'active:scale-98'}`}
+            className={`mc-slot ${
+              myVote === 'deny_and_move_on' ? 'mc-slot-selected' : 'mc-slot-dark'
+            } p-2.5 flex flex-col justify-between cursor-pointer transition-colors ${
+              disabled ? 'opacity-50' : 'hover:border-[#666]'
+            }`}
           >
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="px-2 py-0.5 rounded-md bg-stone-200 text-stone-800 border border-stone-300 text-[10px] font-mono font-bold">
-                  Bypass
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[8px] mc-font text-[#aaa] bg-[#222] px-1 border border-[#444]">
+                  SLOT 2
                 </span>
                 <div className="flex items-center gap-1">
                   {(votesTally['deny_and_move_on'] || 0) > 0 && (
-                    <span className="text-[10px] font-mono font-black px-1.5 py-0.5 bg-stone-300 text-stone-900 rounded-md border border-stone-400">
-                      {votesTally['deny_and_move_on']} {votesTally['deny_and_move_on'] === 1 ? 'vote' : 'votes'}
+                    <span className="text-[9px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                      +{votesTally['deny_and_move_on']}
                     </span>
                   )}
-                  <Ban className="w-4 h-4 text-stone-500" />
+                  <span className="text-base pointer-events-none">🛡️</span>
                 </div>
               </div>
-              <h4 className="font-bold text-stone-900 text-sm group-hover:text-stone-700 transition-colors leading-tight mb-1 font-display flex items-center justify-between">
+              <h4 className="text-xs font-bold text-white mc-font mb-0.5 flex items-center justify-between">
                 <span>Bypass & Skip</span>
                 {myVote === 'deny_and_move_on' && (
-                  <span className="text-[10px] font-mono text-emerald-700 font-black">✓ YOU</span>
+                  <span className="text-[8px] text-[#55ff55] mc-font">[EQUIPPED]</span>
                 )}
               </h4>
-              <p className="text-[11px] text-stone-600 line-clamp-2 leading-tight">
-                Reject commit and skip changes to safeguard existing architecture.
+              <p className="text-[10px] text-[#aaa] line-clamp-2 font-sans leading-tight">
+                Reject commit to safeguard existing architecture.
               </p>
             </div>
-            <div className="mt-3 pt-2 border-t border-stone-200 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-stone-500">Safe Skip</span>
-              <span className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all ${
-                myVote === 'deny_and_move_on'
-                  ? 'bg-stone-700 text-white shadow-xs'
-                  : 'bg-stone-200 group-hover:bg-stone-300 text-stone-800'
-              }`}>
-                {myVote === 'deny_and_move_on' ? 'Voted' : 'Vote'}
-              </span>
+            <div className="mt-2 pt-1 border-t border-[#444] flex items-center justify-between">
+              <span className="text-[8px] mc-font text-[#777]">SAFE SKIP</span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!disabled) onSelectAction('deny_and_move_on');
+                }}
+                className={`mc-btn px-2 py-0.5 text-[8px] mc-font cursor-pointer ${
+                  myVote === 'deny_and_move_on' ? 'mc-btn-green' : ''
+                }`}
+              >
+                <span className="pointer-events-none">{myVote === 'deny_and_move_on' ? 'EQUIPPED' : 'SELECT'}</span>
+              </button>
             </div>
-          </button>
+          </div>
 
-          {/* Option 3: Custom Prompt (Collaborative Draft + Vote) */}
+          {/* Slot 3: Custom Prompt (Book & Quill) */}
           <div
-            className={`group text-left p-2.5 sm:p-3 rounded-xl border transition-all relative overflow-hidden flex flex-col justify-between ${
-              myVote === 'custom_prompt'
-                ? 'bg-sky-100 border-sky-500 shadow-md ring-2 ring-sky-400/50'
-                : 'bg-[#f0f9ff] hover:bg-[#e0f2fe] border-sky-300 hover:border-sky-400 hover:shadow-md'
-            } ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
+            onClick={() => !disabled && onSelectAction('custom_prompt')}
+            className={`mc-slot ${
+              myVote === 'custom_prompt' ? 'mc-slot-selected' : 'mc-slot-dark'
+            } p-2.5 flex flex-col justify-between cursor-pointer transition-colors ${
+              disabled ? 'opacity-50' : 'hover:border-[#666]'
+            }`}
           >
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="px-2 py-0.5 rounded-md bg-sky-100 text-sky-900 border border-sky-300 text-[10px] font-mono font-bold">
-                  HITL Prompt
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[8px] mc-font text-[#55ffff] bg-[#002233] px-1 border border-[#005577]">
+                  SLOT 3
                 </span>
                 <div className="flex items-center gap-1">
                   {(votesTally['custom_prompt'] || 0) > 0 && (
-                    <span className="text-[10px] font-mono font-black px-1.5 py-0.5 bg-sky-200 text-sky-950 rounded-md border border-sky-300">
-                      {votesTally['custom_prompt']} {votesTally['custom_prompt'] === 1 ? 'vote' : 'votes'}
+                    <span className="text-[9px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                      +{votesTally['custom_prompt']}
                     </span>
                   )}
-                  <MessageSquare className="w-4 h-4 text-sky-600" />
+                  <span className="text-base pointer-events-none">🪶</span>
                 </div>
               </div>
 
-              <h4 className="font-bold text-stone-900 text-sm group-hover:text-sky-900 transition-colors leading-tight mb-1 font-display flex items-center justify-between">
+              <h4 className="text-xs font-bold text-white mc-font mb-0.5 flex items-center justify-between">
                 <span>Human Guidance</span>
                 {myVote === 'custom_prompt' && (
-                  <span className="text-[10px] font-mono text-emerald-700 font-black">✓ YOU</span>
+                  <span className="text-[8px] text-[#55ff55] mc-font">[EQUIPPED]</span>
                 )}
               </h4>
 
               {/* Collaborative Draft Preview */}
               {customPromptDraft?.text ? (
-                <div className="bg-white/80 border border-sky-200 rounded-lg p-1.5 my-1 text-[10px] font-mono text-sky-900">
-                  <div className="flex items-center justify-between mb-0.5 text-[9px] text-sky-600 font-bold uppercase">
-                    <span>Drafted by {customPromptDraft.player_name}:</span>
+                <div className="bg-[#111] border border-[#005577] p-1 my-1 text-[9px] text-[#aaddff]">
+                  <div className="flex items-center justify-between mb-0.5 text-[8px] text-[#55ffff] mc-font">
+                    <span>BY {customPromptDraft.player_name}:</span>
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         onOpenDraftPrompt && onOpenDraftPrompt();
                       }}
-                      className="text-sky-700 hover:text-sky-900 underline flex items-center gap-0.5 cursor-pointer"
+                      className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer"
                     >
-                      <Edit3 className="w-2.5 h-2.5" />
-                      <span>Edit</span>
+                      <Edit3 className="w-2.5 h-2.5 pointer-events-none" />
+                      <span className="pointer-events-none">EDIT</span>
                     </button>
                   </div>
                   <p className="line-clamp-2 italic font-sans">"{customPromptDraft.text}"</p>
                 </div>
               ) : (
-                <p className="text-[11px] text-stone-600 line-clamp-2 leading-tight">
-                  Type specific architectural instructions to steer the AI agent.
+                <p className="text-[10px] text-[#aaa] line-clamp-2 font-sans leading-tight">
+                  Write instructions in Book & Quill to steer agent.
                 </p>
               )}
             </div>
 
-            <div className="mt-3 pt-2 border-t border-sky-200 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-stone-500">Collaborative</span>
+            <div className="mt-2 pt-1 border-t border-[#444] flex items-center justify-between">
+              <span className="text-[8px] mc-font text-[#777]">COLLAB</span>
               <button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   if (!disabled) onSelectAction('custom_prompt');
                 }}
-                className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer active:scale-95 ${
-                  myVote === 'custom_prompt'
-                    ? 'bg-sky-700 text-white shadow-xs'
-                    : 'bg-sky-600 hover:bg-sky-700 text-white shadow-xs'
+                className={`mc-btn px-2 py-0.5 text-[8px] mc-font cursor-pointer ${
+                  myVote === 'custom_prompt' ? 'mc-btn-green' : ''
                 }`}
               >
-                {customPromptDraft?.text ? (myVote === 'custom_prompt' ? 'Voted' : 'Vote') : 'Draft Prompt'}
+                <span className="pointer-events-none">
+                  {customPromptDraft?.text ? (myVote === 'custom_prompt' ? 'EQUIPPED' : 'VOTE') : 'WRITE'}
+                </span>
               </button>
             </div>
           </div>
 
-          {/* Option 4: Guardrail Armor (Collaborative Rule + Vote) */}
+          {/* Slot 4: Guardrail Armor (Redstone Repeater / Enchanted Book) */}
           <div
-            className={`group text-left p-2.5 sm:p-3 rounded-xl border transition-all relative overflow-hidden flex flex-col justify-between ${
-              myVote === 'suggest_change'
-                ? 'bg-emerald-100 border-emerald-500 shadow-md ring-2 ring-emerald-400/50'
-                : 'bg-[#f0fdf4] hover:bg-[#dcfce7] border-emerald-300 hover:border-emerald-400 hover:shadow-md'
-            } ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
+            onClick={() => !disabled && onSelectAction('suggest_change')}
+            className={`mc-slot ${
+              myVote === 'suggest_change' ? 'mc-slot-selected' : 'mc-slot-dark'
+            } p-2.5 flex flex-col justify-between cursor-pointer transition-colors ${
+              disabled ? 'opacity-50' : 'hover:border-[#666]'
+            }`}
           >
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-900 border border-emerald-300 text-[10px] font-mono font-bold">
-                  Policy
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[8px] mc-font text-[#55ff55] bg-[#002b00] px-1 border border-[#00aa00]">
+                  SLOT 4
                 </span>
                 <div className="flex items-center gap-1">
                   {(votesTally['suggest_change'] || 0) > 0 && (
-                    <span className="text-[10px] font-mono font-black px-1.5 py-0.5 bg-emerald-200 text-emerald-950 rounded-md border border-emerald-300">
-                      {votesTally['suggest_change']} {votesTally['suggest_change'] === 1 ? 'vote' : 'votes'}
+                    <span className="text-[9px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                      +{votesTally['suggest_change']}
                     </span>
                   )}
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span className="text-base pointer-events-none">⚡</span>
                 </div>
               </div>
 
-              <h4 className="font-bold text-stone-900 text-sm group-hover:text-emerald-900 transition-colors leading-tight mb-1 font-display flex items-center justify-between">
+              <h4 className="text-xs font-bold text-white mc-font mb-0.5 flex items-center justify-between">
                 <span>Guardrail Armor</span>
                 {myVote === 'suggest_change' && (
-                  <span className="text-[10px] font-mono text-emerald-700 font-black">✓ YOU</span>
+                  <span className="text-[8px] text-[#55ff55] mc-font">[EQUIPPED]</span>
                 )}
               </h4>
 
               {/* Selected Guardrail Rule Preview */}
               {guardrailRuleDraft?.title ? (
-                <div className="bg-white/80 border border-emerald-200 rounded-lg p-1.5 my-1 text-[10px] font-mono text-emerald-900">
-                  <div className="flex items-center justify-between mb-0.5 text-[9px] text-emerald-700 font-bold uppercase">
-                    <span>Chosen by {guardrailRuleDraft.player_name}:</span>
+                <div className="bg-[#111] border border-[#00aa00] p-1 my-1 text-[9px] text-[#aaffaa]">
+                  <div className="flex items-center justify-between mb-0.5 text-[8px] text-[#55ff55] mc-font">
+                    <span>BY {guardrailRuleDraft.player_name}:</span>
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         onOpenDraftRule && onOpenDraftRule();
                       }}
-                      className="text-emerald-800 hover:text-emerald-950 underline flex items-center gap-0.5 cursor-pointer"
+                      className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer"
                     >
-                      <Edit3 className="w-2.5 h-2.5" />
-                      <span>Change</span>
+                      <Edit3 className="w-2.5 h-2.5 pointer-events-none" />
+                      <span className="pointer-events-none">EDIT</span>
                     </button>
                   </div>
                   <p className="line-clamp-2 font-semibold font-sans">{guardrailRuleDraft.title}</p>
                 </div>
               ) : (
-                <p className="text-[11px] text-stone-600 line-clamp-2 leading-tight">
-                  Enforce institutional architectural standard on AI output.
+                <p className="text-[10px] text-[#aaa] line-clamp-2 font-sans leading-tight">
+                  Enforce strict architectural guardrail rules.
                 </p>
               )}
             </div>
 
-            <div className="mt-3 pt-2 border-t border-emerald-200 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-stone-500">Governance</span>
+            <div className="mt-2 pt-1 border-t border-[#444] flex items-center justify-between">
+              <span className="text-[8px] mc-font text-[#777]">ARMOR</span>
               <button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   if (!disabled) onSelectAction('suggest_change');
                 }}
-                className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer active:scale-95 ${
-                  myVote === 'suggest_change'
-                    ? 'bg-emerald-800 text-white shadow-xs'
-                    : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs'
+                className={`mc-btn px-2 py-0.5 text-[8px] mc-font cursor-pointer ${
+                  myVote === 'suggest_change' ? 'mc-btn-green' : ''
                 }`}
               >
-                {guardrailRuleDraft?.title ? (myVote === 'suggest_change' ? 'Voted' : 'Vote') : 'Select Rule'}
+                <span className="pointer-events-none">
+                  {guardrailRuleDraft?.title ? (myVote === 'suggest_change' ? 'EQUIPPED' : 'VOTE') : 'ENCHANT'}
+                </span>
               </button>
             </div>
           </div>
