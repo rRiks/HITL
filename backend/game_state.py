@@ -46,7 +46,15 @@ class GameStateManager:
         self.technical_debt: int = 0
         self.stage_restart_count: int = 0
         self.is_timer_paused: bool = False
+        self.timer_override: Optional[bool] = None
         self._shuffled_suggestions: Dict[int, List[Dict[str, Any]]] = {}
+
+    def is_effective_timer_paused(self) -> bool:
+        if getattr(self, "timer_override", None) is not None:
+            return bool(self.timer_override)
+        if getattr(self, "is_timer_paused", False):
+            return True
+        return bool(getattr(room_manager, "global_timer_paused", False))
 
     def reset_game(self, team_name: str = "DevOps Gladiators", player_count: int = 4):
         self.team_name = team_name.strip() or "DevOps Gladiators"
@@ -73,6 +81,7 @@ class GameStateManager:
         self.technical_debt = 0
         self.stage_restart_count = 0
         self.is_timer_paused = False
+        self.timer_override = None
         self._shuffled_suggestions = {}
 
     def retry_current_stage(self, restore_health: int = 35):
@@ -200,7 +209,7 @@ class GameStateManager:
 
     def submit_draft(self, req: DraftRequest) -> GameStateResponse:
         self.touch_player(req.player_id, req.player_name)
-        if self.stage_action_taken or self.is_game_over or self.is_timer_paused or getattr(room_manager, "global_timer_paused", False):
+        if self.stage_action_taken or self.is_game_over or self.is_effective_timer_paused():
             return self.get_state()
         if req.draft_type == "custom_prompt":
             self.custom_prompt_draft = {
@@ -229,7 +238,7 @@ class GameStateManager:
 
     def submit_vote(self, req: VoteRequest) -> GameStateResponse:
         self.touch_player(req.player_id, req.player_name)
-        if self.stage_action_taken or self.is_game_over or self.is_timer_paused or getattr(room_manager, "global_timer_paused", False):
+        if self.stage_action_taken or self.is_game_over or self.is_effective_timer_paused():
             return self.get_state()
 
         # Record or update vote
@@ -362,7 +371,7 @@ class GameStateManager:
             guardrail_rule_draft=self.guardrail_rule_draft,
             tie_broken=self.tie_broken,
             tied_options=self.tied_options,
-            is_timer_paused=self.is_timer_paused or getattr(room_manager, "global_timer_paused", False),
+            is_timer_paused=self.is_effective_timer_paused(),
         )
 
     def process_action(self, req: ActionRequest) -> ActionResponse:
@@ -636,7 +645,7 @@ class GameStateManager:
 
     def advance_to_next_stage(self) -> bool:
         self.last_active = time.time()
-        if self.is_game_over or self.is_timer_paused or getattr(room_manager, "global_timer_paused", False):
+        if self.is_game_over or self.is_effective_timer_paused():
             return False
         if self.current_stage_index < len(STAGES) - 1:
             self.current_stage_index += 1

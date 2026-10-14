@@ -120,35 +120,35 @@ def join_player_room(room_id: str, req: JoinPlayerRequest):
 @app.post("/api/game/{room_id}/draft", response_model=GameStateResponse)
 def submit_draft_room(room_id: str, req: DraftRequest):
     manager = room_manager.get_room(room_id)
-    if manager.is_timer_paused or getattr(room_manager, "global_timer_paused", False):
+    if manager.is_effective_timer_paused():
         raise HTTPException(status_code=403, detail="Table time is frozen by Game Master. Drafts are paused.")
     return manager.submit_draft(req)
 
 @app.post("/api/game/{room_id}/vote", response_model=GameStateResponse)
 def submit_vote_room(room_id: str, req: VoteRequest):
     manager = room_manager.get_room(room_id)
-    if manager.is_timer_paused or getattr(room_manager, "global_timer_paused", False):
+    if manager.is_effective_timer_paused():
         raise HTTPException(status_code=403, detail="Table time is frozen by Game Master. Voting is paused.")
     return manager.submit_vote(req)
 
 @app.post("/api/game/{room_id}/resolve-timeout", response_model=ActionResponse)
 def resolve_timeout_room(room_id: str):
     manager = room_manager.get_room(room_id)
-    if manager.is_timer_paused or getattr(room_manager, "global_timer_paused", False):
+    if manager.is_effective_timer_paused():
         raise HTTPException(status_code=403, detail="Table time is frozen by Game Master. Timeout resolution paused.")
     return manager.resolve_voting(is_timeout=True, time_spent_seconds=120)
 
 @app.post("/api/game/{room_id}/commit-decision", response_model=ActionResponse)
 def commit_decision_room(room_id: str):
     manager = room_manager.get_room(room_id)
-    if manager.is_timer_paused or getattr(room_manager, "global_timer_paused", False):
+    if manager.is_effective_timer_paused():
         raise HTTPException(status_code=403, detail="Table time is frozen by Game Master. Voting is paused.")
     return manager.resolve_voting(is_timeout=False, time_spent_seconds=0)
 
 @app.post("/api/game/{room_id}/action", response_model=ActionResponse)
 def submit_action_room(room_id: str, req: ActionRequest):
     manager = room_manager.get_room(room_id)
-    if manager.is_timer_paused or getattr(room_manager, "global_timer_paused", False):
+    if manager.is_effective_timer_paused():
         raise HTTPException(status_code=403, detail="Table time is frozen by Game Master. Actions are paused.")
     try:
         return manager.process_action(req)
@@ -170,7 +170,7 @@ def tower_toppled_room(room_id: str):
 @app.post("/api/game/{room_id}/next-stage", response_model=GameStateResponse)
 def next_stage_room(room_id: str):
     manager = room_manager.get_room(room_id)
-    if manager.is_timer_paused or getattr(room_manager, "global_timer_paused", False):
+    if manager.is_effective_timer_paused():
         raise HTTPException(status_code=403, detail="Table time is frozen by Game Master. Cannot advance stage.")
     manager.advance_to_next_stage()
     return manager.get_state()

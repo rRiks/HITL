@@ -27,6 +27,7 @@ import {
   Eye,
   EyeOff,
   ArrowLeft,
+  Trash2,
 } from 'lucide-react';
 import * as adminApi from './adminApi';
 import CockpitFieldGuide from '../components/CockpitFieldGuide';
@@ -56,6 +57,7 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
   const [searchQuery, setSearchQuery] = useState('');
   const [toastMessage, setToastMessage] = useState(null);
   const [confirmResetAll, setConfirmResetAll] = useState(false);
+  const [tableToDelete, setTableToDelete] = useState(null);
   const [globalTimerPaused, setGlobalTimerPaused] = useState(false);
 
   const showToast = (msg) => {
@@ -695,11 +697,7 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
 
                             <button
                               type="button"
-                              onClick={() => {
-                                if (window.confirm(`Delete table '${r.team_name}' (${r.room_code || r.room_id}) from workshop?`)) {
-                                  handleRoomAction(r.room_id, 'delete');
-                                }
-                              }}
+                              onClick={() => setTableToDelete({ id: r.room_id, name: r.team_name, code: r.room_code || r.room_id })}
                               title="Delete Table"
                               className="text-[10px] text-[#ff6666] hover:text-white px-1.5 py-0.5 bg-[#250a0a] border border-[#661111] hover:bg-[#880000] cursor-pointer font-mono font-bold transition-colors"
                             >
@@ -794,13 +792,22 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
 
                           <button
                             type="button"
+                            disabled={globalTimerPaused}
                             onClick={() => handleToggleRoomTimer(r.room_id)}
-                            className={`mc-btn px-2 py-1 text-[9px] mc-font flex items-center justify-center gap-1 cursor-pointer transition-colors ${
-                              r.is_timer_paused
-                                ? 'bg-[#332200] border-[#ffd700] text-[#ffd700] hover:bg-[#443300]'
-                                : 'bg-[#152238] border-[#38bdf8] text-[#38bdf8] hover:text-white'
+                            className={`mc-btn px-2 py-1 text-[9px] mc-font flex items-center justify-center gap-1 transition-colors ${
+                              globalTimerPaused
+                                ? 'bg-[#1a1c23] border-[#444] text-[#666] opacity-60 cursor-not-allowed'
+                                : r.is_timer_paused
+                                ? 'bg-[#332200] border-[#ffd700] text-[#ffd700] hover:bg-[#443300] cursor-pointer'
+                                : 'bg-[#152238] border-[#38bdf8] text-[#38bdf8] hover:text-white cursor-pointer'
                             }`}
-                            title={r.is_timer_paused ? 'Resume countdown timer for this table' : 'Pause countdown timer for this table'}
+                            title={
+                              globalTimerPaused
+                                ? 'World Timer is locked globally. Resume World Timer to control individual tables.'
+                                : r.is_timer_paused
+                                ? 'Resume countdown timer for this table'
+                                : 'Pause countdown timer for this table'
+                            }
                           >
                             {r.is_timer_paused ? (
                               <>
@@ -900,11 +907,7 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
 
                           <button
                             type="button"
-                            onClick={() => {
-                              if (window.confirm(`Delete table '${r.team_name}' (${r.room_code || r.room_id}) from workshop?`)) {
-                                handleRoomAction(r.room_id, 'delete');
-                              }
-                            }}
+                            onClick={() => setTableToDelete({ id: r.room_id, name: r.team_name, code: r.room_code || r.room_id })}
                             className="mc-btn px-2 py-1 text-[8.5px] font-mono text-[#ff4444] hover:text-white bg-[#2a0808] border-[#661111] hover:bg-[#880000] cursor-pointer font-bold"
                             title="Delete Table from Workshop"
                           >
@@ -1091,24 +1094,29 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
                               </button>
                               <button
                                 type="button"
+                                disabled={globalTimerPaused}
                                 onClick={() => handleToggleRoomTimer(r.room_id)}
-                                className={`mc-btn px-2 py-1 text-[9px] mc-font inline-flex items-center gap-1 cursor-pointer ${
-                                  r.is_timer_paused
-                                    ? 'bg-[#332200] border-[#ffd700] text-[#ffd700]'
-                                    : 'bg-[#152238] border-[#38bdf8] text-[#38bdf8]'
+                                className={`mc-btn px-2 py-1 text-[9px] mc-font inline-flex items-center gap-1 transition-colors ${
+                                  globalTimerPaused
+                                    ? 'bg-[#1a1c23] border-[#444] text-[#666] opacity-60 cursor-not-allowed'
+                                    : r.is_timer_paused
+                                    ? 'bg-[#332200] border-[#ffd700] text-[#ffd700] cursor-pointer'
+                                    : 'bg-[#152238] border-[#38bdf8] text-[#38bdf8] cursor-pointer'
                                 }`}
-                                title={r.is_timer_paused ? 'Resume timer for this table' : 'Pause timer for this table'}
+                                title={
+                                  globalTimerPaused
+                                    ? 'World Timer is locked globally. Resume World Timer to control individual tables.'
+                                    : r.is_timer_paused
+                                    ? 'Resume timer for this table'
+                                    : 'Pause timer for this table'
+                                }
                               >
                                 {r.is_timer_paused ? <Play className="w-2.5 h-2.5 text-[#ffd700]" /> : <Pause className="w-2.5 h-2.5 text-[#ffaa00]" />}
                                 <span>{r.is_timer_paused ? 'RESUME' : 'PAUSE'}</span>
                               </button>
                               <button
                                 type="button"
-                                onClick={() => {
-                                  if (window.confirm(`Delete table '${r.team_name}' (${r.room_code || r.room_id}) from workshop?`)) {
-                                    handleRoomAction(r.room_id, 'delete');
-                                  }
-                                }}
+                                onClick={() => setTableToDelete({ id: r.room_id, name: r.team_name, code: r.room_code || r.room_id })}
                                 className="mc-btn px-2 py-1 text-[9px] font-mono text-[#ff5555] hover:text-white bg-[#200a0a] border-[#661111] hover:bg-[#880000] cursor-pointer"
                                 title="Delete Table from Workshop"
                               >
@@ -1153,6 +1161,42 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
                 className="mc-btn px-4 py-2 text-xs font-mono font-bold text-white bg-[#880000] border-[#ff3333] hover:bg-[#aa0000] cursor-pointer"
               >
                 CONFIRM RESET ALL
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Themed Confirmation Modal for Delete Single Table */}
+      {tableToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="mc-panel-dark max-w-md w-full p-6 border-4 border-[#ff3333] shadow-2xl text-center space-y-4">
+            <div className="w-12 h-12 bg-[#2d0e0e] border-2 border-[#ff3333] flex items-center justify-center mx-auto shadow-md">
+              <Trash2 className="w-6 h-6 text-[#ff5555]" />
+            </div>
+            <h3 className="text-base font-bold text-white mc-font tracking-wide">
+              DELETE TABLE '{tableToDelete.name.toUpperCase()}'?
+            </h3>
+            <p className="text-xs text-[#ccc] font-mono leading-relaxed">
+              This will remove table <strong>{tableToDelete.code}</strong> from the workshop session and disconnect all players at this table.
+            </p>
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setTableToDelete(null)}
+                className="mc-btn px-4 py-2 text-xs font-mono text-[#aaa] hover:text-white border-[#555] cursor-pointer"
+              >
+                CANCEL
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleRoomAction(tableToDelete.id, 'delete');
+                  setTableToDelete(null);
+                }}
+                className="mc-btn px-4 py-2 text-xs font-mono font-bold text-white bg-[#880000] border-[#ff3333] hover:bg-[#aa0000] cursor-pointer"
+              >
+                CONFIRM DELETE
               </button>
             </div>
           </div>

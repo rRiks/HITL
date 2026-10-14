@@ -805,7 +805,7 @@ export default function App() {
 
   // 1. Guide Screen (/guide)
   if (routeInfo.route === 'guide') {
-    const isFromAdmin = routeInfo.from === 'admin' || (typeof window !== 'undefined' && sessionStorage.getItem('hitl_in_game') !== 'true' && !!(localStorage.getItem('hitl_admin_key') || sessionStorage.getItem('hitl_admin_key')));
+    const isFromAdmin = routeInfo.from === 'admin' && !walkthroughLaunch;
     return (
       <CockpitFieldGuide
         onClose={() => {
@@ -814,10 +814,14 @@ export default function App() {
           } else if (gameStarted) {
             navigateTo('game', roomId);
           } else {
+            setWalkthroughLaunch(null);
             navigateTo('home');
           }
         }}
-        onGoHome={() => navigateTo('home')}
+        onGoHome={() => {
+          setWalkthroughLaunch(null);
+          navigateTo('home');
+        }}
         onLaunchGame={() => {
           if (isFromAdmin) {
             navigateTo('admin');
@@ -829,8 +833,10 @@ export default function App() {
             } else {
               handleStartGame(walkthroughLaunch.team, walkthroughLaunch.count, walkthroughLaunch.room, walkthroughLaunch.player);
             }
-          } else {
+          } else if (gameStarted) {
             navigateTo('game', roomId);
+          } else {
+            navigateTo('home');
           }
         }}
         isWalkthrough={!isFromAdmin && !gameStarted && !!walkthroughLaunch}
