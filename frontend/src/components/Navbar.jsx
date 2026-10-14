@@ -89,6 +89,7 @@ function MinecraftHeart({ state = 'full', shake = false }) {
 
 export default function Navbar({
   roomId = 'table-1',
+  roomCode = null,
   stageNumber = 1,
   totalStages = 11,
   stageTitle = '',
@@ -104,13 +105,17 @@ export default function Navbar({
   musicEnabled = true,
   onToggleMusic,
   onOpenFieldGuide,
+  isSpectator = false,
 }) {
   const [copiedLink, setCopiedLink] = useState(false);
 
+  const displayPin = (roomCode || roomId || '').toUpperCase();
+
   const handleCopyInvite = () => {
     try {
+      const code = roomCode || roomId;
       const url = new URL(window.location.origin + '/');
-      url.searchParams.set('roomId', roomId);
+      url.searchParams.set('code', code);
       navigator.clipboard.writeText(url.toString());
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2000);
@@ -153,12 +158,12 @@ export default function Navbar({
               </span>
               <button
                 onClick={handleCopyInvite}
-                title="Copy realm link for teammates"
-                className="text-[8px] mc-font px-1.5 py-0.5 bg-[#3a3a3a] hover:bg-[#4a4a4a] text-[#55ff55] border border-[#555] flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+                title="Copy realm link or PIN for teammates"
+                className="text-[8px] mc-font px-2 py-0.5 bg-[#2a1d0d] hover:bg-[#3a2812] text-[#ffd700] border-2 border-[#ffd700] flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-sm"
               >
-                {copiedLink ? <Check className="w-3 h-3 text-[#55ff55]" /> : <Share2 className="w-3 h-3 text-[#aaa]" />}
-                <span>{roomId}</span>
-                <span className="hidden lg:inline text-[8px] text-[#ffd700]">{copiedLink ? 'Copied!' : 'Copy'}</span>
+                {copiedLink ? <Check className="w-3 h-3 text-[#55ff55]" /> : <Share2 className="w-3 h-3 text-[#ffd700]" />}
+                <span className="font-bold">PIN: {displayPin}</span>
+                <span className="hidden lg:inline text-[8px] text-[#55ff55] font-bold">{copiedLink ? 'COPIED!' : 'SHARE'}</span>
               </button>
             </div>
             <div className="text-[9px] text-[#aaa] mc-font flex items-center gap-2 mt-0.5">
@@ -234,13 +239,15 @@ export default function Navbar({
             </span>
           </div>
 
-          <button
-            onClick={onToggleTimer}
-            title={isTimerRunning ? 'Pause World Clock' : 'Resume World Clock'}
-            className="p-1 hover:bg-[#333] text-[#aaa] hover:text-white transition-colors cursor-pointer ml-1"
-          >
-            {isTimerRunning ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 text-[#55ff55]" />}
-          </button>
+          {!isSpectator && onToggleTimer && (
+            <button
+              onClick={onToggleTimer}
+              title={isTimerRunning ? 'Pause World Clock' : 'Resume World Clock'}
+              className="p-1 hover:bg-[#333] text-[#aaa] hover:text-white transition-colors cursor-pointer ml-1"
+            >
+              {isTimerRunning ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 text-[#55ff55]" />}
+            </button>
+          )}
         </div>
 
         {/* Music Synth Toggle */}
@@ -266,14 +273,16 @@ export default function Navbar({
           {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
         </button>
 
-        {/* Reset AIDLC / World */}
-        <button
-          onClick={onResetGame}
-          title="Respawn / Reset World"
-          className="mc-btn p-1.5 text-xs text-[#ffaa00] hover:text-[#ff5555] cursor-pointer shrink-0"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-        </button>
+        {/* Reset AIDLC / World (Hidden for Spectators) */}
+        {!isSpectator && onResetGame && (
+          <button
+            onClick={onResetGame}
+            title="Respawn / Reset World"
+            className="mc-btn p-1.5 text-xs text-[#ffaa00] hover:text-[#ff5555] cursor-pointer shrink-0"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+          </button>
+        )}
 
         {/* In-Game Cockpit Field Guide (Manual & Rules) */}
         {onOpenFieldGuide && (
@@ -287,15 +296,15 @@ export default function Navbar({
           </button>
         )}
 
-        {/* Exit to Lobby */}
+        {/* Exit to Lobby / Return to Admin */}
         {onExitToLobby && (
           <button
             onClick={onExitToLobby}
-            title="Return to Main Menu"
+            title={isSpectator ? "Return to Admin Panel" : "Return to Main Menu"}
             className="mc-btn px-2.5 py-1 text-[8px] sm:text-[9px] mc-font text-[#ffd700] hover:text-white cursor-pointer flex items-center gap-1 shrink-0 bg-[#3a2211] border-[#ffaa00]"
           >
             <Home className="w-3.5 h-3.5 text-[#ffd700]" />
-            <span>MENU</span>
+            <span>{isSpectator ? "ADMIN" : "MENU"}</span>
           </button>
         )}
       </div>

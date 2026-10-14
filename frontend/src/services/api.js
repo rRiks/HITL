@@ -75,6 +75,31 @@ export async function fetchGameState(roomId = getRoomId(), playerId = getPlayerI
   return res.json();
 }
 
+export async function createTableGame(teamName = 'Alpha Devs', playerCount = 4) {
+  const res = await fetch(`${API_BASE}/game/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ team_name: teamName, player_count: playerCount }),
+  });
+  if (!res.ok) throw new Error(`Failed to create table: ${res.statusText}`);
+  const data = await res.json();
+  if (data.room_code || data.room_id) {
+    setRoomId(data.room_code || data.room_id);
+  }
+  return data;
+}
+
+export async function lookupTableCode(code) {
+  if (!code || code.trim().length < 3) return { found: false };
+  try {
+    const res = await fetch(`${API_BASE}/game/lookup/${encodeURIComponent(code.trim().toUpperCase())}`);
+    if (!res.ok) return { found: false };
+    return res.json();
+  } catch {
+    return { found: false };
+  }
+}
+
 export async function startGame(teamName = 'Alpha Devs', playerCount = 4, roomId = getRoomId()) {
   setRoomId(roomId);
   const res = await fetch(`${API_BASE}/game/${getRoomId()}/start`, {

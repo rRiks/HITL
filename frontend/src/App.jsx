@@ -14,31 +14,37 @@ import {
 import CockpitFieldGuide from './components/CockpitFieldGuide';
 import { useSound } from './hooks/useSound';
 import * as api from './services/api';
-import { ArrowRight, Rotate3d, CheckCircle2, AlertTriangle, Layers, Zap } from 'lucide-react';
+import AdminDashboard from './admin/AdminDashboard';
+import { ArrowRight, Rotate3d, CheckCircle2, AlertTriangle, Layers, Zap, Radio } from 'lucide-react';
 
 function getRouteInfo() {
   if (typeof window === 'undefined') {
-    return { route: 'home', roomId: null };
+    return { route: 'home', roomId: null, isSpectator: false };
   }
   const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
   const params = new URLSearchParams(window.location.search);
-  const roomParam = params.get('roomId') || params.get('roomid') || params.get('room');
+  const roomParam = params.get('code') || params.get('pin') || params.get('table') || params.get('roomId') || params.get('roomid') || params.get('room');
+  const isSpectator = params.get('spectate') === 'true' || params.get('spectate') === '1';
 
+  if (pathname === '/admin') {
+    return { route: 'admin', roomId: null, isSpectator: false };
+  }
   if (pathname === '/guide') {
-    return { route: 'guide', roomId: roomParam || api.getRoomId() };
+    return { route: 'guide', roomId: roomParam || api.getRoomId(), isSpectator };
   }
   if (roomParam) {
-    const cleanRoom = roomParam.toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'cloud-titans';
-    return { route: 'game', roomId: cleanRoom };
+    const cleanRoom = roomParam.toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'default';
+    return { route: 'game', roomId: cleanRoom, isSpectator };
   }
   if (pathname === '/home') {
-    return { route: 'home', roomId: null };
+    return { route: 'home', roomId: null, isSpectator: false };
   }
-  return { route: 'home', roomId: null };
+  return { route: 'home', roomId: null, isSpectator: false };
 }
 
 export default function App() {
   const [routeInfo, setRouteInfo] = useState(() => getRouteInfo());
+  const isSpectator = Boolean(routeInfo.isSpectator);
   const [walkthroughLaunch, setWalkthroughLaunch] = useState(null);
 
   const [gameStarted, setGameStarted] = useState(() => {
@@ -94,6 +100,7 @@ export default function App() {
   const [guardrailsModalOpen, setGuardrailsModalOpen] = useState(false);
   const [resultModalOpen, setResultModalOpen] = useState(false);
   const [actionResult, setActionResult] = useState(null);
+  const [activeBroadcast, setActiveBroadcast] = useState(null);
   const [isWatchingRemoval, setIsWatchingRemoval] = useState(false);
   const [isWatchingCollapse, setIsWatchingCollapse] = useState(false);
   const [screenShaking, setScreenShaking] = useState(false);
@@ -115,7 +122,10 @@ export default function App() {
 
   // Centralized URL Router Navigation
   const navigateTo = useCallback((destination, targetRoomId = null) => {
-    if (destination === 'home') {
+    if (destination === 'admin') {
+      setRouteInfo({ route: 'admin', roomId: null });
+      window.history.pushState({}, '', '/admin');
+    } else if (destination === 'home') {
       sessionStorage.removeItem('hitl_in_game');
       setGameStarted(false);
       setIsTimerRunning(false);
@@ -146,17 +156,35 @@ export default function App() {
       if (inGameSession && (state.has_started || state.current_stage_index > 0 || state.health < 100 || state.total_jenga_pulls > 0)) {
         setGameStarted(true);
       }
-      const myId = api.getPlayerId();
-      const me = state.active_players?.find((p) => p.player_id === myId);
-      if (me?.voted_action) setMyVote(me.voted_action);
+      if (!isSpectator) {
+        const myId = api.getPlayerId();
+        const me = state.active_players?.find((p) => p.player_id === myId);
+        if (me?.voted_action) setMyVote(me.voted_action);
+      }
     } catch (err) {
       console.warn('Initial state fetch:', err);
     }
-  }, []);
+  }, [isSpectator]);
 
   useEffect(() => {
     refreshState();
   }, [refreshState]);
+
+  // Facilitator Broadcast Polling
+  useEffect(() => {
+    const checkBroadcast = async () => {
+      try {
+        const res = await fetch('/api/admin/broadcast');
+        if (res.ok) {
+          const data = await res.json();
+          setActiveBroadcast(data.active ? data.message : null);
+        }
+      } catch {}
+    };
+    checkBroadcast();
+    const bInterval = setInterval(checkBroadcast, 3000);
+    return () => clearInterval(bInterval);
+  }, []);
 
   // Live Multi-Client Room Synchronization (syncs teammates on same table)
   useEffect(() => {
@@ -166,13 +194,15 @@ export default function App() {
         if (isAdvancingStageRef.current) return;
         const remoteState = await api.fetchGameState();
 
-        // Sync local voter status
-        const myId = api.getPlayerId();
-        const me = remoteState.active_players?.find((p) => p.player_id === myId);
-        if (me?.voted_action) {
-          setMyVote(me.voted_action);
-        } else if (!remoteState.stage_action_taken && !me?.voted_action) {
-          setMyVote(null);
+        // Sync local voter status (skip if spectator)
+        if (!isSpectator) {
+          const myId = api.getPlayerId();
+          const me = remoteState.active_players?.find((p) => p.player_id === myId);
+          if (me?.voted_action) {
+            setMyVote(me.voted_action);
+          } else if (!remoteState.stage_action_taken && !me?.voted_action) {
+            setMyVote(null);
+          }
         }
 
         // 1. If team consensus or timeout committed a decision on this stage
@@ -310,6 +340,7 @@ export default function App() {
 
   // Democratic Action Voting Handler
   const handleSelectAction = useCallback(async (actionType) => {
+    if (isSpectator) return;
     // 1. If custom prompt clicked and no prompt draft exists yet, open prompt drawer
     if (actionType === 'custom_prompt' && !gameState?.custom_prompt_draft?.text) {
       setPromptModalOpen(true);
@@ -414,10 +445,17 @@ export default function App() {
   const handleStartGame = async (teamName, playerCount, chosenRoomId, playerName) => {
     try {
       setLoading(true);
-      const room = chosenRoomId || roomId;
+      let state;
+      let room = chosenRoomId;
+      if (!room || room === 'create') {
+        state = await api.createTableGame(teamName, playerCount);
+        room = state.room_code || state.room_id;
+      } else {
+        state = await api.startGame(teamName, playerCount, room);
+      }
       setRoomIdState(room);
+      api.setRoomId(room);
       if (playerName) api.setPlayerName(playerName);
-      const state = await api.startGame(teamName, playerCount, room);
       await api.joinPlayer(api.getPlayerId(), api.getPlayerName(), room);
       sessionStorage.setItem('hitl_in_game', 'true');
       setGameState(state);
@@ -463,10 +501,15 @@ export default function App() {
 
   // Exit back to Welcome Screen / Table Lobby
   const handleExitToLobby = () => {
-    navigateTo('home');
+    if (isSpectator) {
+      navigateTo('admin');
+    } else {
+      navigateTo('home');
+    }
   };
 
   const handleResetGame = async () => {
+    if (isSpectator) return;
     if (window.confirm('Reset workshop game and start back at Stage 1?')) {
       try {
         const state = await api.resetGame();
@@ -491,6 +534,7 @@ export default function App() {
 
   // Submit Custom Prompt: Drafts for team + casts vote
   const handleSubmitPrompt = async (promptText) => {
+    if (isSpectator) return;
     try {
       setLoading(true);
       setPromptModalOpen(false);
@@ -532,6 +576,7 @@ export default function App() {
 
   // Submit Guardrail Rule: Drafts for team + casts vote
   const handleSubmitRule = async (ruleId) => {
+    if (isSpectator) return;
     try {
       setLoading(true);
       setGuardrailsModalOpen(false);
@@ -592,6 +637,7 @@ export default function App() {
 
   // Proceed to Next Stage
   const handleProceedNextStage = useCallback(async () => {
+    if (isSpectator) return;
     if (isAdvancingStageRef.current) return;
     isAdvancingStageRef.current = true;
     setResultModalOpen(false);
@@ -629,6 +675,7 @@ export default function App() {
 
   // Immediate Team / Solo Decision Lock-In (Forces immediate consensus resolution)
   const handleCommitDecision = async () => {
+    if (isSpectator) return;
     try {
       setLoading(true);
       const res = await api.commitDecision();
@@ -693,6 +740,7 @@ export default function App() {
   }, [gameState?.is_game_over, resultModalOpen, isWatchingCollapse, actionResult]);
 
   const handleRetryStage = useCallback(async () => {
+    if (isSpectator) return;
     try {
       setLoading(true);
       const updated = await api.retryStage();
@@ -713,6 +761,11 @@ export default function App() {
       setLoading(false);
     }
   }, []);
+
+  // 0. Admin Console (/admin)
+  if (routeInfo.route === 'admin') {
+    return <AdminDashboard onNavigate={navigateTo} />;
+  }
 
   // 1. Guide Screen (/guide)
   if (routeInfo.route === 'guide') {
@@ -782,9 +835,32 @@ export default function App() {
         screenShaking ? 'animate-screen-shake' : ''
       }`}
     >
+      {/* Spectator Read-Only Mode Banner */}
+      {isSpectator && (
+        <div className="bg-[#0b1626] border-b-2 border-[#38bdf8] px-3 sm:px-4 py-1.5 flex items-center justify-between text-xs text-white z-40 shadow-xl">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8] animate-ping shrink-0 inline-block" />
+            <span className="text-[10px] mc-font text-[#55ffff] uppercase font-bold">
+              👁 SPECTATOR MODE (READ-ONLY)
+            </span>
+            <span className="text-[11px] font-mono text-[#cbd5e1] hidden sm:inline">
+              Observing live squad <strong>{gameState?.team_name || roomId}</strong>. All voting, actions, and timer mutations are disabled.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigateTo('admin')}
+            className="mc-btn px-2.5 py-1 text-[9px] mc-font text-[#ffd700] hover:text-white bg-[#152238] border-[#38bdf8] flex items-center gap-1 cursor-pointer"
+          >
+            <span>← RETURN TO ADMIN PANEL</span>
+          </button>
+        </div>
+      )}
+
       {/* 1. Cockpit Top Bar (Navbar) */}
       <Navbar
         roomId={roomId}
+        roomCode={gameState?.room_code || roomId}
         stageNumber={(gameState?.current_stage_index ?? 0) + 1}
         totalStages={gameState?.total_stages ?? 11}
         stageTitle={currentStage?.title || ''}
@@ -800,7 +876,21 @@ export default function App() {
         musicEnabled={sound.musicEnabled}
         onToggleMusic={sound.toggleMusic}
         onOpenFieldGuide={() => navigateTo('guide')}
+        isSpectator={isSpectator}
       />
+
+      {/* Facilitator Global Broadcast Alert Banner */}
+      {activeBroadcast && (
+        <div className="bg-[#3a0808] border-b-2 border-[#ff3333] px-3 py-1 flex items-center justify-between text-xs text-white z-20 shadow-md">
+          <div className="flex items-center gap-2 mx-auto">
+            <Radio className="w-3.5 h-3.5 text-[#ff5555] animate-pulse shrink-0" />
+            <span className="text-[9.5px] mc-font text-[#ffd700] uppercase font-bold">
+              FACILITATOR BROADCAST:
+            </span>
+            <span className="text-[11px] font-mono text-white font-bold">{activeBroadcast}</span>
+          </div>
+        </div>
+      )}
 
       {/* 2. Room Rivalry Leaderboard Ticker */}
       <LiveLeaderboardTicker
@@ -820,7 +910,7 @@ export default function App() {
             <StageArena
               stage={currentStage}
               onSelectAction={handleSelectAction}
-              disabled={loading || gameState?.is_game_over || gameState?.stage_action_taken || resultModalOpen || isWatchingRemoval}
+              disabled={isSpectator || loading || gameState?.is_game_over || gameState?.stage_action_taken || resultModalOpen || isWatchingRemoval}
               stageActionTaken={gameState?.stage_action_taken}
               lastActionResult={gameState?.last_action_result}
               onProceedNextStage={handleProceedNextStage}

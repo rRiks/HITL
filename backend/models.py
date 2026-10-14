@@ -5,6 +5,7 @@ class StartGameRequest(BaseModel):
     team_name: str = Field(default="Alpha Devs", description="Name of the team")
     player_count: int = Field(default=4, ge=1, le=10, description="Number of players in team")
     room_id: Optional[str] = Field(default="default", description="Room/table identifier for multi-team isolation")
+    room_code: Optional[str] = Field(default=None, description="Optional 4-character join code")
 
 class ActionRequest(BaseModel):
     action_type: str = Field(..., description="'accept_as_is' | 'deny_and_move_on' | 'custom_prompt' | 'suggest_change'")
@@ -90,6 +91,7 @@ class VoteRequest(BaseModel):
 
 class GameStateResponse(BaseModel):
     room_id: str = "default"
+    room_code: str = "DEFAULT"
     team_name: str
     player_count: int
     current_stage_index: int  # 0 to 10

@@ -16,8 +16,9 @@ from models import (
 )
 
 class GameStateManager:
-    def __init__(self, room_id: str = "default", team_name: str = "DevOps Gladiators", player_count: int = 4):
+    def __init__(self, room_id: str = "default", team_name: str = "DevOps Gladiators", player_count: int = 4, room_code: Optional[str] = None):
         self.room_id: str = room_id
+        self.room_code: str = (room_code or (room_id[:4].upper() if len(room_id) == 4 else "ALPH")).upper()
         self.team_name: str = team_name.strip() or "DevOps Gladiators"
         self.player_count: int = player_count
         self.current_stage_index: int = 0
@@ -330,6 +331,7 @@ class GameStateManager:
         self.last_active = time.time()
         return GameStateResponse(
             room_id=self.room_id,
+            room_code=self.room_code,
             team_name=self.team_name,
             player_count=self.player_count,
             current_stage_index=self.current_stage_index,
@@ -653,10 +655,51 @@ class RoomManager:
     Ensures that when 20+ developers split across multiple tables or rooms,
     each team has their own completely isolated 3D tower, health, and 11-stage progress.
     """
+    KNOWN_PRESETS: Dict[str, str] = {
+        "alpha-devs": "Alpha Devs",
+        "byte-busters": "Byte Busters",
+        "apex-sres": "Apex SREs",
+        "cloud-titans": "Cloud Titans",
+        "default": "Alpha Devs",
+    }
+
     def __init__(self):
         self._rooms: Dict[str, GameStateManager] = {}
+        self._code_to_room: Dict[str, str] = {}
         # Pre-seed default room for standard single-room play
-        self.get_or_create_room("default", team_name="Alpha Devs", player_count=4)
+        self.get_or_create_room("default", team_name="Alpha Devs", player_count=4, room_code="ALPH")
+
+    def generate_room_code(self) -> str:
+        alphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+        for _ in range(200):
+            code = "".join(random.choices(alphabet, k=4))
+            if code not in self._code_to_room and code.lower() not in self._rooms:
+                return code
+        return f"T{random.randint(100, 999)}"
+
+    def resolve_room_id(self, code_or_id: Optional[str]) -> str:
+        if not code_or_id:
+            return "default"
+        clean = self.normalize_room_id(code_or_id)
+        upper = clean.upper()
+        if upper in self._code_to_room:
+            return self._code_to_room[upper]
+        for rid, room in self._rooms.items():
+            if getattr(room, "room_code", "").upper() == upper:
+                return rid
+        return clean
+
+    def create_room_with_code(self, team_name: str, player_count: int = 4, room_code: Optional[str] = None) -> GameStateManager:
+        code = (room_code or self.generate_room_code()).upper()
+        norm_id = code.lower()
+        if norm_id in self._rooms and not room_code:
+            code = self.generate_room_code().upper()
+            norm_id = code.lower()
+
+        manager = GameStateManager(room_id=norm_id, team_name=team_name, player_count=player_count, room_code=code)
+        self._rooms[norm_id] = manager
+        self._code_to_room[code] = norm_id
+        return manager
 
     def normalize_room_id(self, room_id: Optional[str]) -> str:
         if not room_id:
@@ -664,18 +707,31 @@ class RoomManager:
         clean = "".join(c for c in room_id.lower().strip() if c.isalnum() or c in "-_")
         return clean or "default"
 
-    def get_or_create_room(self, room_id: str, team_name: str = "Alpha Devs", player_count: int = 4) -> GameStateManager:
-        norm_id = self.normalize_room_id(room_id)
-        if norm_id not in self._rooms:
-            self._rooms[norm_id] = GameStateManager(room_id=norm_id, team_name=team_name, player_count=player_count)
-        return self._rooms[norm_id]
+    def derive_team_name(self, room_id: str) -> str:
+        norm = self.normalize_room_id(room_id)
+        if norm in self.KNOWN_PRESETS:
+            return self.KNOWN_PRESETS[norm]
+        words = norm.replace("-", " ").replace("_", " ").split()
+        return " ".join(w.capitalize() for w in words) or "Alpha Devs"
+
+    def get_or_create_room(self, room_id: str, team_name: Optional[str] = None, player_count: int = 4, room_code: Optional[str] = None) -> GameStateManager:
+        resolved = self.resolve_room_id(room_id)
+        if resolved not in self._rooms:
+            code = (room_code or (resolved.upper() if len(resolved) == 4 and resolved.isalnum() else self.generate_room_code())).upper()
+            actual_name = (team_name or "").strip() or self.derive_team_name(resolved)
+            manager = GameStateManager(room_id=resolved, team_name=actual_name, player_count=player_count, room_code=code)
+            self._rooms[resolved] = manager
+            self._code_to_room[code] = resolved
+        elif team_name and team_name.strip():
+            self._rooms[resolved].team_name = team_name.strip()
+        return self._rooms[resolved]
 
     def get_room(self, room_id: Optional[str]) -> GameStateManager:
-        norm_id = self.normalize_room_id(room_id)
-        if norm_id not in self._rooms:
-            # Auto-create on demand
-            return self.get_or_create_room(norm_id)
-        return self._rooms[norm_id]
+        resolved = self.resolve_room_id(room_id)
+        if resolved not in self._rooms:
+            # Auto-create on demand with derived team name
+            return self.get_or_create_room(resolved)
+        return self._rooms[resolved]
 
     def list_leaderboard(self) -> List[Dict[str, Any]]:
         """

@@ -14,6 +14,7 @@ from models import (
 )
 from game_state import room_manager
 from stages_data import STAGES
+from admin_router import admin_router
 
 app = FastAPI(
     title="HITL Jenga: AI-Paced Development API",
@@ -29,6 +30,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register isolated Admin Router
+app.include_router(admin_router)
 
 @app.get("/api/health")
 def get_health():
@@ -50,18 +54,57 @@ def get_leaderboard():
         "rooms": rooms,
     }
 
-# -------------------------------------------------------------
-# Room-Scoped Multi-Tenant Endpoints
-# -------------------------------------------------------------
+@app.post("/api/game/create", response_model=GameStateResponse)
+def create_table_room(req: StartGameRequest):
+    """Creates a new isolated game room with a unique 4-character Game PIN."""
+    manager = room_manager.create_room_with_code(team_name=req.team_name, player_count=req.player_count, room_code=req.room_code)
+    manager.reset_game(team_name=req.team_name, player_count=req.player_count)
+    return manager.get_state()
+
+@app.get("/api/game/lookup/{code}")
+def lookup_table_by_code(code: str):
+    """Kahoot/Jackbox-style PIN lookup to verify active room status before joining."""
+    clean = code.strip().upper()
+    resolved = room_manager.resolve_room_id(clean)
+    if resolved in room_manager._rooms:
+        r = room_manager._rooms[resolved]
+        state = r.get_state()
+        return {
+            "found": True,
+            "room_id": r.room_id,
+            "room_code": getattr(r, "room_code", clean),
+            "team_name": r.team_name,
+            "current_stage": r.current_stage_index + 1,
+            "total_stages": len(STAGES),
+            "stage_title": state.current_stage.title if state.current_stage else f"Stage {r.current_stage_index + 1}",
+            "health": r.health,
+            "technical_debt": r.technical_debt,
+            "active_players": len(r.get_active_players()),
+            "has_started": r.has_started,
+            "is_game_over": r.is_game_over,
+            "is_victory": r.is_victory,
+        }
+    return {"found": False, "message": f"No active table found for PIN '{code}'"}
+
 @app.post("/api/game/{room_id}/start", response_model=GameStateResponse)
 def start_game_room(room_id: str, req: StartGameRequest):
-    manager = room_manager.get_or_create_room(room_id, team_name=req.team_name, player_count=req.player_count)
+    resolved = room_manager.resolve_room_id(room_id)
+    manager = room_manager.get_or_create_room(resolved, team_name=req.team_name, player_count=req.player_count, room_code=req.room_code)
     manager.reset_game(team_name=req.team_name, player_count=req.player_count)
     return manager.get_state()
 
 @app.get("/api/game/{room_id}/state", response_model=GameStateResponse)
 def get_state_room(room_id: str, player_id: Optional[str] = Query(default=None), player_name: Optional[str] = Query(default=None)):
-    manager = room_manager.get_room(room_id)
+    norm_id = room_manager.normalize_room_id(room_id)
+    if norm_id not in room_manager._rooms:
+        if not (player_id and player_name):
+            # Probe from welcome screen - return clean state without registering ghost room
+            transient = GameStateManager(room_id=norm_id, team_name=room_manager.derive_team_name(norm_id))
+            return transient.get_state()
+        manager = room_manager.get_or_create_room(norm_id)
+    else:
+        manager = room_manager.get_room(norm_id)
+
     if player_id and player_name:
         manager.touch_player(player_id, player_name)
     return manager.get_state()
