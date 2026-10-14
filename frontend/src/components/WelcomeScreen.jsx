@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Play,
   Users,
@@ -22,9 +22,187 @@ const TEAM_SUGGESTIONS = [
   'Cloud Titans',
 ];
 
+const MINECRAFT_SPLASHES = [
+  "Don't dig into Governor limits!",
+  "Never dig straight down into Prod!",
+  "Redstone powered AIDLC!",
+  "Watch out for SOQL in for-loops!",
+  "100% Organic Architecture & Jenga!",
+  "Creepers hate 100% test coverage!",
+  "Consensus > Chaos!",
+  "Single-threaded nightmares resolved!",
+  "Beware the 10,000 DML row cap!",
+  "Test in Sandbox, pray in Prod!",
+  "Diamonds are forever, debt is eternal!",
+  "AI generates, Humans validate!",
+  "Keep tower integrity above 50%!",
+  "Crafting asynchronous Apex since 2026!",
+  "Mine blocks, merge PRs, don't collapse!",
+  "Architected with Coffee & Redstone!",
+  "Governor limits are watching you!",
+  "Human-in-the-Loop: You are the firewall!",
+  "Shift-crouching near production edges!",
+  "4 Debts = Instant Fragility!",
+  "Have you backed up your metadata today?",
+  "C++ was forged in the Nether!",
+  "SRE stands for Screaming, Running, Escaping!",
+  "May your CI/CD pipelines stay green!",
+  "Keep calm and mine the next block!",
+  "Stack overflowed into the Void!",
+  "Git push --force with closed eyes!",
+  "Don't wake the Ender Dragon in DevOps!",
+  "Refactor tomorrow, ship today!",
+  "Consensus reached: We blame the intern!",
+  "Redstone torches prevent merge conflicts!",
+  "Netherite pickaxes vs Technical Debt!",
+  "Autonomous agents require human wisdom!",
+  "Deploying on Friday is an extreme sport!",
+];
+
+const DRAGGABLE_SLOTS = [
+  {
+    id: 'splash-title',
+    xPct: 0.58,
+    yPct: 0.12,
+    rotation: -12,
+    color: 'text-[#ffff00]',
+    star: '★',
+    isTitleSplash: true,
+  },
+  {
+    id: 'left-flank',
+    xPct: 0.07,
+    yPct: 0.38,
+    rotation: -6,
+    color: 'text-[#38bdf8]',
+    star: '✦',
+  },
+  {
+    id: 'right-flank',
+    xPct: 0.76,
+    yPct: 0.62,
+    rotation: 7,
+    color: 'text-[#55ff55]',
+    star: '⚡',
+  },
+];
+
 export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoomId, onOpenGuide, theme = 'dark', onToggleTheme }) {
   // Always default to 'join' tab for players as requested
   const [tabMode, setTabMode] = useState('join');
+
+  // Draggable Quotes State
+  const [quoteItems, setQuoteItems] = useState(() => {
+    const w = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const h = typeof window !== 'undefined' ? window.innerHeight : 800;
+    return DRAGGABLE_SLOTS.map((slot, i) => ({
+      x: Math.round(w * slot.xPct),
+      y: Math.round(h * slot.yPct),
+      quoteIndex: (i * 5) % MINECRAFT_SPLASHES.length,
+      hasMoved: false,
+    }));
+  });
+
+  const dragInfoRef = useRef(null);
+  const [activeDragId, setActiveDragId] = useState(null);
+
+  // Recalculate positions on window resize for quotes that haven't been dragged yet
+  useEffect(() => {
+    const handleResize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      setQuoteItems((prev) =>
+        prev.map((item, i) => {
+          if (item.hasMoved) return item;
+          return {
+            ...item,
+            x: Math.round(w * DRAGGABLE_SLOTS[i].xPct),
+            y: Math.round(h * DRAGGABLE_SLOTS[i].yPct),
+          };
+        })
+      );
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handlePointerDown = (e, index) => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    const target = e.currentTarget;
+    try {
+      target.setPointerCapture(e.pointerId);
+    } catch { }
+
+    dragInfoRef.current = {
+      index,
+      pointerId: e.pointerId,
+      target,
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: quoteItems[index]?.x || 0,
+      origY: quoteItems[index]?.y || 0,
+      moved: false,
+    };
+    setActiveDragId(index);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!dragInfoRef.current) return;
+    const { index, startX, startY, origX, origY } = dragInfoRef.current;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (Math.hypot(dx, dy) > 4) {
+      dragInfoRef.current.moved = true;
+    }
+    if (dragInfoRef.current.moved) {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const newX = Math.max(10, Math.min(w - 120, origX + dx));
+      const newY = Math.max(10, Math.min(h - 40, origY + dy));
+      setQuoteItems((prev) => {
+        const next = [...prev];
+        next[index] = { ...next[index], x: newX, y: newY, hasMoved: true };
+        return next;
+      });
+    }
+  };
+
+  const handlePointerUp = (e) => {
+    if (!dragInfoRef.current) return;
+    const { index, pointerId, target, moved } = dragInfoRef.current;
+    try {
+      target.releasePointerCapture(pointerId);
+    } catch { }
+
+    if (!moved) {
+      // It was a click/tap: roll a new quote!
+      setQuoteItems((prev) => {
+        const next = [...prev];
+        let newIdx = Math.floor(Math.random() * MINECRAFT_SPLASHES.length);
+        if (newIdx === next[index].quoteIndex) {
+          newIdx = (newIdx + 1) % MINECRAFT_SPLASHES.length;
+        }
+        next[index] = { ...next[index], quoteIndex: newIdx };
+        return next;
+      });
+    }
+
+    dragInfoRef.current = null;
+    setActiveDragId(null);
+  };
+
+  const resetQuotePositions = () => {
+    const w = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const h = typeof window !== 'undefined' ? window.innerHeight : 800;
+    setQuoteItems((prev) =>
+      prev.map((item, i) => ({
+        ...item,
+        x: Math.round(w * DRAGGABLE_SLOTS[i].xPct),
+        y: Math.round(h * DRAGGABLE_SLOTS[i].yPct),
+        hasMoved: false,
+      }))
+    );
+  };
 
   // Create Mode state
   const [teamName, setTeamName] = useState('Alpha Devs');
@@ -40,7 +218,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
   const [pinLookup, setPinLookup] = useState({ loading: false, found: false, data: null, message: null });
 
   // Player Gamer Tag (Shared)
-  const [playerName, setPlayerNameState] = useState(getPlayerName() || 'Dev');
+  const [playerName, setPlayerNameState] = useState(getPlayerName() || 'Riks');
 
   // Keep URL strictly as /home on welcome screen
   useEffect(() => {
@@ -49,7 +227,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
         if (window.location.pathname !== '/home' || window.location.search) {
           window.history.replaceState({}, '', '/home');
         }
-      } catch {}
+      } catch { }
     }
   }, []);
 
@@ -90,7 +268,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
   }, [joinPin]);
 
   const handleProceedCreate = () => {
-    const finalPlayer = (playerName || '').trim() || 'Dev';
+    const finalPlayer = (playerName || '').trim() || 'Riks';
     const finalTeam = (teamName || '').trim() || 'Cloud Titans';
     setPlayerName(finalPlayer);
 
@@ -111,7 +289,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
   };
 
   const handleProceedJoin = () => {
-    const finalPlayer = (playerName || '').trim() || 'Dev';
+    const finalPlayer = (playerName || '').trim() || 'Riks';
     const targetRoom = pinLookup.data?.room_id || joinPin.trim().toLowerCase();
     setPlayerName(finalPlayer);
 
@@ -164,19 +342,46 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
         </button>
       )}
 
+      {/* Draggable & Clickable Quotes & Splash Texts (Borderless Authentic Minecraft Style) */}
+      {DRAGGABLE_SLOTS.map((slot, idx) => {
+        const item = quoteItems[idx];
+        if (!item) return null;
+        const quoteText = MINECRAFT_SPLASHES[item.quoteIndex % MINECRAFT_SPLASHES.length];
+        const isDragging = activeDragId === idx;
+
+        return (
+          <div
+            key={slot.id}
+            onPointerDown={(e) => handlePointerDown(e, idx)}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+            title="🖐 Drag to place anywhere! Click to roll another quote! 🎲"
+            style={{
+              left: `${item.x}px`,
+              top: `${item.y}px`,
+              transform: `rotate(${slot.rotation}deg) scale(${isDragging ? 1.18 : 1})`,
+              touchAction: 'none',
+            }}
+            className={`fixed ${slot.color} ${slot.isTitleSplash ? 'flex' : 'hidden sm:flex'
+              } items-center gap-1.5 text-[10px] sm:text-xs font-mono font-bold drop-shadow-[0_2px_0_#000] select-none z-30 transition-transform ${isDragging
+                ? 'cursor-grabbing z-50 filter brightness-125'
+                : 'cursor-grab animate-pulse hover:scale-115 hover:brightness-125'
+              }`}
+          >
+            <span className="opacity-90">{slot.star}</span>
+            <span className="whitespace-nowrap">{quoteText}</span>
+          </div>
+        );
+      })}
+
       <div className="max-w-lg mx-auto w-full my-auto flex flex-col justify-center">
-        {/* Minecraft Title Header & Yellow Splash Text */}
-        <div className="text-center mb-2 sm:mb-3 relative shrink-0">
+        {/* Minecraft Title Header */}
+        <div className="text-center mb-2 sm:mb-3 relative shrink-0 pt-3 sm:pt-4">
           <div className="relative inline-block mb-1 sm:mb-2">
             <h1 className="text-2xl sm:text-4xl font-black tracking-widest text-[#e0e0e0] mc-font drop-shadow-[0_4px_0_#222]">
               MINECRAFT <span className="text-[#ffd700]">AIDLC</span>
             </h1>
-            <div
-              className="absolute -bottom-2.5 -right-3 sm:-right-6 text-[10px] sm:text-xs text-[#ffff00] font-mono font-bold drop-shadow-[0_2px_0_#000] rotate-[-12deg] animate-bounce pointer-events-none whitespace-nowrap z-10"
-              style={{ animationDuration: '0.9s' }}
-            >
-              Don't dig into Governor limits!
-            </div>
           </div>
 
           <p className="text-[11px] sm:text-xs text-[#ccc] max-w-lg mx-auto leading-snug mt-1 font-mono">
@@ -191,11 +396,10 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
             <button
               type="button"
               onClick={() => setTabMode('create')}
-              className={`welcome-tab-btn py-1.5 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                tabMode === 'create'
-                  ? 'welcome-tab-create-active bg-[#332200] border-2 border-[#ffd700] text-[#ffd700] shadow-sm'
-                  : 'text-[#888] hover:text-white'
-              }`}
+              className={`welcome-tab-btn py-1.5 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${tabMode === 'create'
+                ? 'welcome-tab-create-active bg-[#332200] border-2 border-[#ffd700] text-[#ffd700] shadow-sm'
+                : 'text-[#888] hover:text-white'
+                }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>CREATE TABLE</span>
@@ -204,11 +408,10 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
             <button
               type="button"
               onClick={() => setTabMode('join')}
-              className={`welcome-tab-btn py-1.5 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                tabMode === 'join'
-                  ? 'welcome-tab-join-active bg-[#002233] border-2 border-[#38bdf8] text-[#55ffff] shadow-sm'
-                  : 'text-[#888] hover:text-white'
-              }`}
+              className={`welcome-tab-btn py-1.5 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${tabMode === 'join'
+                ? 'welcome-tab-join-active bg-[#002233] border-2 border-[#38bdf8] text-[#55ffff] shadow-sm'
+                : 'text-[#888] hover:text-white'
+                }`}
             >
               <KeyRound className="w-3.5 h-3.5" />
               <span>JOIN WITH PIN</span>
@@ -245,11 +448,10 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                       key={preset}
                       type="button"
                       onClick={() => setTeamName(preset)}
-                      className={`quick-pick-btn text-[9px] font-mono px-2 py-0.5 border transition-all cursor-pointer ${
-                        teamName === preset
-                          ? 'quick-pick-active bg-[#332200] border-[#ffd700] text-[#ffd700]'
-                          : 'bg-[#222] border-[#444] text-[#ccc] hover:border-[#666]'
-                      }`}
+                      className={`quick-pick-btn text-[9px] font-mono px-2 py-0.5 border transition-all cursor-pointer ${teamName === preset
+                        ? 'quick-pick-active bg-[#332200] border-[#ffd700] text-[#ffd700]'
+                        : 'bg-[#222] border-[#444] text-[#ccc] hover:border-[#666]'
+                        }`}
                     >
                       {preset}
                     </button>
@@ -284,9 +486,8 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                       key={cnt}
                       type="button"
                       onClick={() => setPlayerCount(cnt)}
-                      className={`mc-btn py-1 text-[11px] font-mono cursor-pointer ${
-                        playerCount === cnt ? 'mc-btn-green text-white font-bold' : ''
-                      }`}
+                      className={`mc-btn py-1 text-[11px] font-mono cursor-pointer ${playerCount === cnt ? 'mc-btn-green text-white font-bold' : ''
+                        }`}
                     >
                       {cnt} Players
                     </button>
@@ -398,8 +599,17 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
       </div>
 
       {/* Footer */}
-      <footer className="text-center text-[9px] font-mono text-[#888] shrink-0 py-1 flex items-center justify-center gap-2">
+      <footer className="text-center text-[9px] font-mono text-[#888] shrink-0 py-1 flex items-center justify-center gap-2 relative z-10">
         <span>Developer Day Workshop Edition • Real-Time 3D Voxel AIDLC Simulation</span>
+        <span>•</span>
+        <button
+          type="button"
+          onClick={resetQuotePositions}
+          title="Reset all quotes back to initial positions"
+          className="text-[#ffd700]/70 hover:text-[#ffd700] underline cursor-pointer"
+        >
+          [Reset Quotes]
+        </button>
         <span>•</span>
         <a href="/admin" className="text-[#666] hover:text-[#ffd700] underline transition-colors cursor-pointer">
           [GM Console]
