@@ -510,25 +510,23 @@ export default function App() {
 
   const handleResetGame = async () => {
     if (isSpectator) return;
-    if (window.confirm('Reset workshop game and start back at Stage 1?')) {
-      try {
-        const state = await api.resetGame();
-        setGameState(state);
-        setTimeLeft(120);
-        setIsTimerRunning(true);
-        setActionResult(null);
-        setResultModalOpen(false);
-        setIsWatchingRemoval(false);
-        setIsWatchingCollapse(false);
-        setShowGameOverModal(false);
-        setPromptModalOpen(false);
-        setGuardrailsModalOpen(false);
-        setMyVote(null);
-        lastHandledStageResultRef.current = -1;
-        towerRef.current?.restoreTowerStructure(0);
-      } catch (err) {
-        alert(err.message);
-      }
+    try {
+      const state = await api.resetGame();
+      setGameState(state);
+      setTimeLeft(120);
+      setIsTimerRunning(true);
+      setActionResult(null);
+      setResultModalOpen(false);
+      setIsWatchingRemoval(false);
+      setIsWatchingCollapse(false);
+      setShowGameOverModal(false);
+      setPromptModalOpen(false);
+      setGuardrailsModalOpen(false);
+      setMyVote(null);
+      lastHandledStageResultRef.current = -1;
+      towerRef.current?.restoreTowerStructure(0);
+    } catch (err) {
+      console.error('Failed to reset game:', err);
     }
   };
 
@@ -698,16 +696,14 @@ export default function App() {
 
   // Stress Collapse Simulation
   const handleStressCollapse = async () => {
-    if (window.confirm('Simulate 3D catastrophic structural collapse of the architecture tower?')) {
-      sound.playCrash();
-      setScreenShaking(true);
-      setTimeout(() => setScreenShaking(false), 800);
-      try {
-        const updated = await api.reportTowerToppled();
-        setGameState(updated);
-      } catch (err) {
-        console.error(err);
-      }
+    sound.playCrash();
+    setScreenShaking(true);
+    setTimeout(() => setScreenShaking(false), 800);
+    try {
+      const updated = await api.reportTowerToppled();
+      setGameState(updated);
+    } catch (err) {
+      console.error(err);
     }
   };
   // Cinematic Tower Collapse Triggered AFTER player views Dice Roll & clicks See Status
