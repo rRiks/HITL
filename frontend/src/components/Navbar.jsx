@@ -109,8 +109,8 @@ export default function Navbar({
 
   const handleCopyInvite = () => {
     try {
-      const url = new URL(window.location.href);
-      url.searchParams.set('room', roomId);
+      const url = new URL(window.location.origin + '/');
+      url.searchParams.set('roomId', roomId);
       navigator.clipboard.writeText(url.toString());
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2000);

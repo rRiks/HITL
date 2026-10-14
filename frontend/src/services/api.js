@@ -4,7 +4,7 @@ const API_BASE = '/api';
 export function getInitialRoomId() {
   if (typeof window !== 'undefined') {
     const params = new URLSearchParams(window.location.search);
-    const roomParam = params.get('room');
+    const roomParam = params.get('roomId') || params.get('roomid') || params.get('room');
     if (roomParam) {
       const clean = roomParam.toLowerCase().replace(/[^a-z0-9_-]/g, '');
       if (clean) {
@@ -15,26 +15,30 @@ export function getInitialRoomId() {
     const saved = localStorage.getItem('hitl_room_id');
     if (saved) return saved;
   }
-  return 'table-1';
+  return 'cloud-titans';
 }
 
 let activeRoomId = getInitialRoomId();
 
 export function getRoomId() {
-  return activeRoomId || 'table-1';
+  return activeRoomId || 'cloud-titans';
 }
 
 export function setRoomId(roomId) {
-  const clean = (roomId || 'table-1').toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'table-1';
+  const clean = (roomId || 'cloud-titans').toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'cloud-titans';
   activeRoomId = clean;
   if (typeof window !== 'undefined') {
     localStorage.setItem('hitl_room_id', clean);
-    // Update URL query param without full reload
-    const url = new URL(window.location.href);
-    url.searchParams.set('room', clean);
-    window.history.replaceState({}, '', url.toString());
   }
   return clean;
+}
+
+export function clearUrlParams() {
+  if (typeof window !== 'undefined' && window.location.search) {
+    try {
+      window.history.replaceState({}, '', window.location.pathname);
+    } catch {}
+  }
 }
 
 // Player Identity

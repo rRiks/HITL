@@ -23,11 +23,28 @@ function slugifyTeam(name) {
   return clean || 'alpha-devs';
 }
 
-export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoomId }) {
-  const [teamName, setTeamName] = useState('Cloud Titans');
+export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoomId, onOpenGuide }) {
+  const [teamName, setTeamName] = useState(() => {
+    if (defaultRoomId) {
+      const match = TEAM_SUGGESTIONS.find((t) => slugifyTeam(t) === defaultRoomId);
+      if (match) return match;
+    }
+    return 'Cloud Titans';
+  });
   const [playerName, setPlayerNameState] = useState(getPlayerName() || 'Dev');
   const [playerCount, setPlayerCount] = useState(4);
   const [tableStatus, setTableStatus] = useState(null);
+
+  // Keep URL strictly as /home on the welcome screen
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        if (window.location.pathname !== '/home' || window.location.search) {
+          window.history.replaceState({}, '', '/home');
+        }
+      } catch {}
+    }
+  }, []);
 
   // Flow State: 'setup' -> 'walkthrough'
   const [step, setStep] = useState('setup');
@@ -69,8 +86,13 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
     const finalPlayer = (playerName || '').trim() || 'Dev';
     const finalTeam = (teamName || '').trim() || 'Cloud Titans';
     setPlayerName(finalPlayer);
-    setPendingLaunch({ team: finalTeam, count: playerCount, room: derivedRoomId, player: finalPlayer, isJoin });
-    setStep('walkthrough');
+    const launchData = { team: finalTeam, count: playerCount, room: derivedRoomId, player: finalPlayer, isJoin };
+    if (onOpenGuide) {
+      onOpenGuide(launchData);
+    } else {
+      setPendingLaunch(launchData);
+      setStep('walkthrough');
+    }
   };
 
   const handleLaunchGame = () => {

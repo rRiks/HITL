@@ -116,6 +116,7 @@ export default function CockpitFieldGuide({
   onLaunchGame,
   isWalkthrough = false,
   teamName = 'Cloud Titans',
+  onGoHome,
 }) {
   const [activeGuideKey, setActiveGuideKey] = useState('quest');
 
@@ -140,13 +141,25 @@ export default function CockpitFieldGuide({
     <div className="fixed inset-0 z-50 bg-[#14161a]/95 backdrop-blur-xs text-white flex flex-col justify-between select-none p-2 sm:p-3 overflow-y-auto animate-fadeIn">
       {/* Top Walkthrough Navigation Control Bar */}
       <div className="mc-panel-dark px-3 py-2 mb-2 flex items-center justify-between gap-2 border-2 border-[#ffd700] shadow-xl shrink-0">
-        <button
-          type="button"
-          onClick={onClose}
-          className="mc-btn px-3 py-1.5 text-[9px] mc-font text-white hover:text-[#ffaa00] flex items-center gap-1.5 cursor-pointer"
-        >
-          {isWalkthrough ? <span>← SQUAD SETUP</span> : <span>✕ CLOSE GUIDE [ESC]</span>}
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="mc-btn px-3 py-1.5 text-[9px] mc-font text-white hover:text-[#ffaa00] flex items-center gap-1.5 cursor-pointer"
+          >
+            {isWalkthrough ? <span>← SQUAD SETUP</span> : <span>✕ CLOSE GUIDE [ESC]</span>}
+          </button>
+          {onGoHome && !isWalkthrough && (
+            <button
+              type="button"
+              onClick={onGoHome}
+              title="Return to Home Screen"
+              className="mc-btn px-2.5 py-1.5 text-[9px] mc-font text-[#ffd700] hover:text-white flex items-center gap-1 cursor-pointer bg-[#3a2211] border-[#ffaa00]"
+            >
+              <span>HOME</span>
+            </button>
+          )}
+        </div>
 
         <div className="flex items-center gap-2 text-center">
           <BookOpen className="w-4 h-4 text-[#ffd700]" />

@@ -16,15 +16,37 @@ import { useSound } from './hooks/useSound';
 import * as api from './services/api';
 import { ArrowRight, Rotate3d, CheckCircle2, AlertTriangle, Layers, Zap } from 'lucide-react';
 
+function getRouteInfo() {
+  if (typeof window === 'undefined') {
+    return { route: 'home', roomId: null };
+  }
+  const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
+  const params = new URLSearchParams(window.location.search);
+  const roomParam = params.get('roomId') || params.get('roomid') || params.get('room');
+
+  if (pathname === '/guide') {
+    return { route: 'guide', roomId: roomParam || api.getRoomId() };
+  }
+  if (roomParam) {
+    const cleanRoom = roomParam.toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'cloud-titans';
+    return { route: 'game', roomId: cleanRoom };
+  }
+  if (pathname === '/home') {
+    return { route: 'home', roomId: null };
+  }
+  return { route: 'home', roomId: null };
+}
+
 export default function App() {
+  const [routeInfo, setRouteInfo] = useState(() => getRouteInfo());
+  const [walkthroughLaunch, setWalkthroughLaunch] = useState(null);
+
   const [gameStarted, setGameStarted] = useState(() => {
+    const info = getRouteInfo();
+    if (info.route === 'game') return true;
     if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('lobby') === 'true') {
-        sessionStorage.removeItem('hitl_in_game');
-        return false;
-      }
-      return sessionStorage.getItem('hitl_in_game') === 'true';
+      const inGame = sessionStorage.getItem('hitl_in_game') === 'true';
+      return inGame && info.route !== 'home';
     }
     return false;
   });
@@ -40,11 +62,37 @@ export default function App() {
     timeLeftRef.current = timeLeft;
   }, [timeLeft]);
 
+  // Synchronize routing and browser back/forward buttons
+  useEffect(() => {
+    const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
+    const params = new URLSearchParams(window.location.search);
+    const roomParam = params.get('roomId') || params.get('roomid') || params.get('room');
+
+    // Canonical redirect on root '/' to '/home' when no room parameter is present
+    if (pathname === '/' && !roomParam) {
+      window.history.replaceState({}, '', '/home');
+    }
+
+    const handlePopState = () => {
+      const info = getRouteInfo();
+      setRouteInfo(info);
+      if (info.route === 'game' && info.roomId) {
+        api.setRoomId(info.roomId);
+        setRoomIdState(info.roomId);
+        setGameStarted(true);
+      } else if (info.route === 'home') {
+        setGameStarted(false);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   // Modals & Extraction State
   const [promptModalOpen, setPromptModalOpen] = useState(false);
   const [guardrailsModalOpen, setGuardrailsModalOpen] = useState(false);
   const [resultModalOpen, setResultModalOpen] = useState(false);
-  const [fieldGuideOpen, setFieldGuideOpen] = useState(false);
   const [actionResult, setActionResult] = useState(null);
   const [isWatchingRemoval, setIsWatchingRemoval] = useState(false);
   const [isWatchingCollapse, setIsWatchingCollapse] = useState(false);
@@ -60,7 +108,33 @@ export default function App() {
   // Sound Engine
   const sound = useSound();
 
-  const [roomId, setRoomIdState] = useState(() => api.getRoomId());
+  const [roomId, setRoomIdState] = useState(() => {
+    const info = getRouteInfo();
+    return info.roomId || api.getRoomId();
+  });
+
+  // Centralized URL Router Navigation
+  const navigateTo = useCallback((destination, targetRoomId = null) => {
+    if (destination === 'home') {
+      sessionStorage.removeItem('hitl_in_game');
+      setGameStarted(false);
+      setIsTimerRunning(false);
+      setWalkthroughLaunch(null);
+      setRouteInfo({ route: 'home', roomId: null });
+      window.history.pushState({}, '', '/home');
+    } else if (destination === 'guide') {
+      setRouteInfo((prev) => ({ route: 'guide', roomId: targetRoomId || prev.roomId || roomId }));
+      window.history.pushState({}, '', '/guide');
+    } else if (destination === 'game') {
+      const room = targetRoomId || roomId || api.getRoomId();
+      api.setRoomId(room);
+      setRoomIdState(room);
+      sessionStorage.setItem('hitl_in_game', 'true');
+      setGameStarted(true);
+      setRouteInfo({ route: 'game', roomId: room });
+      window.history.pushState({}, '', `/?roomId=${room}`);
+    }
+  }, [roomId]);
 
   // Load initial state
   const refreshState = useCallback(async () => {
@@ -354,6 +428,7 @@ export default function App() {
       setResultModalOpen(false);
       setIsWatchingRemoval(false);
       setMyVote(null);
+      navigateTo('game', room);
       sound.playSuccess();
     } catch (err) {
       alert(`Backend connection error: ${err.message}`);
@@ -377,6 +452,7 @@ export default function App() {
       setGameStarted(true);
       setTimeLeft(120);
       setIsTimerRunning(true);
+      navigateTo('game', room);
       sound.playSuccess();
     } catch (err) {
       alert(`Failed to join live table: ${err.message}`);
@@ -387,14 +463,7 @@ export default function App() {
 
   // Exit back to Welcome Screen / Table Lobby
   const handleExitToLobby = () => {
-    sessionStorage.removeItem('hitl_in_game');
-    setGameStarted(false);
-    setIsTimerRunning(false);
-    try {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('lobby');
-      window.history.replaceState({}, '', url.toString());
-    } catch {}
+    navigateTo('home');
   };
 
   const handleResetGame = async () => {
@@ -645,13 +714,46 @@ export default function App() {
     }
   }, []);
 
-  // Welcome Screen
-  if (!gameStarted) {
+  // 1. Guide Screen (/guide)
+  if (routeInfo.route === 'guide') {
+    return (
+      <CockpitFieldGuide
+        onClose={() => {
+          if (gameStarted) {
+            navigateTo('game', roomId);
+          } else {
+            navigateTo('home');
+          }
+        }}
+        onGoHome={() => navigateTo('home')}
+        onLaunchGame={() => {
+          if (walkthroughLaunch) {
+            if (walkthroughLaunch.isJoin) {
+              handleJoinLiveTable(walkthroughLaunch.room, walkthroughLaunch.player);
+            } else {
+              handleStartGame(walkthroughLaunch.team, walkthroughLaunch.count, walkthroughLaunch.room, walkthroughLaunch.player);
+            }
+          } else {
+            navigateTo('game', roomId);
+          }
+        }}
+        isWalkthrough={!gameStarted && !!walkthroughLaunch}
+        teamName={walkthroughLaunch?.team || gameState?.team_name || 'Cloud Titans'}
+      />
+    );
+  }
+
+  // 2. Welcome Screen (/home)
+  if (routeInfo.route === 'home' || !gameStarted) {
     return (
       <WelcomeScreen
         onStartGame={handleStartGame}
         onJoinLiveTable={handleJoinLiveTable}
         defaultRoomId={roomId}
+        onOpenGuide={(launchData) => {
+          setWalkthroughLaunch(launchData);
+          navigateTo('guide', launchData.room);
+        }}
       />
     );
   }
@@ -697,7 +799,7 @@ export default function App() {
         onToggleSound={sound.toggleSound}
         musicEnabled={sound.musicEnabled}
         onToggleMusic={sound.toggleMusic}
-        onOpenFieldGuide={() => setFieldGuideOpen(true)}
+        onOpenFieldGuide={() => navigateTo('guide')}
       />
 
       {/* 2. Room Rivalry Leaderboard Ticker */}
@@ -859,15 +961,6 @@ export default function App() {
           onRestart={handleResetGame}
           onRetryStage={handleRetryStage}
           onExitToLobby={handleExitToLobby}
-        />
-      )}
-
-      {/* In-Game Interactive Cockpit Field Guide (Help & Rules Fullscreen Popup) */}
-      {fieldGuideOpen && (
-        <CockpitFieldGuide
-          onClose={() => setFieldGuideOpen(false)}
-          isWalkthrough={false}
-          teamName={gameState?.team_name || 'Alpha Devs'}
         />
       )}
     </div>
