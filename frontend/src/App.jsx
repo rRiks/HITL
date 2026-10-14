@@ -531,6 +531,7 @@ export default function App() {
 
   // Exit back to Welcome Screen / Table Lobby
   const handleExitToLobby = () => {
+    sessionStorage.removeItem('hitl_in_game');
     if (isSpectator) {
       navigateTo('admin');
     } else {
@@ -796,7 +797,7 @@ export default function App() {
 
   // 1. Guide Screen (/guide)
   if (routeInfo.route === 'guide') {
-    const isFromAdmin = routeInfo.from === 'admin' || (typeof window !== 'undefined' && sessionStorage.getItem('hitl_in_game') !== 'true' && !!sessionStorage.getItem('hitl_admin_key'));
+    const isFromAdmin = routeInfo.from === 'admin' || (typeof window !== 'undefined' && sessionStorage.getItem('hitl_in_game') !== 'true' && !!(localStorage.getItem('hitl_admin_key') || sessionStorage.getItem('hitl_admin_key')));
     return (
       <CockpitFieldGuide
         onClose={() => {

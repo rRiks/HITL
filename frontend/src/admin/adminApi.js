@@ -3,19 +3,22 @@ const ADMIN_BASE = `${API_BASE}/admin`;
 
 export function getAdminKey() {
   if (typeof window !== 'undefined') {
-    return sessionStorage.getItem('hitl_admin_key') || '';
+    return localStorage.getItem('hitl_admin_key') || sessionStorage.getItem('hitl_admin_key') || '';
   }
   return '';
 }
 
 export function setAdminKey(key) {
   if (typeof window !== 'undefined') {
-    sessionStorage.setItem('hitl_admin_key', key.trim());
+    const cleanKey = (key || '').trim();
+    localStorage.setItem('hitl_admin_key', cleanKey);
+    sessionStorage.setItem('hitl_admin_key', cleanKey);
   }
 }
 
 export function clearAdminKey() {
   if (typeof window !== 'undefined') {
+    localStorage.removeItem('hitl_admin_key');
     sessionStorage.removeItem('hitl_admin_key');
   }
 }
