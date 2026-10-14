@@ -87,7 +87,7 @@ export default function App() {
         api.setRoomId(info.roomId);
         setRoomIdState(info.roomId);
         setGameStarted(true);
-      } else if (info.route === 'home') {
+      } else if (info.route === 'home' || info.route === 'admin') {
         setGameStarted(false);
       }
     };
@@ -149,17 +149,25 @@ export default function App() {
   // Centralized URL Router Navigation
   const navigateTo = useCallback((destination, targetRoomId = null) => {
     if (destination === 'admin') {
-      setRouteInfo({ route: 'admin', roomId: null });
+      setRouteInfo({ route: 'admin', roomId: null, isSpectator: false });
       window.history.pushState({}, '', '/admin');
+    } else if (destination === 'spectate') {
+      const room = targetRoomId || roomId || api.getRoomId();
+      api.setRoomId(room);
+      setRoomIdState(room);
+      sessionStorage.removeItem('hitl_in_game');
+      setGameStarted(true);
+      setRouteInfo({ route: 'game', roomId: room, isSpectator: true });
+      window.history.pushState({}, '', `/?roomId=${room}&spectate=true`);
     } else if (destination === 'home') {
       sessionStorage.removeItem('hitl_in_game');
       setGameStarted(false);
       setIsTimerRunning(false);
       setWalkthroughLaunch(null);
-      setRouteInfo({ route: 'home', roomId: null });
+      setRouteInfo({ route: 'home', roomId: null, isSpectator: false });
       window.history.pushState({}, '', '/home');
     } else if (destination === 'guide') {
-      setRouteInfo((prev) => ({ route: 'guide', roomId: targetRoomId || prev.roomId || roomId, from: prev.route }));
+      setRouteInfo((prev) => ({ route: 'guide', roomId: targetRoomId || prev.roomId || roomId, from: prev.route, isSpectator: prev.isSpectator }));
       window.history.pushState({}, '', '/guide');
     } else if (destination === 'game') {
       const room = targetRoomId || roomId || api.getRoomId();
@@ -167,7 +175,7 @@ export default function App() {
       setRoomIdState(room);
       sessionStorage.setItem('hitl_in_game', 'true');
       setGameStarted(true);
-      setRouteInfo({ route: 'game', roomId: room });
+      setRouteInfo({ route: 'game', roomId: room, isSpectator: false });
       window.history.pushState({}, '', `/?roomId=${room}`);
     }
   }, [roomId]);

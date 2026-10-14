@@ -3,7 +3,12 @@ const ADMIN_BASE = `${API_BASE}/admin`;
 
 export function getAdminKey() {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('hitl_admin_key') || sessionStorage.getItem('hitl_admin_key') || '';
+    const key = localStorage.getItem('hitl_admin_key') || sessionStorage.getItem('hitl_admin_key') || '';
+    if (key) {
+      if (!localStorage.getItem('hitl_admin_key')) localStorage.setItem('hitl_admin_key', key);
+      if (!sessionStorage.getItem('hitl_admin_key')) sessionStorage.setItem('hitl_admin_key', key);
+    }
+    return key;
   }
   return '';
 }
@@ -52,7 +57,6 @@ export async function fetchAllRooms() {
     headers: getAuthHeaders(),
   });
   if (res.status === 401) {
-    clearAdminKey();
     throw new Error('401_UNAUTHORIZED');
   }
   if (!res.ok) throw new Error(`Failed to fetch rooms: ${res.statusText}`);
@@ -66,7 +70,6 @@ export async function sendRoomAction(roomId, action, delta = 0, pulls = 1) {
     body: JSON.stringify({ action, delta, pulls }),
   });
   if (res.status === 401) {
-    clearAdminKey();
     throw new Error('401_UNAUTHORIZED');
   }
   if (!res.ok) throw new Error(`Action '${action}' failed: ${res.statusText}`);
@@ -80,7 +83,6 @@ export async function broadcastAnnouncement(message) {
     body: JSON.stringify({ message }),
   });
   if (res.status === 401) {
-    clearAdminKey();
     throw new Error('401_UNAUTHORIZED');
   }
   if (!res.ok) throw new Error(`Failed to broadcast: ${res.statusText}`);
@@ -93,7 +95,6 @@ export async function clearBroadcast() {
     headers: getAuthHeaders(),
   });
   if (res.status === 401) {
-    clearAdminKey();
     throw new Error('401_UNAUTHORIZED');
   }
   if (!res.ok) throw new Error(`Failed to clear broadcast: ${res.statusText}`);
@@ -106,7 +107,6 @@ export async function resetAllRooms() {
     headers: getAuthHeaders(),
   });
   if (res.status === 401) {
-    clearAdminKey();
     throw new Error('401_UNAUTHORIZED');
   }
   if (!res.ok) throw new Error(`Failed to reset all rooms: ${res.statusText}`);
@@ -118,7 +118,6 @@ export async function fetchStagesCheatSheet() {
     headers: getAuthHeaders(),
   });
   if (res.status === 401) {
-    clearAdminKey();
     throw new Error('401_UNAUTHORIZED');
   }
   if (!res.ok) throw new Error(`Failed to fetch stages: ${res.statusText}`);
@@ -130,7 +129,6 @@ export async function fetchAnalytics() {
     headers: getAuthHeaders(),
   });
   if (res.status === 401) {
-    clearAdminKey();
     throw new Error('401_UNAUTHORIZED');
   }
   if (!res.ok) throw new Error(`Failed to fetch analytics: ${res.statusText}`);
@@ -143,7 +141,6 @@ export async function toggleGlobalTimer() {
     headers: getAuthHeaders(),
   });
   if (res.status === 401) {
-    clearAdminKey();
     throw new Error('401_UNAUTHORIZED');
   }
   if (!res.ok) throw new Error(`Failed to toggle global timer: ${res.statusText}`);
@@ -156,7 +153,6 @@ export async function pauseAllRooms() {
     headers: getAuthHeaders(),
   });
   if (res.status === 401) {
-    clearAdminKey();
     throw new Error('401_UNAUTHORIZED');
   }
   if (!res.ok) throw new Error(`Failed to pause all rooms: ${res.statusText}`);
@@ -169,7 +165,6 @@ export async function resumeAllRooms() {
     headers: getAuthHeaders(),
   });
   if (res.status === 401) {
-    clearAdminKey();
     throw new Error('401_UNAUTHORIZED');
   }
   if (!res.ok) throw new Error(`Failed to resume all rooms: ${res.statusText}`);

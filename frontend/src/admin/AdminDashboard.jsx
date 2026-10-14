@@ -64,7 +64,8 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
   };
 
   const loadData = useCallback(async () => {
-    if (!adminApi.getAdminKey()) {
+    const key = adminApi.getAdminKey();
+    if (!key) {
       setIsAuthenticated(false);
       return;
     }
@@ -76,6 +77,7 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
       setIsAuthenticated(true);
     } catch (err) {
       if (err.message === '401_UNAUTHORIZED') {
+        adminApi.clearAdminKey();
         setIsAuthenticated(false);
         showToast('Session expired or unauthorized. Please re-enter Game Master Key.');
       } else {
@@ -780,15 +782,15 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
                       <div className="pt-2 border-t border-[#232a3d] space-y-2">
                         {/* Row 1: Spectate + Pause + Stage Jumps */}
                         <div className="grid grid-cols-4 gap-1.5">
-                          <a
-                            href={`/?roomId=${r.room_id}&spectate=true`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mc-btn px-2 py-1 text-[9px] mc-font text-[#55ffff] flex items-center justify-center gap-1 bg-[#0c1c28] border-[#38bdf8] hover:text-white"
+                          <button
+                            type="button"
+                            onClick={() => onNavigate ? onNavigate('spectate', r.room_id) : (window.location.href = `/?roomId=${r.room_id}&spectate=true`)}
+                            className="mc-btn px-2 py-1 text-[9px] mc-font text-[#55ffff] flex items-center justify-center gap-1 bg-[#0c1c28] border-[#38bdf8] hover:text-white cursor-pointer"
+                            title="Spectate this room in real-time"
                           >
                             <span>SPECTATE</span>
-                            <ExternalLink className="w-2.5 h-2.5" />
-                          </a>
+                            <Eye className="w-2.5 h-2.5" />
+                          </button>
 
                           <button
                             type="button"
@@ -1078,15 +1080,15 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
                           </td>
                           <td className="p-3 text-right">
                             <div className="flex items-center justify-end gap-1.5">
-                              <a
-                                href={`/?roomId=${r.room_id}&spectate=true`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="mc-btn px-2.5 py-1 text-[9px] mc-font text-[#55ffff] inline-flex items-center gap-1 bg-[#0c1c28] border-[#38bdf8] hover:text-white"
+                              <button
+                                type="button"
+                                onClick={() => onNavigate ? onNavigate('spectate', r.room_id) : (window.location.href = `/?roomId=${r.room_id}&spectate=true`)}
+                                className="mc-btn px-2.5 py-1 text-[9px] mc-font text-[#55ffff] inline-flex items-center gap-1 bg-[#0c1c28] border-[#38bdf8] hover:text-white cursor-pointer"
+                                title="Spectate this room in real-time"
                               >
                                 <span>SPECTATE</span>
-                                <ExternalLink className="w-2.5 h-2.5" />
-                              </a>
+                                <Eye className="w-2.5 h-2.5" />
+                              </button>
                               <button
                                 type="button"
                                 onClick={() => handleToggleRoomTimer(r.room_id)}
