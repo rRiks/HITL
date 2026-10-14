@@ -133,6 +133,7 @@ The platform supports live co-op gameplay where multiple teammates at the same t
 | URL | Purpose |
 |---|---|
 | `http://localhost:5173` | Main app (auto-resumes your active in-game session) |
+| `http://localhost:5173/admin` | Game Master Facilitator Console (Protected via `ADMIN_SECRET_KEY`) |
 | `http://localhost:5173/?lobby=true` | Forces navigation directly to the Welcome Screen / Lobby |
 | `http://localhost:5173/?room=table-2` | Deep-links directly to Table 2 |
 | `http://127.0.0.1:8000/docs` | FastAPI Swagger documentation for all backend endpoints |
@@ -147,6 +148,7 @@ The platform supports live co-op gameplay where multiple teammates at the same t
 HITL/
 ├── backend/
 │   ├── main.py              # FastAPI application, route handlers & CORS
+│   ├── admin_router.py      # Game Master API (telemetry, pause, broadcast, reset)
 │   ├── game_state.py        # Multi-room state machine, voting consensus, tie-breakers
 │   ├── models.py            # Pydantic data schemas & request/response contracts
 │   ├── stages_data.py       # 11 Salesforce crisis stages, code diffs & risks
@@ -154,7 +156,10 @@ HITL/
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── App.jsx                  # Main coordinator, session state & modal triggers
+│   │   ├── App.jsx                  # Main coordinator, URL router & session state
+│   │   ├── admin/
+│   │   │   ├── AdminDashboard.jsx   # Game Master console, squad cards & timer controls
+│   │   │   └── adminApi.js          # Admin endpoints & persistent authentication
 │   │   ├── services/
 │   │   │   └── api.js               # REST client & player/room session persistence
 │   │   ├── components/

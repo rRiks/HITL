@@ -180,6 +180,24 @@ The platform is designed to scale across full workshop rooms with 20–60+ parti
 
 ---
 
+## 🕹️ Game Master Admin Console (`/admin`)
+
+The platform includes a dedicated **Facilitator Command Block Console** at `/admin` for workshop conductors:
+
+- **Security Gate:** Protected via passcode authentication (configured via the `ADMIN_SECRET_KEY` environment variable on the backend).
+- **Squad Telemetry & Live Grid:** View real-time stage progress, current health, technical debt, pull counts, and collapse alerts for every active workshop table.
+- **Global Event Controls:**
+  - **Master World Timer:** Freeze countdowns across all tables globally (e.g., during recap lectures or workshop breaks), with individual table controls cleanly locked during global pauses.
+  - **Global Facilitator Broadcasts:** Push high-priority red alert banners directly onto every participant's screen in real time.
+  - **Reset All Tables:** Simultaneously wipe and restart all tables for a fresh cohort session.
+- **Per-Table Interventions:**
+  - **Live Spectator Mode:** Jump straight into an in-app, read-only spectator view of any active squad's 3D tower and consensus voting.
+  - **Independent Timer Control:** Pause or resume countdown timers on specific tables when global lock is off.
+  - **Table Termination:** Safely delete obsolete or abandoned tables via a themed confirmation modal.
+  - **Stages Cheat Sheet:** Quick-reference architectural traps, AI prompt solutions, and mitigation notes for all 11 stages.
+
+---
+
 ## 🏆 Scoring & Workshop Debrief Lessons
 
 At the end of the simulation (Stage 11 victory or post-mortem incident debrief), teams receive a breakdown of their decisions:
