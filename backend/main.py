@@ -34,6 +34,8 @@ app.add_middleware(
 # Register isolated Admin Router
 app.include_router(admin_router)
 
+@app.get("/")
+@app.get("/healthz")
 @app.get("/api/health")
 def get_health():
     return {
