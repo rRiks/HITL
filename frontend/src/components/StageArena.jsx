@@ -43,6 +43,7 @@ export default function StageArena({
   technicalDebt = 0,
   onOpenDraftPrompt,
   onOpenDraftRule,
+  isTimerPaused = false,
 }) {
   const [showRiskScanner, setShowRiskScanner] = useState(false);
   const [isExpandedModalOpen, setIsExpandedModalOpen] = useState(false);
@@ -175,6 +176,19 @@ export default function StageArena({
 
       {/* 2. Team Voting & Hotbar Action Consoles */}
       <div className="shrink-0 space-y-1.5">
+        {/* Timer Paused Banner */}
+        {isTimerPaused && (
+          <div className="bg-[#2a1a00] border-2 border-[#ffaa00] text-[#ffddaa] px-3 py-1.5 flex items-center justify-between text-[9px] mc-font animate-pulse shadow-md">
+            <span className="flex items-center gap-1.5">
+              <span className="text-base leading-none">⏸</span>
+              <span><strong>WORLD TIME FROZEN BY GAME MASTER</strong> — Voting and stage progression are paused.</span>
+            </span>
+            <span className="text-[#ffd700] uppercase text-[8px] bg-[#3a2500] px-1.5 py-0.5 border border-[#885500] shrink-0">
+              PAUSED
+            </span>
+          </div>
+        )}
+
         {/* Live Multiplayer Roster Bar */}
         <div className="bg-[#1b1b1b] border-2 border-[#333] px-2.5 py-1.5 flex flex-wrap items-center justify-between gap-2 shadow-xs">
           <div className="flex items-center gap-2">
@@ -188,7 +202,7 @@ export default function StageArena({
             <span className="text-[8px] mc-font text-[#888] hidden sm:inline">
               (LOCKS AT 100% OR 2MIN)
             </span>
-            {!stageActionTaken && totalVotesCast > 0 && onCommitDecision && (
+            {!stageActionTaken && totalVotesCast > 0 && onCommitDecision && !isTimerPaused && (
               <button
                 type="button"
                 onClick={(e) => {
@@ -312,10 +326,15 @@ export default function StageArena({
                     <button
                       type="button"
                       onClick={onProceedNextStage}
-                      className="mc-btn mc-btn-green px-3.5 py-1 text-[9px] mc-font text-white flex items-center gap-1 cursor-pointer font-bold shadow-md"
+                      disabled={isTimerPaused}
+                      className={`mc-btn ${
+                        isTimerPaused
+                          ? 'opacity-60 cursor-not-allowed bg-[#444] border-[#666] text-[#aaa]'
+                          : 'mc-btn-green cursor-pointer text-white'
+                      } px-3.5 py-1 text-[9px] mc-font flex items-center gap-1 font-bold shadow-md`}
                     >
-                      <span>PROCEED TO NEXT STAGE</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <span>{isTimerPaused ? '⏸ TIME FROZEN (PAUSED)' : 'PROCEED TO NEXT STAGE'}</span>
+                      {!isTimerPaused && <ArrowRight className="w-3.5 h-3.5" />}
                     </button>
                   );
                 }
@@ -326,15 +345,15 @@ export default function StageArena({
         )}
 
         {/* Minecraft 4-Slot Hotbar Action Cards Grid */}
-        <div className={`grid grid-cols-2 md:grid-cols-4 gap-2 ${stageActionTaken ? 'opacity-50 pointer-events-none' : ''}`}>
+        <div className={`grid grid-cols-2 md:grid-cols-4 gap-2 ${stageActionTaken || isTimerPaused ? 'opacity-60' : ''}`}>
           {/* Slot 1: Accept as-is (Gold Pickaxe / Apple) */}
           <div
-            onClick={() => !disabled && onSelectAction('accept_as_is')}
+            onClick={() => !disabled && !isTimerPaused && onSelectAction('accept_as_is')}
             className={`mc-slot ${
               myVote === 'accept_as_is' ? 'mc-slot-selected' : 'mc-slot-dark'
-            } p-2.5 flex flex-col justify-between cursor-pointer transition-colors ${
-              disabled ? 'opacity-50' : 'hover:border-[#666]'
-            }`}
+            } p-2.5 flex flex-col justify-between ${
+              disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-[#666]'
+            } transition-colors`}
           >
             <div>
               <div className="flex items-center justify-between mb-1">
@@ -364,11 +383,14 @@ export default function StageArena({
               <span className="text-[8px] mc-font text-[#777]">RAW SPEED</span>
               <button
                 type="button"
+                disabled={disabled || isTimerPaused}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (!disabled) onSelectAction('accept_as_is');
+                  if (!disabled && !isTimerPaused) onSelectAction('accept_as_is');
                 }}
-                className={`mc-btn px-2 py-0.5 text-[8px] mc-font cursor-pointer ${
+                className={`mc-btn px-2 py-0.5 text-[8px] mc-font ${
+                  disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                } ${
                   myVote === 'accept_as_is' ? 'mc-btn-green' : ''
                 }`}
               >
@@ -379,12 +401,12 @@ export default function StageArena({
 
           {/* Slot 2: Deny & Skip (Iron Shield) */}
           <div
-            onClick={() => !disabled && onSelectAction('deny_and_move_on')}
+            onClick={() => !disabled && !isTimerPaused && onSelectAction('deny_and_move_on')}
             className={`mc-slot ${
               myVote === 'deny_and_move_on' ? 'mc-slot-selected' : 'mc-slot-dark'
-            } p-2.5 flex flex-col justify-between cursor-pointer transition-colors ${
-              disabled ? 'opacity-50' : 'hover:border-[#666]'
-            }`}
+            } p-2.5 flex flex-col justify-between ${
+              disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-[#666]'
+            } transition-colors`}
           >
             <div>
               <div className="flex items-center justify-between mb-1">
@@ -414,11 +436,14 @@ export default function StageArena({
               <span className="text-[8px] mc-font text-[#777]">SAFE SKIP</span>
               <button
                 type="button"
+                disabled={disabled || isTimerPaused}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (!disabled) onSelectAction('deny_and_move_on');
+                  if (!disabled && !isTimerPaused) onSelectAction('deny_and_move_on');
                 }}
-                className={`mc-btn px-2 py-0.5 text-[8px] mc-font cursor-pointer ${
+                className={`mc-btn px-2 py-0.5 text-[8px] mc-font ${
+                  disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                } ${
                   myVote === 'deny_and_move_on' ? 'mc-btn-green' : ''
                 }`}
               >
@@ -429,12 +454,12 @@ export default function StageArena({
 
           {/* Slot 3: Custom Prompt (Book & Quill) */}
           <div
-            onClick={() => !disabled && onSelectAction('custom_prompt')}
+            onClick={() => !disabled && !isTimerPaused && onSelectAction('custom_prompt')}
             className={`mc-slot ${
               myVote === 'custom_prompt' ? 'mc-slot-selected' : 'mc-slot-dark'
-            } p-2.5 flex flex-col justify-between cursor-pointer transition-colors ${
-              disabled ? 'opacity-50' : 'hover:border-[#666]'
-            }`}
+            } p-2.5 flex flex-col justify-between ${
+              disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-[#666]'
+            } transition-colors`}
           >
             <div>
               <div className="flex items-center justify-between mb-1">
@@ -465,11 +490,12 @@ export default function StageArena({
                     <span>BY {customPromptDraft.player_name}:</span>
                     <button
                       type="button"
+                      disabled={disabled || isTimerPaused}
                       onClick={(e) => {
                         e.stopPropagation();
-                        onOpenDraftPrompt && onOpenDraftPrompt();
+                        if (!disabled && !isTimerPaused) onOpenDraftPrompt && onOpenDraftPrompt();
                       }}
-                      className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer"
+                      className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer disabled:opacity-50"
                     >
                       <Edit3 className="w-2.5 h-2.5 pointer-events-none" />
                       <span className="pointer-events-none">EDIT</span>
@@ -488,11 +514,14 @@ export default function StageArena({
               <span className="text-[8px] mc-font text-[#777]">COLLAB</span>
               <button
                 type="button"
+                disabled={disabled || isTimerPaused}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (!disabled) onSelectAction('custom_prompt');
+                  if (!disabled && !isTimerPaused) onSelectAction('custom_prompt');
                 }}
-                className={`mc-btn px-2 py-0.5 text-[8px] mc-font cursor-pointer ${
+                className={`mc-btn px-2 py-0.5 text-[8px] mc-font ${
+                  disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                } ${
                   myVote === 'custom_prompt' ? 'mc-btn-green' : ''
                 }`}
               >
@@ -505,12 +534,12 @@ export default function StageArena({
 
           {/* Slot 4: AI Suggestions (3 Jumbled Technical Fixes) */}
           <div
-            onClick={() => !disabled && onSelectAction('suggest_change')}
+            onClick={() => !disabled && !isTimerPaused && onSelectAction('suggest_change')}
             className={`mc-slot ${
               myVote === 'suggest_change' ? 'mc-slot-selected' : 'mc-slot-dark'
-            } p-2.5 flex flex-col justify-between cursor-pointer transition-colors ${
-              disabled ? 'opacity-50' : 'hover:border-[#666]'
-            }`}
+            } p-2.5 flex flex-col justify-between ${
+              disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-[#666]'
+            } transition-colors`}
           >
             <div>
               <div className="flex items-center justify-between mb-1">
@@ -541,11 +570,12 @@ export default function StageArena({
                     <span>BY {guardrailRuleDraft.player_name}:</span>
                     <button
                       type="button"
+                      disabled={disabled || isTimerPaused}
                       onClick={(e) => {
                         e.stopPropagation();
-                        onOpenDraftRule && onOpenDraftRule();
+                        if (!disabled && !isTimerPaused) onOpenDraftRule && onOpenDraftRule();
                       }}
-                      className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer"
+                      className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer disabled:opacity-50"
                     >
                       <Edit3 className="w-2.5 h-2.5 pointer-events-none" />
                       <span className="pointer-events-none">EDIT</span>
@@ -564,11 +594,14 @@ export default function StageArena({
               <span className="text-[8px] mc-font text-[#777]">PROPOSALS</span>
               <button
                 type="button"
+                disabled={disabled || isTimerPaused}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (!disabled) onSelectAction('suggest_change');
+                  if (!disabled && !isTimerPaused) onSelectAction('suggest_change');
                 }}
-                className={`mc-btn px-2 py-0.5 text-[8px] mc-font cursor-pointer ${
+                className={`mc-btn px-2 py-0.5 text-[8px] mc-font ${
+                  disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                } ${
                   myVote === 'suggest_change' ? 'mc-btn-green' : ''
                 }`}
               >

@@ -20,6 +20,8 @@ import {
   Check,
   X,
   Volume2,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import * as adminApi from './adminApi';
 
@@ -30,7 +32,7 @@ const BROADCAST_PRESETS = [
   '🏆 Final Stage Sprint: First squad to merge Stage 11 takes the podium!',
 ];
 
-export default function AdminDashboard({ onNavigate }) {
+export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleTheme }) {
   const [activeTab, setActiveTab] = useState('squads'); // 'squads' | 'analytics'
   const [rooms, setRooms] = useState([]);
   const [analytics, setAnalytics] = useState(null);
@@ -41,6 +43,7 @@ export default function AdminDashboard({ onNavigate }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [toastMessage, setToastMessage] = useState(null);
   const [confirmResetAll, setConfirmResetAll] = useState(false);
+  const [globalTimerPaused, setGlobalTimerPaused] = useState(false);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -52,6 +55,7 @@ export default function AdminDashboard({ onNavigate }) {
       const data = await adminApi.fetchAllRooms();
       setRooms(data.rooms || []);
       setActiveBroadcast(data.global_announcement);
+      setGlobalTimerPaused(!!data.global_timer_paused);
     } catch (err) {
       console.error('Failed to load admin rooms:', err);
     }
@@ -125,6 +129,27 @@ export default function AdminDashboard({ onNavigate }) {
     }
   };
 
+  const handleToggleGlobalTimer = async () => {
+    try {
+      const res = await adminApi.toggleGlobalTimer();
+      setGlobalTimerPaused(res.global_timer_paused);
+      showToast(res.message);
+      loadData();
+    } catch (err) {
+      showToast(`Global timer error: ${err.message}`);
+    }
+  };
+
+  const handleToggleRoomTimer = async (roomId) => {
+    try {
+      const res = await adminApi.toggleRoomTimer(roomId);
+      showToast(res.message);
+      loadData();
+    } catch (err) {
+      showToast(`Room timer error: ${err.message}`);
+    }
+  };
+
   // Filtered rooms
   const filteredRooms = rooms.filter((r) => {
     const matchesSearch =
@@ -140,7 +165,7 @@ export default function AdminDashboard({ onNavigate }) {
   });
 
   return (
-    <div className="min-h-screen bg-[#0e1117] text-white flex flex-col font-sans select-none">
+    <div className="min-h-screen bg-[#0e1117] text-white flex flex-col font-sans select-none admin-console-root">
       {/* Toast Feedback */}
       {toastMessage && (
         <div className="fixed top-4 right-4 z-50 bg-[#1e2330] border-2 border-[#ffd700] text-[#ffd700] px-4 py-2 text-xs font-mono shadow-2xl flex items-center gap-2 animate-bounce">
@@ -195,6 +220,27 @@ export default function AdminDashboard({ onNavigate }) {
 
         {/* Action Shortcuts */}
         <div className="flex items-center gap-2">
+          {onToggleTheme && (
+            <button
+              type="button"
+              onClick={onToggleTheme}
+              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+              className="mc-btn px-2.5 py-1.5 text-[10px] mc-font flex items-center gap-1.5 cursor-pointer"
+            >
+              {theme === 'dark' ? (
+                <>
+                  <Sun className="w-3.5 h-3.5 text-[#fbbf24]" />
+                  <span className="text-[#fbbf24]">LIGHT</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-3.5 h-3.5 text-[#0369a1]" />
+                  <span className="text-[#0369a1]">DARK</span>
+                </>
+              )}
+            </button>
+          )}
+
           <div className="mc-btn px-3 py-1.5 text-[10px] mc-font text-[#ffd700] bg-[#221c10] border-2 border-[#ffd700] shadow-sm flex items-center gap-1.5 cursor-default">
             <Shield className="w-3.5 h-3.5 text-[#ffd700]" />
             <span>ADMIN PANEL</span>
@@ -249,6 +295,29 @@ export default function AdminDashboard({ onNavigate }) {
                 </button>
               </div>
             )}
+
+            <button
+              type="button"
+              onClick={handleToggleGlobalTimer}
+              className={`mc-btn px-2.5 py-1.5 text-[9px] mc-font flex items-center gap-1.5 cursor-pointer whitespace-nowrap shadow-sm transition-all ${
+                globalTimerPaused
+                  ? 'text-[#ffd700] border-[#ffd700] bg-[#332200] animate-pulse'
+                  : 'text-[#38bdf8] border-[#38bdf8] bg-[#0c1c28] hover:text-white'
+              }`}
+              title={globalTimerPaused ? 'Resume countdown timers across all tables in the workshop' : 'Freeze countdown timers across all tables in the workshop'}
+            >
+              {globalTimerPaused ? (
+                <>
+                  <Play className="w-3 h-3 text-[#ffd700]" />
+                  <span>▶ RESUME ALL TIMERS</span>
+                </>
+              ) : (
+                <>
+                  <Pause className="w-3 h-3 text-[#38bdf8]" />
+                  <span>⏸ PAUSE ALL TIMERS</span>
+                </>
+              )}
+            </button>
 
             <button
               type="button"
@@ -403,6 +472,12 @@ export default function AdminDashboard({ onNavigate }) {
                               <span className="text-[9.5px] font-mono px-1.5 py-0.5 bg-[#251505] text-[#ffd700] border border-[#ffaa00] font-bold tracking-wider">
                                 PIN: {r.room_code || r.room_id}
                               </span>
+                              {r.is_timer_paused && (
+                                <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[#332200] text-[#ffd700] border border-[#ffd700] font-bold flex items-center gap-1 animate-pulse">
+                                  <Pause className="w-2.5 h-2.5 text-[#ffd700]" />
+                                  <span>TIME PAUSED</span>
+                                </span>
+                              )}
                               <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[#0c1c28] text-[#38bdf8] border border-[#1e3a5f] flex items-center gap-1">
                                 <Users className="w-2.5 h-2.5 text-[#38bdf8]" />
                                 <span>{r.active_players_count ?? r.active_players?.length ?? 0} active</span>
@@ -516,8 +591,8 @@ export default function AdminDashboard({ onNavigate }) {
 
                       {/* GM Interventions Toolbar */}
                       <div className="pt-2 border-t border-[#232a3d] space-y-2">
-                        {/* Row 1: Spectate + Stage Jumps */}
-                        <div className="grid grid-cols-3 gap-1.5">
+                        {/* Row 1: Spectate + Pause + Stage Jumps */}
+                        <div className="grid grid-cols-4 gap-1.5">
                           <a
                             href={`/?roomId=${r.room_id}&spectate=true`}
                             target="_blank"
@@ -527,6 +602,29 @@ export default function AdminDashboard({ onNavigate }) {
                             <span>SPECTATE</span>
                             <ExternalLink className="w-2.5 h-2.5" />
                           </a>
+
+                          <button
+                            type="button"
+                            onClick={() => handleToggleRoomTimer(r.room_id)}
+                            className={`mc-btn px-2 py-1 text-[9px] mc-font flex items-center justify-center gap-1 cursor-pointer transition-colors ${
+                              r.is_timer_paused
+                                ? 'bg-[#332200] border-[#ffd700] text-[#ffd700] hover:bg-[#443300]'
+                                : 'bg-[#152238] border-[#38bdf8] text-[#38bdf8] hover:text-white'
+                            }`}
+                            title={r.is_timer_paused ? 'Resume countdown timer for this table' : 'Pause countdown timer for this table'}
+                          >
+                            {r.is_timer_paused ? (
+                              <>
+                                <Play className="w-2.5 h-2.5 text-[#ffd700]" />
+                                <span>RESUME</span>
+                              </>
+                            ) : (
+                              <>
+                                <Pause className="w-2.5 h-2.5 text-[#ffaa00]" />
+                                <span>PAUSE</span>
+                              </>
+                            )}
+                          </button>
 
                           <button
                             type="button"
@@ -802,6 +900,19 @@ export default function AdminDashboard({ onNavigate }) {
                                 <span>SPECTATE</span>
                                 <ExternalLink className="w-2.5 h-2.5" />
                               </a>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleRoomTimer(r.room_id)}
+                                className={`mc-btn px-2 py-1 text-[9px] mc-font inline-flex items-center gap-1 cursor-pointer ${
+                                  r.is_timer_paused
+                                    ? 'bg-[#332200] border-[#ffd700] text-[#ffd700]'
+                                    : 'bg-[#152238] border-[#38bdf8] text-[#38bdf8]'
+                                }`}
+                                title={r.is_timer_paused ? 'Resume timer for this table' : 'Pause timer for this table'}
+                              >
+                                {r.is_timer_paused ? <Play className="w-2.5 h-2.5 text-[#ffd700]" /> : <Pause className="w-2.5 h-2.5 text-[#ffaa00]" />}
+                                <span>{r.is_timer_paused ? 'RESUME' : 'PAUSE'}</span>
+                              </button>
                               <button
                                 type="button"
                                 onClick={() => {

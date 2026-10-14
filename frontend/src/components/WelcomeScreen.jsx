@@ -9,6 +9,8 @@ import {
   ArrowRight,
   ShieldCheck,
   AlertCircle,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { getPlayerName, setPlayerName, lookupTableCode } from '../services/api';
 import CockpitFieldGuide from './CockpitFieldGuide';
@@ -20,18 +22,21 @@ const TEAM_SUGGESTIONS = [
   'Cloud Titans',
 ];
 
-export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoomId, onOpenGuide }) {
-  // If defaultRoomId is passed and looks like a code or room id, default to join
-  const [tabMode, setTabMode] = useState(() => {
-    return defaultRoomId ? 'join' : 'create';
-  });
+export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoomId, onOpenGuide, theme = 'dark', onToggleTheme }) {
+  // Always default to 'join' tab for players as requested
+  const [tabMode, setTabMode] = useState('join');
 
   // Create Mode state
-  const [teamName, setTeamName] = useState('Cloud Titans');
+  const [teamName, setTeamName] = useState('Alpha Devs');
   const [playerCount, setPlayerCount] = useState(4);
 
-  // Join Mode state
-  const [joinPin, setJoinPin] = useState(() => (defaultRoomId || '').toUpperCase());
+  // Join Mode state: strictly do NOT pre-fill cloud-titans or default
+  const [joinPin, setJoinPin] = useState(() => {
+    if (defaultRoomId && defaultRoomId !== 'cloud-titans' && defaultRoomId !== 'default') {
+      return defaultRoomId.toUpperCase();
+    }
+    return '';
+  });
   const [pinLookup, setPinLookup] = useState({ loading: false, found: false, data: null, message: null });
 
   // Player Gamer Tag (Shared)
@@ -136,7 +141,29 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
   }
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden bg-mc-dirt text-white flex flex-col justify-between py-2 sm:py-3 px-3 sm:px-6 select-none">
+    <div className="h-screen max-h-screen overflow-hidden bg-mc-dirt text-white flex flex-col justify-between py-2 sm:py-3 px-3 sm:px-6 select-none relative">
+      {/* Premium Theme Switcher */}
+      {onToggleTheme && (
+        <button
+          type="button"
+          onClick={onToggleTheme}
+          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+          className="absolute top-3 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-[#1e293b]/85 hover:bg-[#334155] border-2 border-[#475569] text-xs font-mono font-bold text-white transition-all shadow-md cursor-pointer mc-btn"
+        >
+          {theme === 'dark' ? (
+            <>
+              <Sun className="w-3.5 h-3.5 text-[#fbbf24]" />
+              <span className="text-[11px] text-[#fbbf24]">LIGHT</span>
+            </>
+          ) : (
+            <>
+              <Moon className="w-3.5 h-3.5 text-[#0369a1]" />
+              <span className="text-[11px] text-[#0369a1]">DARK</span>
+            </>
+          )}
+        </button>
+      )}
+
       <div className="max-w-lg mx-auto w-full my-auto flex flex-col justify-center">
         {/* Minecraft Title Header & Yellow Splash Text */}
         <div className="text-center mb-2 sm:mb-3 relative shrink-0">
@@ -160,13 +187,13 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
         {/* Start Adventure Card */}
         <div className="mc-panel-dark p-4 sm:p-5 shadow-2xl border-4 border-[#333]">
           {/* Kahoot/Jackbox Mode Tabs */}
-          <div className="grid grid-cols-2 gap-2 mb-3 bg-[#111] p-1 border-2 border-[#444]">
+          <div className="welcome-tab-container grid grid-cols-2 gap-2 mb-3 bg-[#111] p-1 border-2 border-[#444]">
             <button
               type="button"
               onClick={() => setTabMode('create')}
-              className={`py-1.5 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`welcome-tab-btn py-1.5 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 tabMode === 'create'
-                  ? 'bg-[#332200] border-2 border-[#ffd700] text-[#ffd700] shadow-sm'
+                  ? 'welcome-tab-create-active bg-[#332200] border-2 border-[#ffd700] text-[#ffd700] shadow-sm'
                   : 'text-[#888] hover:text-white'
               }`}
             >
@@ -177,9 +204,9 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
             <button
               type="button"
               onClick={() => setTabMode('join')}
-              className={`py-1.5 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`welcome-tab-btn py-1.5 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 tabMode === 'join'
-                  ? 'bg-[#002233] border-2 border-[#38bdf8] text-[#55ffff] shadow-sm'
+                  ? 'welcome-tab-join-active bg-[#002233] border-2 border-[#38bdf8] text-[#55ffff] shadow-sm'
                   : 'text-[#888] hover:text-white'
               }`}
             >
@@ -218,9 +245,9 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                       key={preset}
                       type="button"
                       onClick={() => setTeamName(preset)}
-                      className={`text-[9px] font-mono px-2 py-0.5 border transition-all cursor-pointer ${
+                      className={`quick-pick-btn text-[9px] font-mono px-2 py-0.5 border transition-all cursor-pointer ${
                         teamName === preset
-                          ? 'bg-[#332200] border-[#ffd700] text-[#ffd700]'
+                          ? 'quick-pick-active bg-[#332200] border-[#ffd700] text-[#ffd700]'
                           : 'bg-[#222] border-[#444] text-[#ccc] hover:border-[#666]'
                       }`}
                     >

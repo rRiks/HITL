@@ -119,6 +119,7 @@ class GameStateResponse(BaseModel):
     guardrail_rule_draft: Optional[Dict[str, Any]] = None
     tie_broken: bool = False
     tied_options: Optional[List[str]] = None
+    is_timer_paused: bool = False
 
 class ActionResponse(BaseModel):
     room_id: str = "default"

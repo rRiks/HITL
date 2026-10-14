@@ -4,8 +4,8 @@ import {
   Volume2,
   VolumeX,
   Music,
-  Pause,
-  Play,
+  Sun,
+  Moon,
   RotateCcw,
   Share2,
   Check,
@@ -97,7 +97,6 @@ export default function Navbar({
   health = 100,
   timeLeft = 120,
   isTimerRunning = true,
-  onToggleTimer,
   onResetGame,
   onExitToLobby,
   soundEnabled = true,
@@ -106,6 +105,9 @@ export default function Navbar({
   onToggleMusic,
   onOpenFieldGuide,
   isSpectator = false,
+  theme = 'dark',
+  onToggleTheme,
+  isTimerPaused = false,
 }) {
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -225,29 +227,27 @@ export default function Navbar({
         {/* Minecraft Clock Timer */}
         <div
           className={`flex items-center gap-1.5 px-2 py-1 border-2 mc-font transition-all shrink-0 ${
-            isUrgent
+            isTimerPaused
+              ? 'bg-[#332200] border-[#ffd700] text-[#ffd700] animate-pulse shadow-md shadow-amber-900/40'
+              : isUrgent
               ? 'bg-[#3a0000] border-[#ff3333] text-[#ff5555] animate-pulse shadow-md shadow-red-900/40'
               : isZero
               ? 'bg-[#550000] border-[#ff0000] text-[#ffffff] animate-bounce'
               : 'bg-[#252525] border-[#444] text-[#ffd700]'
           }`}
+          title={isTimerPaused ? 'Game Master paused the countdown timer' : 'Stage countdown timer'}
         >
-          <Clock className={`w-3.5 h-3.5 ${isUrgent ? 'text-[#ff5555] animate-spin' : 'text-[#ffd700]'}`} />
+          <Clock className={`w-3.5 h-3.5 ${isTimerPaused ? 'text-[#ffd700]' : isUrgent ? 'text-[#ff5555] animate-spin' : 'text-[#ffd700]'}`} />
           <div className="leading-none flex items-center gap-1">
             <span className="text-xs sm:text-sm font-bold tracking-wider">
               {formattedTime}
             </span>
+            {isTimerPaused && (
+              <span className="hidden sm:inline-block text-[8px] bg-[#553300] px-1 py-0.2 border border-[#ffd700] text-[#ffd700] ml-0.5">
+                PAUSED
+              </span>
+            )}
           </div>
-
-          {!isSpectator && onToggleTimer && (
-            <button
-              onClick={onToggleTimer}
-              title={isTimerRunning ? 'Pause World Clock' : 'Resume World Clock'}
-              className="p-1 hover:bg-[#333] text-[#aaa] hover:text-white transition-colors cursor-pointer ml-1"
-            >
-              {isTimerRunning ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 text-[#55ff55]" />}
-            </button>
-          )}
         </div>
 
         {/* Music Synth Toggle */}
@@ -272,6 +272,21 @@ export default function Navbar({
         >
           {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
         </button>
+
+        {/* Theme Toggle (Light / Dark Realm) */}
+        {onToggleTheme && (
+          <button
+            onClick={onToggleTheme}
+            title={theme === 'light' ? 'Switch to Dark Realm' : 'Switch to Light Realm'}
+            className="mc-btn p-1.5 text-xs flex items-center gap-1 cursor-pointer shrink-0 transition-colors"
+          >
+            {theme === 'light' ? (
+              <Sun className="w-3.5 h-3.5 text-[#d97706]" />
+            ) : (
+              <Moon className="w-3.5 h-3.5 text-[#38bdf8]" />
+            )}
+          </button>
+        )}
 
         {/* Reset AIDLC / World (Hidden for Spectators) */}
         {!isSpectator && onResetGame && (

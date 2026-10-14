@@ -225,6 +225,7 @@ export function ResultModal({
   onProceed,
   onWatchRemoval,
   onWatchCollapse,
+  isTimerPaused = false,
 }) {
   const [animatingRoll, setAnimatingRoll] = useState(false);
   const [displayedRoll, setDisplayedRoll] = useState(0);
@@ -275,7 +276,7 @@ export function ResultModal({
         {/* Header Icon & Title */}
         <div className="text-center mb-4">
           <div
-            className={`w-12 h-12 mx-auto flex items-center justify-center mb-2.5 border-2 ${
+            className={`result-modal-badge w-12 h-12 mx-auto flex items-center justify-center mb-2.5 border-2 ${
               isFailure
                 ? 'bg-[#3a0000] border-[#ff3333] text-[#ff5555]'
                 : 'bg-[#002b00] border-[#55ff55] text-[#55ff55]'
@@ -325,7 +326,7 @@ export function ResultModal({
 
         {/* Dice roll percentage graphic */}
         {isAcceptAsIs && actionResult.roll_value !== null && (
-          <div className="bg-[#111] border-2 border-[#444] p-3 mb-4 text-center">
+          <div className="result-modal-roll-box bg-[#111] border-2 border-[#444] p-3 mb-4 text-center">
             <div className="flex items-center justify-center gap-1.5 text-[9px] mc-font text-[#aaa] mb-1">
               <Dice5 className={`w-3.5 h-3.5 ${animatingRoll ? 'animate-spin' : 'text-[#ffd700]'}`} />
               <span>RISK PROBABILITY ROLL</span>
@@ -340,7 +341,7 @@ export function ResultModal({
         )}
 
         {/* Feedback Narrative */}
-        <div className="bg-[#181818] border-2 border-[#333] p-3 mb-4">
+        <div className="result-modal-feedback-box bg-[#181818] border-2 border-[#333] p-3 mb-4">
           <p className="text-xs text-[#ddd] leading-relaxed font-sans">
             {actionResult.feedback_message}
           </p>
@@ -348,7 +349,7 @@ export function ResultModal({
 
         {/* Stats Impact Banner */}
         <div className="grid grid-cols-2 gap-2.5 mb-5 mc-font text-center">
-          <div className="bg-[#151515] border border-[#444] p-3">
+          <div className="result-modal-stat-box bg-[#151515] border border-[#444] p-3">
             <span className="text-[8px] text-[#aaa] block mb-0.5 uppercase">Health Impact</span>
             <span
               className={`text-base sm:text-lg font-bold ${
@@ -360,7 +361,7 @@ export function ResultModal({
             <span className="text-[8px] text-[#777] block mt-0.5">Now: {actionResult.new_health}%</span>
           </div>
 
-          <div className="bg-[#151515] border border-[#444] p-3">
+          <div className="result-modal-stat-box bg-[#151515] border border-[#444] p-3">
             <span className="text-[8px] text-[#aaa] block mb-0.5 uppercase">Tower Loss</span>
             <span
               className={`text-base sm:text-lg font-bold ${
@@ -404,10 +405,21 @@ export function ResultModal({
             <button
               type="button"
               onClick={onProceed}
-              className="mc-btn mc-btn-green w-full py-3 px-4 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer mc-font shadow-lg active:scale-[0.98] transition-transform"
+              disabled={isTimerPaused}
+              className={`mc-btn ${
+                isTimerPaused
+                  ? 'opacity-60 cursor-not-allowed bg-[#444] border-[#666] text-[#aaa]'
+                  : 'mc-btn-green cursor-pointer text-white'
+              } w-full py-3 px-4 text-xs font-bold flex items-center justify-center gap-2 mc-font shadow-lg transition-all`}
             >
-              <span className="pointer-events-none">{actionResult.is_victory ? 'View Final Audit & Victory' : 'Proceed to Next Stage'}</span>
-              <ArrowRight className="w-4 h-4 pointer-events-none" />
+              <span className="pointer-events-none">
+                {isTimerPaused
+                  ? '⏸ TIME FROZEN BY GAME MASTER (PAUSED)'
+                  : actionResult.is_victory
+                  ? 'View Final Audit & Victory'
+                  : 'Proceed to Next Stage'}
+              </span>
+              {!isTimerPaused && <ArrowRight className="w-4 h-4 pointer-events-none" />}
             </button>
           )}
 
@@ -415,9 +427,14 @@ export function ResultModal({
             <button
               type="button"
               onClick={onProceed}
-              className="w-full py-1.5 text-[8px] mc-font text-[#888] hover:text-white transition-colors cursor-pointer text-center"
+              disabled={isTimerPaused}
+              className={`w-full py-1.5 text-[8px] mc-font ${
+                isTimerPaused ? 'text-[#555] cursor-not-allowed' : 'text-[#888] hover:text-white cursor-pointer'
+              } transition-colors text-center`}
             >
-              <span className="pointer-events-none">Skip Animation & Proceed Directly ➔</span>
+              <span className="pointer-events-none">
+                {isTimerPaused ? '⏸ Advancing is frozen by Game Master' : 'Skip Animation & Proceed Directly ➔'}
+              </span>
             </button>
           )}
         </div>

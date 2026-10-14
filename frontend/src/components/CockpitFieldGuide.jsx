@@ -138,7 +138,7 @@ export default function CockpitFieldGuide({
   const activeGuide = GUIDE_SECTIONS[activeGuideKey] || GUIDE_SECTIONS.quest;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#14161a]/95 backdrop-blur-xs text-white flex flex-col justify-between select-none p-2 sm:p-3 overflow-y-auto animate-fadeIn">
+    <div className="cockpit-field-guide-root fixed inset-0 z-50 bg-[#14161a]/95 backdrop-blur-xs text-white flex flex-col justify-between select-none p-2 sm:p-3 overflow-y-auto animate-fadeIn">
       {/* Top Walkthrough Navigation Control Bar */}
       <div className="mc-panel-dark px-3 py-2 mb-2 flex items-center justify-between gap-2 border-2 border-[#ffd700] shadow-xl shrink-0">
         <div className="flex items-center gap-1.5">
@@ -417,15 +417,15 @@ export default function CockpitFieldGuide({
 
             {/* Domain badges */}
             <div className="flex flex-wrap gap-1 text-[8px] mc-font">
-              <span className="px-1.5 py-0.5 bg-[#ff3b30]/30 text-[#ff7777] border border-[#ff3b30]/50">Governors</span>
-              <span className="px-1.5 py-0.5 bg-[#38bdf8]/30 text-[#88ddff] border border-[#38bdf8]/50">Async Apex</span>
-              <span className="px-1.5 py-0.5 bg-[#a855f7]/30 text-[#d8a8ff] border border-[#a855f7]/50">Security/FLS</span>
-              <span className="px-1.5 py-0.5 bg-[#22c55e]/30 text-[#77ff99] border border-[#22c55e]/50">LWC Engine</span>
+              <span className="guide-domain-pill px-1.5 py-0.5 bg-[#ff3b30]/30 text-[#ff7777] border border-[#ff3b30]/50">Governors</span>
+              <span className="guide-domain-pill px-1.5 py-0.5 bg-[#38bdf8]/30 text-[#88ddff] border border-[#38bdf8]/50">Async Apex</span>
+              <span className="guide-domain-pill px-1.5 py-0.5 bg-[#a855f7]/30 text-[#d8a8ff] border border-[#a855f7]/50">Security/FLS</span>
+              <span className="guide-domain-pill px-1.5 py-0.5 bg-[#22c55e]/30 text-[#77ff99] border border-[#22c55e]/50">LWC Engine</span>
             </div>
           </div>
 
           {/* Stylized 3D Jenga Tower Voxel Graphics Mockup */}
-          <div className="flex-1 my-3 flex items-center justify-center min-h-[160px] bg-[#111115] border border-[#333] relative overflow-hidden">
+          <div className="guide-tower-mockup flex-1 my-3 flex items-center justify-center min-h-[160px] bg-[#111115] border border-[#333] relative overflow-hidden">
             <div className="flex flex-col items-center gap-1">
               <div className="w-24 h-4 bg-[#8b6508] border border-[#ffd700] shadow-md flex items-center justify-center text-[7.5px] mc-font text-white">54 BLOCKS</div>
               <div className="w-24 h-4 bg-[#6b4e06] border border-[#e5c100] shadow-md" />
@@ -442,7 +442,7 @@ export default function CockpitFieldGuide({
           <div
             onMouseEnter={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
             onClick={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
-            className={`p-2 border text-[8.5px] mc-font text-center cursor-pointer transition-all ${
+            className={`guide-debt-box p-2 border text-[8.5px] mc-font text-center cursor-pointer transition-all ${
               activeGuideKey === 'debt'
                 ? 'ring-2 ring-[#ffaa00] border-[#ffd700] bg-[#331c00] text-[#ffd700]'
                 : 'bg-[#221000] border-[#885500] text-[#ffaa00] hover:border-[#ffd700]'
@@ -474,7 +474,7 @@ export default function CockpitFieldGuide({
               <p className="text-[11px] text-[#ddd] font-sans leading-relaxed mb-1.5 select-text whitespace-pre-line">
                 {activeGuide.desc}
               </p>
-              <div className="text-[10px] text-[#ffd700] font-sans bg-[#251d08] border border-[#664400] px-2.5 py-1">
+              <div className="guide-tip-box text-[10px] text-[#ffd700] font-sans bg-[#251d08] border border-[#664400] px-2.5 py-1">
                 <strong>💡 {activeGuide.tip}</strong>
               </div>
             </div>
@@ -489,7 +489,7 @@ export default function CockpitFieldGuide({
                   key={key}
                   type="button"
                   onClick={() => setActiveGuideKey(key)}
-                  className={`text-[8px] mc-font px-2 py-1 border transition-colors cursor-pointer ${
+                  className={`guide-switcher-pill text-[8px] mc-font px-2 py-1 border transition-colors cursor-pointer ${
                     activeGuideKey === key
                       ? 'bg-[#ffd700] text-black font-bold border-[#ffd700]'
                       : 'bg-[#222] text-[#ccc] border-[#444] hover:border-[#888]'

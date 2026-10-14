@@ -74,6 +74,8 @@ def get_all_rooms_detailed():
             "status": status,
             "last_active": r.last_active,
             "history_count": len(r.history),
+            "is_timer_paused": r.is_timer_paused or getattr(room_manager, "global_timer_paused", False),
+            "room_timer_paused": r.is_timer_paused,
         })
 
     # Sort rooms by current_stage desc, health desc
@@ -85,6 +87,7 @@ def get_all_rooms_detailed():
         "total_rooms": len(rooms_data),
         "total_active_players": total_active_players,
         "global_announcement": GLOBAL_ANNOUNCEMENT if GLOBAL_ANNOUNCEMENT["active"] else None,
+        "global_timer_paused": getattr(room_manager, "global_timer_paused", False),
         "server_time": time.time(),
     }
 
@@ -144,6 +147,19 @@ def perform_room_action(room_id: str, req: RoomControlRequest):
             if rid == norm_id:
                 room_manager._code_to_room.pop(code, None)
         return {"success": True, "message": f"Table '{r.team_name}' ({getattr(r, 'room_code', norm_id)}) removed from workshop."}
+
+    elif action == "pause_timer":
+        r.is_timer_paused = True
+        return {"success": True, "is_timer_paused": True, "message": f"Time paused for table '{r.team_name}'."}
+
+    elif action == "resume_timer":
+        r.is_timer_paused = False
+        return {"success": True, "is_timer_paused": False, "message": f"Time resumed for table '{r.team_name}'."}
+
+    elif action == "toggle_pause":
+        r.is_timer_paused = not getattr(r, "is_timer_paused", False)
+        status_word = "paused" if r.is_timer_paused else "resumed"
+        return {"success": True, "is_timer_paused": r.is_timer_paused, "message": f"Time {status_word} for table '{r.team_name}'."}
         
     else:
         raise HTTPException(status_code=400, detail=f"Unknown action '{action}'.")
@@ -182,6 +198,25 @@ def reset_all_rooms():
         r.reset_game(team_name=r.team_name, player_count=r.player_count)
         count += 1
     return {"success": True, "rooms_reset": count, "message": f"Successfully reset {count} workshop tables."}
+
+@admin_router.post("/global/pause-all")
+def pause_all_rooms():
+    """Pauses time countdowns across all live tables in the entire workshop."""
+    room_manager.global_timer_paused = True
+    return {"success": True, "global_timer_paused": True, "message": "All workshop table timers paused globally."}
+
+@admin_router.post("/global/resume-all")
+def resume_all_rooms():
+    """Resumes time countdowns across all live tables in the entire workshop."""
+    room_manager.global_timer_paused = False
+    return {"success": True, "global_timer_paused": False, "message": "All workshop table timers resumed globally."}
+
+@admin_router.post("/global/toggle-pause-all")
+def toggle_pause_all_rooms():
+    """Toggles global time countdown pause state for all tables in the workshop."""
+    room_manager.global_timer_paused = not getattr(room_manager, "global_timer_paused", False)
+    status_word = "paused" if room_manager.global_timer_paused else "resumed"
+    return {"success": True, "global_timer_paused": room_manager.global_timer_paused, "message": f"All workshop table timers {status_word} globally."}
 
 @admin_router.get("/stages")
 def get_stages_cheat_sheet():

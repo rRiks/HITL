@@ -1,4 +1,5 @@
-const ADMIN_BASE = '/api/admin';
+const API_BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/$/, '');
+const ADMIN_BASE = `${API_BASE}/admin`;
 
 export async function fetchAllRooms() {
   const res = await fetch(`${ADMIN_BASE}/rooms`);
@@ -52,4 +53,32 @@ export async function fetchAnalytics() {
   const res = await fetch(`${ADMIN_BASE}/analytics`);
   if (!res.ok) throw new Error(`Failed to fetch analytics: ${res.statusText}`);
   return res.json();
+}
+
+export async function toggleGlobalTimer() {
+  const res = await fetch(`${ADMIN_BASE}/global/toggle-pause-all`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error(`Failed to toggle global timer: ${res.statusText}`);
+  return res.json();
+}
+
+export async function pauseAllRooms() {
+  const res = await fetch(`${ADMIN_BASE}/global/pause-all`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error(`Failed to pause all rooms: ${res.statusText}`);
+  return res.json();
+}
+
+export async function resumeAllRooms() {
+  const res = await fetch(`${ADMIN_BASE}/global/resume-all`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error(`Failed to resume all rooms: ${res.statusText}`);
+  return res.json();
+}
+
+export async function toggleRoomTimer(roomId) {
+  return sendRoomAction(roomId, 'toggle_pause');
 }

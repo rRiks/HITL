@@ -45,6 +45,7 @@ class GameStateManager:
         self.tied_options: Optional[List[str]] = None
         self.technical_debt: int = 0
         self.stage_restart_count: int = 0
+        self.is_timer_paused: bool = False
         self._shuffled_suggestions: Dict[int, List[Dict[str, Any]]] = {}
 
     def reset_game(self, team_name: str = "DevOps Gladiators", player_count: int = 4):
@@ -71,6 +72,7 @@ class GameStateManager:
         self.tied_options = None
         self.technical_debt = 0
         self.stage_restart_count = 0
+        self.is_timer_paused = False
         self._shuffled_suggestions = {}
 
     def retry_current_stage(self, restore_health: int = 35):
@@ -198,6 +200,8 @@ class GameStateManager:
 
     def submit_draft(self, req: DraftRequest) -> GameStateResponse:
         self.touch_player(req.player_id, req.player_name)
+        if self.stage_action_taken or self.is_game_over or self.is_timer_paused or getattr(room_manager, "global_timer_paused", False):
+            return self.get_state()
         if req.draft_type == "custom_prompt":
             self.custom_prompt_draft = {
                 "text": (req.custom_prompt_text or "").strip(),
@@ -225,7 +229,7 @@ class GameStateManager:
 
     def submit_vote(self, req: VoteRequest) -> GameStateResponse:
         self.touch_player(req.player_id, req.player_name)
-        if self.stage_action_taken or self.is_game_over:
+        if self.stage_action_taken or self.is_game_over or self.is_timer_paused or getattr(room_manager, "global_timer_paused", False):
             return self.get_state()
 
         # Record or update vote
@@ -358,6 +362,7 @@ class GameStateManager:
             guardrail_rule_draft=self.guardrail_rule_draft,
             tie_broken=self.tie_broken,
             tied_options=self.tied_options,
+            is_timer_paused=self.is_timer_paused or getattr(room_manager, "global_timer_paused", False),
         )
 
     def process_action(self, req: ActionRequest) -> ActionResponse:
@@ -631,7 +636,7 @@ class GameStateManager:
 
     def advance_to_next_stage(self) -> bool:
         self.last_active = time.time()
-        if self.is_game_over:
+        if self.is_game_over or self.is_timer_paused or getattr(room_manager, "global_timer_paused", False):
             return False
         if self.current_stage_index < len(STAGES) - 1:
             self.current_stage_index += 1
@@ -667,6 +672,7 @@ class RoomManager:
     def __init__(self):
         self._rooms: Dict[str, GameStateManager] = {}
         self._code_to_room: Dict[str, str] = {}
+        self.global_timer_paused: bool = False
         # Pre-seed default room for standard single-room play
         self.get_or_create_room("default", team_name="Alpha Devs", player_count=4, room_code="ALPH")
 

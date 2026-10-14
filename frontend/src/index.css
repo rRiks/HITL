@@ -289,3 +289,716 @@
 .code-diff-context {
   color: #57534e;
 }
+
+/* =============================================================
+ * OPTION 1: AUTHENTIC MINECRAFT STONE & PARCHMENT LIGHT THEME
+ * (Birch Parchment, Polished Quartz, Stone GUI & Sunny Day Sky)
+ * =========================================================== */
+[data-theme="light"],
+[data-theme="light"] body,
+[data-theme="light"] #root {
+  background-color: #ede7dc !important;
+  background-image: 
+    radial-gradient(#dfd7c9 15%, transparent 16%),
+    radial-gradient(#d6cdbe 15%, transparent 16%) !important;
+  background-size: 16px 16px !important;
+  background-position: 0 0, 8px 8px !important;
+  color: #2b251f !important;
+}
+
+[data-theme="light"] .bg-\[\#14161a\] {
+  background-color: #ede7dc !important;
+  background-image: 
+    radial-gradient(#dfd7c9 15%, transparent 16%),
+    radial-gradient(#d6cdbe 15%, transparent 16%) !important;
+  background-size: 16px 16px !important;
+  background-position: 0 0, 8px 8px !important;
+  color: #2b251f !important;
+}
+
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+  color: #241d17 !important;
+}
+
+/* Polished Quartz & Smooth Sandstone GUI Panel */
+[data-theme="light"] .mc-panel-dark {
+  background: #fbf9f5 !important;
+  border-top: 3px solid #ffffff !important;
+  border-left: 3px solid #ffffff !important;
+  border-right: 3px solid #c9c1b2 !important;
+  border-bottom: 3px solid #c9c1b2 !important;
+  box-shadow: inset 1px 1px 0px #ffffff, inset -1px -1px 0px #e0d8ca, 0 6px 20px rgba(60, 48, 36, 0.08) !important;
+  color: #2b251f !important;
+}
+
+/* Authentic Minecraft Inset Stone Slot */
+[data-theme="light"] .mc-slot-dark {
+  background: #e7e0d3 !important;
+  border-top: 2px solid #b2a896 !important;
+  border-left: 2px solid #b2a896 !important;
+  border-right: 2px solid #ffffff !important;
+  border-bottom: 2px solid #ffffff !important;
+  box-shadow: inset 2px 2px 4px rgba(60, 48, 36, 0.12) !important;
+  color: #2b251f !important;
+}
+
+/* Amber Gold Ingot Selected Slot Glow */
+[data-theme="light"] .mc-slot-selected {
+  background: #fefce8 !important;
+  border-color: #d97706 #b45309 #b45309 #d97706 !important;
+  box-shadow: 0 0 14px rgba(217, 119, 6, 0.45), inset 0 0 6px rgba(245, 158, 11, 0.25) !important;
+}
+
+/* Classic Minecraft Stone Buttons */
+[data-theme="light"] .mc-btn {
+  background: #e5ded2 !important;
+  border-top: 2px solid #ffffff !important;
+  border-left: 2px solid #ffffff !important;
+  border-right: 2px solid #9f9686 !important;
+  border-bottom: 2px solid #9f9686 !important;
+  box-shadow: inset 1px 1px 0px #ffffff, inset -1px -1px 0px #8e8473 !important;
+  color: #2b251f !important;
+  text-shadow: none !important;
+}
+
+[data-theme="light"] .mc-btn:hover:not(:disabled) {
+  background: #eee8dc !important;
+  color: #b45309 !important;
+  border-right-color: #7d7567 !important;
+  border-bottom-color: #7d7567 !important;
+}
+
+[data-theme="light"] .mc-btn:active:not(:disabled) {
+  background: #cec5b5 !important;
+  border-top: 2px solid #8e8473 !important;
+  border-left: 2px solid #8e8473 !important;
+  border-right: 2px solid #ffffff !important;
+  border-bottom: 2px solid #ffffff !important;
+  box-shadow: inset 2px 2px 4px rgba(60, 48, 36, 0.15) !important;
+  color: #2b251f !important;
+}
+
+[data-theme="light"] .mc-btn:disabled {
+  background: #ede8df !important;
+  border-color: #e5dfd5 #cec6b7 #cec6b7 #e5dfd5 !important;
+  color: #9c9284 !important;
+  text-shadow: none !important;
+}
+
+[data-theme="light"] .mc-btn-green {
+  background: #15803d !important;
+  border-top: 2px solid #4ade80 !important;
+  border-left: 2px solid #4ade80 !important;
+  border-right: 2px solid #14532d !important;
+  border-bottom: 2px solid #14532d !important;
+  box-shadow: inset 1px 1px 0px #86efac, inset -1px -1px 0px #052e16 !important;
+  color: #ffffff !important;
+  text-shadow: 1px 1px 0px #052e16 !important;
+}
+
+[data-theme="light"] .mc-btn-green:hover:not(:disabled) {
+  background: #16a34a !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .mc-btn-red {
+  background: #dc2626 !important;
+  border-top: 2px solid #f87171 !important;
+  border-left: 2px solid #f87171 !important;
+  border-right: 2px solid #7f1d1d !important;
+  border-bottom: 2px solid #7f1d1d !important;
+  box-shadow: inset 1px 1px 0px #fca5a5, inset -1px -1px 0px #450a0a !important;
+  color: #ffffff !important;
+  text-shadow: 1px 1px 0px #450a0a !important;
+}
+
+/* Light Background Textures */
+[data-theme="light"] .bg-mc-stone {
+  background-color: #ede7dc !important;
+  background-image: radial-gradient(#ded5c5 15%, transparent 16%), radial-gradient(#d3c8b6 15%, transparent 16%) !important;
+}
+
+[data-theme="light"] .bg-mc-dirt {
+  background-color: #e6dfd2 !important;
+  background-image: radial-gradient(#d6ccbd 15%, transparent 16%), radial-gradient(#c7bca9 15%, transparent 16%) !important;
+}
+
+[data-theme="light"] .bg-mesh-radial {
+  background-color: #ede7dc !important;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(217, 119, 6, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(22, 163, 74, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(2, 132, 199, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(220, 38, 38, 0.08) 0px, transparent 50%) !important;
+}
+
+[data-theme="light"] .glass-panel {
+  background: rgba(251, 249, 245, 0.96) !important;
+  border-top: 3px solid #ffffff !important;
+  border-left: 3px solid #ffffff !important;
+  border-right: 3px solid #c9c1b2 !important;
+  border-bottom: 3px solid #c9c1b2 !important;
+  box-shadow: inset 1px 1px 0px #ffffff, inset -1px -1px 0px #e0d8ca, 0 10px 28px rgba(60, 48, 36, 0.1) !important;
+  color: #2b251f !important;
+}
+
+/* =============================================================
+ * 3D REDSTONE VOXEL TOWER: SUNNY MINECRAFT DAYTIME SKY
+ * =========================================================== */
+[data-theme="light"] .bg-\[\#101318\] {
+  background: linear-gradient(180deg, #5b9bf8 0%, #8ec0fc 38%, #c2defc 75%, #e1effe 100%) !important;
+  border-color: #9cb5d1 !important;
+  box-shadow: inset 0 2px 10px rgba(20, 50, 90, 0.18) !important;
+}
+
+/* =============================================================
+ * TOP NAVIGATION BAR (SANDSTONE, LEATHER & BRASS CLOCK)
+ * =========================================================== */
+[data-theme="light"] header.h-\[64px\],
+[data-theme="light"] header {
+  background-color: #f7f3ec !important;
+  border-bottom: 3px solid #dcd4c5 !important;
+  color: #2b251f !important;
+  box-shadow: 0 4px 12px rgba(60, 48, 36, 0.06) !important;
+}
+
+/* Title text */
+[data-theme="light"] header .text-\[\#ffd700\] {
+  color: #92400e !important;
+}
+
+/* "WORLD AIDLC" leather badge */
+[data-theme="light"] header .bg-\[\#2a2a2a\],
+[data-theme="light"] .bg-\[\#2a2a2a\] {
+  background-color: #3d3329 !important;
+  color: #f7f3ec !important;
+  border-color: #58493b !important;
+}
+
+/* PIN Share button (Warm Brass) */
+[data-theme="light"] header .bg-\[\#2a1d0d\],
+[data-theme="light"] .bg-\[\#2a1d0d\] {
+  background-color: #fef3c7 !important;
+  border-color: #d97706 !important;
+  color: #92400e !important;
+}
+[data-theme="light"] header .bg-\[\#2a1d0d\]:hover {
+  background-color: #fde68a !important;
+}
+
+/* LV1/11 Stage progress box */
+[data-theme="light"] header .bg-\[\#15120e\],
+[data-theme="light"] .bg-\[\#15120e\] {
+  background-color: #e9e2d4 !important;
+  border-color: #c9bea9 !important;
+  color: #78350f !important;
+}
+
+/* Minecraft Hearts Bar Inset (Stone GUI slot) */
+[data-theme="light"] header .bg-\[\#121212\],
+[data-theme="light"] .bg-\[\#121212\] {
+  background-color: #e5ded2 !important;
+  border-color: #bfb5a3 !important;
+  box-shadow: inset 1px 1px 3px rgba(60, 48, 36, 0.15) !important;
+}
+
+/* Minecraft Clock Timer (Gold pocket watch style) */
+[data-theme="light"] header .bg-\[\#252525\],
+[data-theme="light"] .bg-\[\#252525\] {
+  background-color: #fefce8 !important;
+  border-color: #d97706 !important;
+  color: #b45309 !important;
+  box-shadow: 0 1px 3px rgba(180, 83, 9, 0.1) !important;
+}
+
+/* Player tag in navbar */
+[data-theme="light"] header .bg-\[\#2d241e\],
+[data-theme="light"] .bg-\[\#2d241e\] {
+  background-color: #e5ded0 !important;
+  border-color: #c7bcab !important;
+  color: #78350f !important;
+}
+
+/* =============================================================
+ * REALM TICKER (SANDSTONE RIBBON)
+ * =========================================================== */
+[data-theme="light"] .bg-\[\#151515\] {
+  background-color: #f1ebdf !important;
+  border-color: #d8cfbe !important;
+  color: #2b251f !important;
+}
+[data-theme="light"] .bg-\[\#222\] {
+  background-color: #e5ded0 !important;
+  border-color: #cbbfae !important;
+  color: #78350f !important;
+}
+[data-theme="light"] .bg-\[\#252010\] {
+  background-color: #fef9c3 !important;
+  border-color: #f59e0b !important;
+  color: #78350f !important;
+}
+
+/* =============================================================
+ * STAGE ARENA: QUEST WAVE, DIFF VIEWER & ACTION SLOTS
+ * =========================================================== */
+/* Quest Wave Pill */
+[data-theme="light"] .bg-\[\#3a0000\] {
+  background-color: #fef2f2 !important;
+  border-color: #f87171 !important;
+  color: #b91c1c !important;
+}
+
+/* AI Golem Pill */
+[data-theme="light"] .bg-\[\#221a0f\] {
+  background-color: #fffbeb !important;
+  border-color: #fcd34d !important;
+  color: #b45309 !important;
+}
+
+/* Proposal summary bar */
+[data-theme="light"] .bg-\[\#181818\] {
+  background-color: #f6f1e7 !important;
+  border-color: #d8cfbe !important;
+  color: #2b251f !important;
+}
+
+/* Book & Quill Code Diff Box (Warm Ivory Parchment) */
+[data-theme="light"] .bg-\[\#0c0d10\] {
+  background-color: #fffefb !important;
+  border-color: #d8cfbe !important;
+  box-shadow: inset 1px 1px 4px rgba(60, 48, 36, 0.08) !important;
+}
+
+/* Diff Line Colors */
+[data-theme="light"] .text-\[\#ff5555\].bg-\[\#3a0d0d\]\/50 {
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+  border-left: 3px solid #ef4444 !important;
+}
+
+[data-theme="light"] .text-\[\#55ff55\].bg-\[\#0d2a0d\]\/50 {
+  background-color: #dcfce7 !important;
+  color: #166534 !important;
+  border-left: 3px solid #22c55e !important;
+}
+
+[data-theme="light"] .text-\[\#ffff55\].bg-\[\#2a2400\]\/50 {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  border-left: 3px solid #f59e0b !important;
+}
+
+/* Architecture Telemetry Inset */
+[data-theme="light"] .bg-\[\#181614\],
+[data-theme="light"] .bg-\[\#1e1e1e\],
+[data-theme="light"] .bg-\[\#1e1e1e\]\/90 {
+  background-color: #f5f0e6 !important;
+  border-color: #d8cfbe !important;
+  color: #2b251f !important;
+}
+
+/* Multiplayer Consensus Bar */
+[data-theme="light"] .bg-\[\#1b1b1b\] {
+  background-color: #f3eee4 !important;
+  border-color: #d8cfbe !important;
+  color: #2b251f !important;
+}
+
+[data-theme="light"] .bg-\[\#1a331a\] {
+  background-color: #dcfce7 !important;
+  border-color: #86efac !important;
+  color: #166534 !important;
+}
+
+[data-theme="light"] .bg-\[\#282828\] {
+  background-color: #e8e2d5 !important;
+  border-color: #cec4b2 !important;
+  color: #64748b !important;
+}
+
+/* Hotbar Slot Badges (Slot 1-4) */
+[data-theme="light"] .bg-\[\#002233\] {
+  background-color: #fef3c7 !important;
+  border-color: #fcd34d !important;
+  color: #92400e !important;
+}
+
+[data-theme="light"] .bg-\[\#221a00\] {
+  background-color: #f3e8ff !important;
+  border-color: #d8b4fe !important;
+  color: #6b21a8 !important;
+}
+
+/* Universal Dark Borders converted to Warm Slate Bevels */
+[data-theme="light"] .border-\[\#333\],
+[data-theme="light"] .border-\[\#444\],
+[data-theme="light"] .border-\[\#555\],
+[data-theme="light"] .border-\[\#252525\],
+[data-theme="light"] .border-\[\#2b3245\],
+[data-theme="light"] .border-\[\#101010\] {
+  border-color: #d1c8b8 !important;
+}
+
+/* Universal Dark Inset Backgrounds */
+[data-theme="light"] .bg-\[\#111\],
+[data-theme="light"] .bg-\[\#101010\],
+[data-theme="light"] .bg-\[\#111111\],
+[data-theme="light"] .bg-\[\#1a1c22\],
+[data-theme="light"] .bg-\[\#242220\],
+[data-theme="light"] .bg-\[\#0b0e14\] {
+  background-color: #f5f0e6 !important;
+  border-color: #d8cfbe !important;
+  color: #2b251f !important;
+}
+
+/* Form Inputs */
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="number"],
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  background-color: #ffffff !important;
+  border-color: #c9bea9 !important;
+  color: #241d17 !important;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: #9c9284 !important;
+}
+
+/* =============================================================
+ * TEXT ACCENT CONTRAST SYSTEM (WARM WCAG AAA READABLE)
+ * =========================================================== */
+[data-theme="light"] .text-white:not(.mc-btn-green):not(.mc-btn-green *):not(.mc-btn-red):not(.mc-btn-red *):not(.badge-white-text):not(.text-white-forced) {
+  color: #1e1b18 !important;
+}
+
+[data-theme="light"] .mc-btn-green,
+[data-theme="light"] .mc-btn-green *,
+[data-theme="light"] .mc-btn-red,
+[data-theme="light"] .mc-btn-red * {
+  color: #ffffff !important;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="light"] .text-\[\#aaa\],
+[data-theme="light"] .text-\[\#888\],
+[data-theme="light"] .text-\[\#999\],
+[data-theme="light"] .text-\[\#777\] {
+  color: #574e44 !important;
+}
+
+[data-theme="light"] .text-\[\#ccc\],
+[data-theme="light"] .text-\[\#ddd\],
+[data-theme="light"] .text-\[\#e0e0e0\],
+[data-theme="light"] .text-\[\#eee\],
+[data-theme="light"] .text-\[\#eae5de\],
+[data-theme="light"] .text-\[\#e5dec9\] {
+  color: #2b251f !important;
+}
+
+[data-theme="light"] .text-\[\#ffd700\],
+[data-theme="light"] .text-\[\#ffff55\],
+[data-theme="light"] .text-\[\#ffff00\] {
+  color: #b45309 !important;
+}
+
+[data-theme="light"] .text-\[\#55ffff\] {
+  color: #0369a1 !important;
+}
+
+[data-theme="light"] .text-\[\#55ff55\] {
+  color: #15803d !important;
+}
+
+[data-theme="light"] .text-\[\#ff5555\] {
+  color: #b91c1c !important;
+}
+
+/* =============================================================
+ * WELCOME SCREEN & TABLE LOBBY (CREATE TABLE & JOIN WITH PIN)
+ * =========================================================== */
+[data-theme="light"] .welcome-tab-container {
+  background-color: #ede7dc !important;
+  border-color: #d1c7b5 !important;
+}
+
+[data-theme="light"] .welcome-tab-btn {
+  color: #6c5f51 !important;
+}
+
+[data-theme="light"] .welcome-tab-btn:hover {
+  color: #1e1b18 !important;
+}
+
+[data-theme="light"] .welcome-tab-create-active,
+[data-theme="light"] .welcome-tab-join-active {
+  background-color: #fef3c7 !important;
+  border: 2px solid #f59e0b !important;
+  color: #92400e !important;
+  box-shadow: 0 2px 6px rgba(180, 83, 9, 0.12) !important;
+}
+
+[data-theme="light"] .quick-pick-btn {
+  background-color: #f4eee2 !important;
+  border-color: #d1c7b5 !important;
+  color: #5c5245 !important;
+}
+
+[data-theme="light"] .quick-pick-btn:hover {
+  border-color: #b45309 !important;
+  color: #1e1b18 !important;
+}
+
+[data-theme="light"] .quick-pick-active {
+  background-color: #fef3c7 !important;
+  border-color: #f59e0b !important;
+  color: #92400e !important;
+  font-weight: bold !important;
+}
+
+[data-theme="light"] .bg-\[\#0b1626\] {
+  background-color: #f0f9ff !important;
+  border-color: #0284c7 !important;
+  color: #0369a1 !important;
+}
+
+[data-theme="light"] .bg-\[\#0c2415\] {
+  background-color: #dcfce7 !important;
+  border-color: #22c55e !important;
+  color: #15803d !important;
+}
+
+[data-theme="light"] .bg-\[\#2d0e0e\] {
+  background-color: #fee2e2 !important;
+  border-color: #ef4444 !important;
+  color: #991b1b !important;
+}
+
+/* =============================================================
+ * COCKPIT FIELD GUIDE LIGHT THEME
+ * =========================================================== */
+[data-theme="light"] .cockpit-field-guide-root,
+[data-theme="light"] .bg-\[\#14161a\]\/95,
+[data-theme="light"] .bg-\[\#14161a\] {
+  background-color: rgba(237, 231, 220, 0.98) !important;
+  color: #241d17 !important;
+}
+
+[data-theme="light"] .guide-tower-mockup,
+[data-theme="light"] .bg-\[\#111115\] {
+  background: linear-gradient(180deg, #5b9bf8 0%, #87ceeb 35%, #bfe3fc 70%, #e1effe 100%) !important;
+  border-color: #c4baaa !important;
+}
+
+[data-theme="light"] .guide-tower-mockup .bg-\[\#1b1500\]\/90 {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  color: #92400e !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .guide-domain-pill {
+  background-color: #f5efe5 !important;
+  border-color: #d1c7b5 !important;
+  color: #2b251f !important;
+  font-weight: bold !important;
+}
+
+[data-theme="light"] .guide-debt-box,
+[data-theme="light"] .bg-\[\#221000\],
+[data-theme="light"] .bg-\[\#331c00\] {
+  background-color: #fef3c7 !important;
+  border-color: #f59e0b !important;
+  color: #92400e !important;
+}
+
+[data-theme="light"] .guide-tip-box,
+[data-theme="light"] .bg-\[\#251d08\] {
+  background-color: #fef3c7 !important;
+  border-color: #f59e0b !important;
+  color: #92400e !important;
+}
+
+[data-theme="light"] .guide-switcher-pill {
+  background-color: #f4eee2 !important;
+  border-color: #d1c7b5 !important;
+  color: #4a4036 !important;
+}
+
+[data-theme="light"] .guide-switcher-pill:hover {
+  background-color: #eae4d6 !important;
+  color: #1e1b18 !important;
+}
+
+[data-theme="light"] .guide-ticker-replica,
+[data-theme="light"] .bg-\[\#181614\] {
+  background-color: #f5f0e6 !important;
+  border-color: #d8cfbe !important;
+}
+
+[data-theme="light"] .bg-\[\#221200\],
+[data-theme="light"] .bg-\[\#331c05\],
+[data-theme="light"] .bg-\[\#251505\] {
+  background-color: #fef3c7 !important;
+  border-color: #f59e0b !important;
+  color: #92400e !important;
+}
+
+[data-theme="light"] .bg-\[\#221c10\] {
+  background-color: #fef3c7 !important;
+}
+
+[data-theme="light"] .bg-\[\#220d30\] {
+  background-color: #f3e8ff !important;
+}
+
+[data-theme="light"] .bg-\[\#2d0f20\] {
+  background-color: #fce7f3 !important;
+}
+
+[data-theme="light"] .bg-\[\#221010\] {
+  background-color: #fee2e2 !important;
+}
+
+[data-theme="light"] .bg-\[\#112611\] {
+  background-color: #dcfce7 !important;
+}
+
+[data-theme="light"] .bg-\[\#181818\] {
+  background-color: #f5f0e6 !important;
+  border-color: #d8cfbe !important;
+}
+
+/* Admin Dashboard Light Theme */
+[data-theme="light"] .admin-console-root,
+[data-theme="light"] .bg-\[\#0e1117\] {
+  background-color: #ede7dc !important;
+  color: #241d17 !important;
+}
+
+[data-theme="light"] .bg-\[\#0a0d14\],
+[data-theme="light"] .bg-\[\#0f131c\] {
+  background-color: #ede7dc !important;
+}
+
+[data-theme="light"] .bg-\[\#141822\] {
+  background-color: #f7f3ec !important;
+  border-color: #dcd4c5 !important;
+  box-shadow: 0 4px 14px rgba(60, 48, 36, 0.06) !important;
+}
+
+[data-theme="light"] .bg-\[\#191d29\] {
+  background-color: #f2ece0 !important;
+  border-color: #dcd4c5 !important;
+}
+
+[data-theme="light"] .bg-\[\#12151f\] {
+  background-color: #ece5d8 !important;
+  border-color: #d8cfbe !important;
+}
+
+[data-theme="light"] .bg-\[\#151924\] {
+  background-color: #fdfbf7 !important;
+  border-color: #d8cfbe !important;
+  box-shadow: 0 4px 12px rgba(60, 48, 36, 0.08) !important;
+}
+
+[data-theme="light"] .bg-\[\#161a24\],
+[data-theme="light"] .bg-\[\#181c28\] {
+  background-color: #f0eae0 !important;
+  border-color: #d8cfbe !important;
+  color: #2b251f !important;
+}
+
+[data-theme="light"] .bg-\[\#0b0e14\] {
+  background-color: #f5efe5 !important;
+  border-color: #d8cfbe !important;
+  color: #2b251f !important;
+}
+
+[data-theme="light"] .bg-\[\#0c1c28\] {
+  background-color: #e0f2fe !important;
+  border-color: #7dd3fc !important;
+  color: #0369a1 !important;
+}
+
+[data-theme="light"] .bg-\[\#10141e\] {
+  background-color: #fbf9f5 !important;
+  border-color: #dcd4c5 !important;
+}
+
+[data-theme="light"] .bg-\[\#38435d\] {
+  background-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .border-\[\#2b3245\],
+[data-theme="light"] .border-\[\#232a3d\],
+[data-theme="light"] .border-\[\#38435d\] {
+  border-color: #d5cbba !important;
+}
+
+[data-theme="light"] .text-\[\#8e98ad\],
+[data-theme="light"] .text-\[\#6d7890\] {
+  color: #6c5f51 !important;
+}
+
+/* =============================================================
+ * RESULT MODAL LIGHT THEME
+ * =========================================================== */
+[data-theme="light"] .result-modal-badge {
+  background-color: #dcfce7 !important;
+  border-color: #22c55e !important;
+  color: #15803d !important;
+}
+
+[data-theme="light"] .result-modal-badge.bg-\[\#3a0000\] {
+  background-color: #fee2e2 !important;
+  border-color: #ef4444 !important;
+  color: #b91c1c !important;
+}
+
+[data-theme="light"] .result-modal-roll-box {
+  background-color: #f7f2e8 !important;
+  border-color: #d9cfbe !important;
+}
+
+[data-theme="light"] .result-modal-feedback-box {
+  background-color: #fdfbf7 !important;
+  border-color: #dfd5c4 !important;
+  color: #2b251f !important;
+}
+
+[data-theme="light"] .result-modal-stat-box {
+  background-color: #f7f2e8 !important;
+  border-color: #d9cfbe !important;
+}
+
+/* =============================================================
+ * 3D TOWER SCREEN LIGHT THEME
+ * =========================================================== */
+[data-theme="light"] .voxel-domain-pill {
+  background-color: #f5efe5 !important;
+  border-color: #d9cfbe !important;
+  color: #2b251f !important;
+}
+
+[data-theme="light"] .bg-\[\#252525\] {
+  background-color: #fdfbf7 !important;
+  border-color: #dcd3c3 !important;
+  color: #2b251f !important;
+}
+
+[data-theme="light"] .bg-\[\#101318\] {
+  background: linear-gradient(180deg, #5b9bf8 0%, #87ceeb 35%, #bfe3fc 70%, #e1effe 100%) !important;
+  border-color: #c4baaa !important;
+}
+
+
+

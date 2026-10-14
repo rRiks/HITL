@@ -586,9 +586,9 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     const width = container.clientWidth || 450;
     const height = container.clientHeight || 520;
 
-    // 1. Scene - Minecraft Atmospheric Twilight Sky
+    // 1. Scene - Minecraft Transparent Viewport (blends with daylight sky / dark space)
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color('#161a22');
+    scene.background = null;
     sceneRef.current = scene;
 
     // 2. Camera - Framed to comfortably fit all 18 layers + Minecraft pedestal
@@ -678,7 +678,7 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     const cloudMat = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.32,
+      opacity: 0.55,
     });
     for (let c = 0; c < 7; c++) {
       const cw = 16 + Math.random() * 18;
@@ -1448,9 +1448,9 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
           {Object.entries(DOMAIN_CONFIG).map(([key, dom]) => (
             <span
               key={key}
-              className="px-1.5 py-0.5 bg-[#2b2b2b] border border-[#555] flex items-center gap-1 text-[#e0e0e0] shadow-xs"
+              className="voxel-domain-pill px-1.5 py-0.5 bg-[#2b2b2b] border border-[#555] flex items-center gap-1 text-[#e0e0e0] shadow-xs"
             >
-              <span className="w-2 h-2 inline-block border border-black/40" style={{ backgroundColor: dom.color }} />
+              <span className="w-2 h-2 inline-block border border-black/40 shrink-0" style={{ backgroundColor: dom.color }} />
               <span className="truncate">{dom.name}</span>
             </span>
           ))}

@@ -4,31 +4,39 @@ const API_BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/$/, '');
 export function getInitialRoomId() {
   if (typeof window !== 'undefined') {
     const params = new URLSearchParams(window.location.search);
-    const roomParam = params.get('roomId') || params.get('roomid') || params.get('room');
+    const roomParam = params.get('code') || params.get('pin') || params.get('table') || params.get('roomId') || params.get('roomid') || params.get('room');
     if (roomParam) {
       const clean = roomParam.toLowerCase().replace(/[^a-z0-9_-]/g, '');
-      if (clean) {
+      if (clean && clean !== 'cloud-titans') {
         localStorage.setItem('hitl_room_id', clean);
         return clean;
       }
     }
     const saved = localStorage.getItem('hitl_room_id');
+    if (saved === 'cloud-titans') {
+      localStorage.removeItem('hitl_room_id');
+      return null;
+    }
     if (saved) return saved;
   }
-  return 'cloud-titans';
+  return null;
 }
 
 let activeRoomId = getInitialRoomId();
 
 export function getRoomId() {
-  return activeRoomId || 'cloud-titans';
+  return activeRoomId || 'default';
 }
 
 export function setRoomId(roomId) {
-  const clean = (roomId || 'cloud-titans').toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'cloud-titans';
+  const clean = (roomId || 'default').toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'default';
   activeRoomId = clean;
   if (typeof window !== 'undefined') {
-    localStorage.setItem('hitl_room_id', clean);
+    if (clean === 'cloud-titans') {
+      localStorage.removeItem('hitl_room_id');
+    } else {
+      localStorage.setItem('hitl_room_id', clean);
+    }
   }
   return clean;
 }
@@ -250,3 +258,10 @@ export async function fetchLeaderboard() {
   if (!res.ok) throw new Error(`Failed to fetch leaderboard: ${res.statusText}`);
   return res.json();
 }
+
+export async function fetchBroadcast() {
+  const res = await fetch(`${API_BASE}/admin/broadcast`);
+  if (!res.ok) return { active: false, message: '' };
+  return res.json();
+}
+

@@ -62,6 +62,7 @@ export default function App() {
   // Countdown timer: 120s (2 minutes)
   const [timeLeft, setTimeLeft] = useState(120);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [isTimerPausedByAdmin, setIsTimerPausedByAdmin] = useState(false);
   const timeLeftRef = useRef(120);
 
   useEffect(() => {
@@ -115,6 +116,31 @@ export default function App() {
   // Sound Engine
   const sound = useSound();
 
+  // Theme Management: 'dark' (Default) | 'light' (Parchment & Birch)
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('hitl_theme') || 'dark';
+    }
+    return 'dark';
+  });
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('hitl_theme', next);
+        document.documentElement.setAttribute('data-theme', next);
+      }
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+  }, [theme]);
+
   const [roomId, setRoomIdState] = useState(() => {
     const info = getRouteInfo();
     return info.roomId || api.getRoomId();
@@ -151,6 +177,9 @@ export default function App() {
     try {
       const state = await api.fetchGameState();
       setGameState(state);
+      if (typeof state?.is_timer_paused !== 'undefined') {
+        setIsTimerPausedByAdmin(!!state.is_timer_paused);
+      }
       // Only auto-restore in-game view if this tab was actively in an in-game session
       const inGameSession = sessionStorage.getItem('hitl_in_game') === 'true';
       if (inGameSession && (state.has_started || state.current_stage_index > 0 || state.health < 100 || state.total_jenga_pulls > 0)) {
@@ -174,11 +203,8 @@ export default function App() {
   useEffect(() => {
     const checkBroadcast = async () => {
       try {
-        const res = await fetch('/api/admin/broadcast');
-        if (res.ok) {
-          const data = await res.json();
-          setActiveBroadcast(data.active ? data.message : null);
-        }
+        const data = await api.fetchBroadcast();
+        setActiveBroadcast(data.active ? data.message : null);
       } catch {}
     };
     checkBroadcast();
@@ -193,6 +219,9 @@ export default function App() {
       try {
         if (isAdvancingStageRef.current) return;
         const remoteState = await api.fetchGameState();
+        if (typeof remoteState?.is_timer_paused !== 'undefined') {
+          setIsTimerPausedByAdmin(!!remoteState.is_timer_paused);
+        }
 
         // Sync local voter status (skip if spectator)
         if (!isSpectator) {
@@ -279,6 +308,7 @@ export default function App() {
     if (
       gameStarted &&
       isTimerRunning &&
+      !isTimerPausedByAdmin &&
       !gameState?.is_game_over &&
       !gameState?.is_victory &&
       !resultModalOpen &&
@@ -302,7 +332,7 @@ export default function App() {
       }, 1000);
     }
     return () => clearInterval(timer);
-  }, [gameStarted, isTimerRunning, gameState, resultModalOpen, isWatchingRemoval, sound]);
+  }, [gameStarted, isTimerRunning, isTimerPausedByAdmin, gameState, resultModalOpen, isWatchingRemoval, sound]);
 
   // Handle Timeout
   const handleTimeoutTrigger = useCallback(async () => {
@@ -340,7 +370,7 @@ export default function App() {
 
   // Democratic Action Voting Handler
   const handleSelectAction = useCallback(async (actionType) => {
-    if (isSpectator) return;
+    if (isSpectator || isTimerPausedByAdmin) return;
     // 1. If custom prompt clicked and no prompt draft exists yet, open prompt drawer
     if (actionType === 'custom_prompt' && !gameState?.custom_prompt_draft?.text) {
       setPromptModalOpen(true);
@@ -532,7 +562,7 @@ export default function App() {
 
   // Submit Custom Prompt: Drafts for team + casts vote
   const handleSubmitPrompt = async (promptText) => {
-    if (isSpectator) return;
+    if (isSpectator || isTimerPausedByAdmin) return;
     try {
       setLoading(true);
       setPromptModalOpen(false);
@@ -574,7 +604,7 @@ export default function App() {
 
   // Submit Guardrail Rule: Drafts for team + casts vote
   const handleSubmitRule = async (ruleId) => {
-    if (isSpectator) return;
+    if (isSpectator || isTimerPausedByAdmin) return;
     try {
       setLoading(true);
       setGuardrailsModalOpen(false);
@@ -635,7 +665,7 @@ export default function App() {
 
   // Proceed to Next Stage
   const handleProceedNextStage = useCallback(async () => {
-    if (isSpectator) return;
+    if (isSpectator || isTimerPausedByAdmin) return;
     if (isAdvancingStageRef.current) return;
     isAdvancingStageRef.current = true;
     setResultModalOpen(false);
@@ -669,11 +699,11 @@ export default function App() {
       setLoading(false);
       isAdvancingStageRef.current = false;
     }
-  }, [actionResult, refreshState]);
+  }, [actionResult, refreshState, isSpectator, isTimerPausedByAdmin]);
 
   // Immediate Team / Solo Decision Lock-In (Forces immediate consensus resolution)
   const handleCommitDecision = async () => {
-    if (isSpectator) return;
+    if (isSpectator || isTimerPausedByAdmin) return;
     try {
       setLoading(true);
       const res = await api.commitDecision();
@@ -761,7 +791,7 @@ export default function App() {
 
   // 0. Admin Console (/admin)
   if (routeInfo.route === 'admin') {
-    return <AdminDashboard onNavigate={navigateTo} />;
+    return <AdminDashboard onNavigate={navigateTo} theme={theme} onToggleTheme={toggleTheme} />;
   }
 
   // 1. Guide Screen (/guide)
@@ -799,7 +829,9 @@ export default function App() {
       <WelcomeScreen
         onStartGame={handleStartGame}
         onJoinLiveTable={handleJoinLiveTable}
-        defaultRoomId={roomId}
+        defaultRoomId={routeInfo.roomId}
+        theme={theme}
+        onToggleTheme={toggleTheme}
         onOpenGuide={(launchData) => {
           setWalkthroughLaunch(launchData);
           navigateTo('guide', launchData.room);
@@ -865,7 +897,6 @@ export default function App() {
         health={gameState?.health ?? 100}
         timeLeft={timeLeft}
         isTimerRunning={isTimerRunning}
-        onToggleTimer={() => setIsTimerRunning((prev) => !prev)}
         onResetGame={handleResetGame}
         onExitToLobby={handleExitToLobby}
         soundEnabled={sound.soundEnabled}
@@ -874,6 +905,9 @@ export default function App() {
         onToggleMusic={sound.toggleMusic}
         onOpenFieldGuide={() => navigateTo('guide')}
         isSpectator={isSpectator}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        isTimerPaused={isTimerPausedByAdmin}
       />
 
       {/* Facilitator Global Broadcast Alert Banner */}
@@ -926,6 +960,7 @@ export default function App() {
               technicalDebt={gameState?.technical_debt || 0}
               onOpenDraftPrompt={() => setPromptModalOpen(true)}
               onOpenDraftRule={() => setGuardrailsModalOpen(true)}
+              isTimerPaused={isTimerPausedByAdmin}
             />
           </div>
 
@@ -1025,6 +1060,7 @@ export default function App() {
         onProceed={handleProceedNextStage}
         onWatchRemoval={handleWatchRemoval}
         onWatchCollapse={handleWatchCollapse}
+        isTimerPaused={isTimerPausedByAdmin}
       />
 
       {/* Cinematic Falling Tower Banner (Visible while tower topples and during the 3.8s rubble pause) */}
