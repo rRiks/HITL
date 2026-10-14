@@ -61,12 +61,12 @@ export function getPlayerId() {
 }
 
 export function getPlayerName() {
-  if (typeof window === 'undefined') return 'Player';
-  return localStorage.getItem('hitl_player_name') || 'Dev';
+  if (typeof window === 'undefined') return 'Riks';
+  return localStorage.getItem('hitl_player_name') || 'Riks';
 }
 
 export function setPlayerName(name) {
-  const clean = (name || '').trim() || 'Dev';
+  const clean = (name || '').trim() || 'Riks';
   if (typeof window !== 'undefined') {
     localStorage.setItem('hitl_player_name', clean);
   }

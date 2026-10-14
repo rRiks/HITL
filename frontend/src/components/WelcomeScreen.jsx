@@ -469,7 +469,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                   type="text"
                   value={playerName}
                   onChange={(e) => setPlayerNameState(e.target.value)}
-                  placeholder="e.g. Dev, Steve, Alex..."
+                  placeholder="e.g. Riks, Wayne, Kent..."
                   className="w-full bg-[#111] border-2 border-[#555] text-white px-3 py-1.5 text-xs sm:text-sm font-mono focus:outline-none focus:border-[#ffd700] transition-colors"
                   required
                 />
@@ -577,7 +577,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                   type="text"
                   value={playerName}
                   onChange={(e) => setPlayerNameState(e.target.value)}
-                  placeholder="e.g. Dev, Alex, Jordan..."
+                  placeholder="e.g. Riks, Wayne, Kent..."
                   className="w-full bg-[#111] border-2 border-[#555] text-white px-3 py-1.5 text-xs sm:text-sm font-mono focus:outline-none focus:border-[#ffd700] transition-colors"
                   required
                 />
