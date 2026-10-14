@@ -653,7 +653,7 @@ export default function App() {
     try {
       setLoading(true);
       const nextState = await api.nextStage();
-      lastHandledStageResultRef.current = nextState.current_stage_index;
+      lastHandledStageResultRef.current = -1;
       setGameState(nextState);
       setTimeLeft(120);
       setIsTimerRunning(true);
@@ -746,6 +746,7 @@ export default function App() {
       setIsWatchingRemoval(false);
       setResultModalOpen(false);
       setActionResult(null);
+      lastHandledStageResultRef.current = -1;
       setTimeLeft(120);
       setIsTimerRunning(true);
       setMyVote(null);
@@ -912,7 +913,10 @@ export default function App() {
               onProceedNextStage={handleProceedNextStage}
               onWatchRemoval={handleWatchRemoval}
               onWatchCollapse={handleWatchCollapse}
-              onReopenResult={() => setResultModalOpen(true)}
+              onReopenResult={() => {
+                setActionResult(gameState?.last_action_result);
+                setResultModalOpen(true);
+              }}
               onCommitDecision={handleCommitDecision}
               votesTally={gameState?.votes_tally || {}}
               activePlayers={gameState?.active_players || []}
@@ -1016,7 +1020,8 @@ export default function App() {
       {/* Dice Roll Percentage Popup */}
       <ResultModal
         isOpen={resultModalOpen}
-        actionResult={actionResult}
+        actionResult={actionResult || gameState?.last_action_result}
+        onClose={() => setResultModalOpen(false)}
         onProceed={handleProceedNextStage}
         onWatchRemoval={handleWatchRemoval}
         onWatchCollapse={handleWatchCollapse}

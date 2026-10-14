@@ -221,6 +221,7 @@ export function GuardrailsModal({
 export function ResultModal({
   isOpen,
   actionResult,
+  onClose,
   onProceed,
   onWatchRemoval,
   onWatchCollapse,
@@ -261,6 +262,16 @@ export function ResultModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-fadeIn select-none">
       <div className="mc-panel-dark w-full max-w-xl p-5 sm:p-7 shadow-2xl relative text-white max-h-[92vh] overflow-y-auto">
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute top-4 right-4 text-[#888] hover:text-white cursor-pointer p-1 transition-colors z-10"
+            title="Close Debrief"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
         {/* Header Icon & Title */}
         <div className="text-center mb-4">
           <div

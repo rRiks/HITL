@@ -209,7 +209,8 @@ class GameStateManager:
             stg = self.get_current_stage()
             rule_title = "Selected Guardrail Rule"
             if stg:
-                for r in stg.get("suggest_change_rules", []):
+                all_sugs = stg.get("suggest_change_rules", []) + stg.get("ai_suggestions", [])
+                for r in all_sugs:
                     if r["id"] == req.selected_rule_id:
                         rule_title = r["title"]
                         break
