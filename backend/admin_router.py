@@ -1,11 +1,38 @@
+import os
 import time
 from typing import Optional, Dict, Any, List
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends, Header
 from pydantic import BaseModel
 from game_state import room_manager
 from stages_data import STAGES
 
+ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY", "redstone-gm-2026")
+
 admin_router = APIRouter(prefix="/api/admin", tags=["admin"])
+
+class VerifyKeyRequest(BaseModel):
+    key: str
+
+def verify_admin_auth(x_admin_key: Optional[str] = Header(None, alias="X-Admin-Key")):
+    """Validates that the request contains the valid Game Master Secret Key."""
+    expected = ADMIN_SECRET_KEY.strip()
+    if not x_admin_key or x_admin_key.strip() != expected:
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized: Valid Game Master Passcode required in 'X-Admin-Key' header."
+        )
+    return True
+
+@admin_router.post("/verify")
+def verify_admin_key(req: VerifyKeyRequest):
+    """Validates Game Master Secret Key for entering the admin console."""
+    expected = ADMIN_SECRET_KEY.strip()
+    if not req.key or req.key.strip() != expected:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid Game Master Passcode. Please check your admin key."
+        )
+    return {"success": True, "message": "Game Master identity confirmed."}
 
 # In-memory storage for global administrative announcements
 GLOBAL_ANNOUNCEMENT: Dict[str, Any] = {
@@ -23,7 +50,7 @@ class RoomControlRequest(BaseModel):
     pulls: Optional[int] = 1
     reason: Optional[str] = "Admin Intervention"
 
-@admin_router.get("/rooms")
+@admin_router.get("/rooms", dependencies=[Depends(verify_admin_auth)])
 def get_all_rooms_detailed():
     """Returns detailed real-time telemetry for all registered workshop rooms."""
     rooms_data = []
@@ -91,7 +118,7 @@ def get_all_rooms_detailed():
         "server_time": time.time(),
     }
 
-@admin_router.post("/rooms/{room_id}/action")
+@admin_router.post("/rooms/{room_id}/action", dependencies=[Depends(verify_admin_auth)])
 def perform_room_action(room_id: str, req: RoomControlRequest):
     """Executes remote Game Master interventions on a specific room."""
     norm_id = room_manager.resolve_room_id(room_id)
@@ -164,7 +191,7 @@ def perform_room_action(room_id: str, req: RoomControlRequest):
     else:
         raise HTTPException(status_code=400, detail=f"Unknown action '{action}'.")
 
-@admin_router.post("/global/broadcast")
+@admin_router.post("/global/broadcast", dependencies=[Depends(verify_admin_auth)])
 def set_broadcast(req: BroadcastRequest):
     """Broadcasts a high-priority announcement to all active rooms."""
     msg = req.message.strip()
@@ -178,7 +205,7 @@ def set_broadcast(req: BroadcastRequest):
         
     return {"success": True, "broadcast": GLOBAL_ANNOUNCEMENT}
 
-@admin_router.post("/global/clear-broadcast")
+@admin_router.post("/global/clear-broadcast", dependencies=[Depends(verify_admin_auth)])
 def clear_broadcast():
     """Dismisses active global broadcast."""
     GLOBAL_ANNOUNCEMENT["active"] = False
@@ -190,7 +217,7 @@ def get_current_broadcast():
     """Public read endpoint for client HUDs to display broadcast alerts."""
     return GLOBAL_ANNOUNCEMENT if GLOBAL_ANNOUNCEMENT["active"] else {"active": False, "message": ""}
 
-@admin_router.post("/global/reset-all")
+@admin_router.post("/global/reset-all", dependencies=[Depends(verify_admin_auth)])
 def reset_all_rooms():
     """Resets all live rooms simultaneously for a clean workshop cohort run."""
     count = 0
@@ -199,26 +226,26 @@ def reset_all_rooms():
         count += 1
     return {"success": True, "rooms_reset": count, "message": f"Successfully reset {count} workshop tables."}
 
-@admin_router.post("/global/pause-all")
+@admin_router.post("/global/pause-all", dependencies=[Depends(verify_admin_auth)])
 def pause_all_rooms():
     """Pauses time countdowns across all live tables in the entire workshop."""
     room_manager.global_timer_paused = True
     return {"success": True, "global_timer_paused": True, "message": "All workshop table timers paused globally."}
 
-@admin_router.post("/global/resume-all")
+@admin_router.post("/global/resume-all", dependencies=[Depends(verify_admin_auth)])
 def resume_all_rooms():
     """Resumes time countdowns across all live tables in the entire workshop."""
     room_manager.global_timer_paused = False
     return {"success": True, "global_timer_paused": False, "message": "All workshop table timers resumed globally."}
 
-@admin_router.post("/global/toggle-pause-all")
+@admin_router.post("/global/toggle-pause-all", dependencies=[Depends(verify_admin_auth)])
 def toggle_pause_all_rooms():
     """Toggles global time countdown pause state for all tables in the workshop."""
     room_manager.global_timer_paused = not getattr(room_manager, "global_timer_paused", False)
     status_word = "paused" if room_manager.global_timer_paused else "resumed"
     return {"success": True, "global_timer_paused": room_manager.global_timer_paused, "message": f"All workshop table timers {status_word} globally."}
 
-@admin_router.get("/stages")
+@admin_router.get("/stages", dependencies=[Depends(verify_admin_auth)])
 def get_stages_cheat_sheet():
     """Facilitator cheat sheet with details, traps, and best practices for all 11 stages."""
     sheet = []
@@ -234,7 +261,7 @@ def get_stages_cheat_sheet():
         })
     return {"stages": sheet, "total": len(sheet)}
 
-@admin_router.get("/analytics")
+@admin_router.get("/analytics", dependencies=[Depends(verify_admin_auth)])
 def get_event_analytics():
     """Workshop macro telemetry analytics."""
     rooms = list(room_manager._rooms.values())

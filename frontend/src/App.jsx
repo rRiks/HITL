@@ -159,7 +159,7 @@ export default function App() {
       setRouteInfo({ route: 'home', roomId: null });
       window.history.pushState({}, '', '/home');
     } else if (destination === 'guide') {
-      setRouteInfo((prev) => ({ route: 'guide', roomId: targetRoomId || prev.roomId || roomId }));
+      setRouteInfo((prev) => ({ route: 'guide', roomId: targetRoomId || prev.roomId || roomId, from: prev.route }));
       window.history.pushState({}, '', '/guide');
     } else if (destination === 'game') {
       const room = targetRoomId || roomId || api.getRoomId();
@@ -796,10 +796,13 @@ export default function App() {
 
   // 1. Guide Screen (/guide)
   if (routeInfo.route === 'guide') {
+    const isFromAdmin = routeInfo.from === 'admin' || (typeof window !== 'undefined' && sessionStorage.getItem('hitl_in_game') !== 'true' && !!sessionStorage.getItem('hitl_admin_key'));
     return (
       <CockpitFieldGuide
         onClose={() => {
-          if (gameStarted) {
+          if (isFromAdmin) {
+            navigateTo('admin');
+          } else if (gameStarted) {
             navigateTo('game', roomId);
           } else {
             navigateTo('home');
@@ -807,6 +810,10 @@ export default function App() {
         }}
         onGoHome={() => navigateTo('home')}
         onLaunchGame={() => {
+          if (isFromAdmin) {
+            navigateTo('admin');
+            return;
+          }
           if (walkthroughLaunch) {
             if (walkthroughLaunch.isJoin) {
               handleJoinLiveTable(walkthroughLaunch.room, walkthroughLaunch.player);
@@ -817,7 +824,8 @@ export default function App() {
             navigateTo('game', roomId);
           }
         }}
-        isWalkthrough={!gameStarted && !!walkthroughLaunch}
+        isWalkthrough={!isFromAdmin && !gameStarted && !!walkthroughLaunch}
+        isAdminView={isFromAdmin}
         teamName={walkthroughLaunch?.team || gameState?.team_name || 'Cloud Titans'}
       />
     );

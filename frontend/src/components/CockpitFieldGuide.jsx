@@ -117,6 +117,7 @@ export default function CockpitFieldGuide({
   isWalkthrough = false,
   teamName = 'Cloud Titans',
   onGoHome,
+  isAdminView = false,
 }) {
   const [activeGuideKey, setActiveGuideKey] = useState('quest');
 
@@ -147,9 +148,15 @@ export default function CockpitFieldGuide({
             onClick={onClose}
             className="mc-btn px-3 py-1.5 text-[9px] mc-font text-white hover:text-[#ffaa00] flex items-center gap-1.5 cursor-pointer"
           >
-            {isWalkthrough ? <span>← SQUAD SETUP</span> : <span>✕ CLOSE GUIDE [ESC]</span>}
+            {isAdminView ? (
+              <span>← ADMIN CONSOLE [ESC]</span>
+            ) : isWalkthrough ? (
+              <span>← SQUAD SETUP</span>
+            ) : (
+              <span>✕ CLOSE GUIDE [ESC]</span>
+            )}
           </button>
-          {onGoHome && !isWalkthrough && (
+          {onGoHome && !isWalkthrough && !isAdminView && (
             <button
               type="button"
               onClick={onGoHome}
@@ -168,12 +175,25 @@ export default function CockpitFieldGuide({
               COCKPIT FIELD GUIDE • HOVER / TAP ANY COMPONENT TO INSPECT
             </span>
             <span className="text-[9px] text-[#aaa] font-sans">
-              {isWalkthrough ? 'Review mechanics before your sprint begins.' : 'Live In-Game Architecture Reference Manual'}
+              {isAdminView
+                ? 'Facilitator Reference • Architecture & Decision Mechanics Guide'
+                : isWalkthrough
+                ? 'Review mechanics before your sprint begins.'
+                : 'Live In-Game Architecture Reference Manual'}
             </span>
           </div>
         </div>
 
-        {isWalkthrough ? (
+        {isAdminView ? (
+          <button
+            type="button"
+            onClick={onClose}
+            className="mc-btn mc-btn-green px-4 py-1.5 text-[10px] mc-font text-white flex items-center gap-1.5 cursor-pointer shadow-md"
+          >
+            <span>RETURN TO CONSOLE</span>
+            <X className="w-3 h-3" />
+          </button>
+        ) : isWalkthrough ? (
           <button
             type="button"
             onClick={onLaunchGame}

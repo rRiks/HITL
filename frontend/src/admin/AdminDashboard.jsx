@@ -22,8 +22,14 @@ import {
   Volume2,
   Sun,
   Moon,
+  Lock,
+  KeyRound,
+  Eye,
+  EyeOff,
+  ArrowLeft,
 } from 'lucide-react';
 import * as adminApi from './adminApi';
+import CockpitFieldGuide from '../components/CockpitFieldGuide';
 
 const BROADCAST_PRESETS = [
   '⚡ 5-minute warning: Cast your consensus votes now!',
@@ -33,6 +39,13 @@ const BROADCAST_PRESETS = [
 ];
 
 export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleTheme }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!adminApi.getAdminKey());
+  const [passcode, setPasscode] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [showPasscode, setShowPasscode] = useState(false);
+  const [showFieldGuide, setShowFieldGuide] = useState(false);
+
   const [activeTab, setActiveTab] = useState('squads'); // 'squads' | 'analytics'
   const [rooms, setRooms] = useState([]);
   const [analytics, setAnalytics] = useState(null);
@@ -51,35 +64,79 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
   };
 
   const loadData = useCallback(async () => {
+    if (!adminApi.getAdminKey()) {
+      setIsAuthenticated(false);
+      return;
+    }
     try {
       const data = await adminApi.fetchAllRooms();
       setRooms(data.rooms || []);
       setActiveBroadcast(data.global_announcement);
       setGlobalTimerPaused(!!data.global_timer_paused);
+      setIsAuthenticated(true);
     } catch (err) {
-      console.error('Failed to load admin rooms:', err);
+      if (err.message === '401_UNAUTHORIZED') {
+        setIsAuthenticated(false);
+        showToast('Session expired or unauthorized. Please re-enter Game Master Key.');
+      } else {
+        console.error('Failed to load admin rooms:', err);
+      }
     }
   }, []);
 
   const loadAnalytics = useCallback(async () => {
+    if (!adminApi.getAdminKey()) return;
     try {
       const data = await adminApi.fetchAnalytics();
       setAnalytics(data);
     } catch (err) {
-      console.error('Failed to load analytics:', err);
+      if (err.message === '401_UNAUTHORIZED') {
+        setIsAuthenticated(false);
+      } else {
+        console.error('Failed to load analytics:', err);
+      }
     }
   }, []);
 
-  // Poll active rooms every 2.5s
+  // Poll active rooms every 2.5s only when authenticated
   useEffect(() => {
-    loadData();
-    const interval = setInterval(loadData, 2500);
-    return () => clearInterval(interval);
-  }, [loadData]);
+    if (isAuthenticated) {
+      loadData();
+      const interval = setInterval(loadData, 2500);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, loadData]);
 
   useEffect(() => {
-    if (activeTab === 'analytics') loadAnalytics();
-  }, [activeTab, loadAnalytics]);
+    if (isAuthenticated && activeTab === 'analytics') loadAnalytics();
+  }, [isAuthenticated, activeTab, loadAnalytics]);
+
+  const handleLogin = async (e) => {
+    if (e) e.preventDefault();
+    if (!passcode.trim()) {
+      setAuthError('Please enter the Game Master passcode.');
+      return;
+    }
+    try {
+      setAuthLoading(true);
+      setAuthError('');
+      await adminApi.verifyAdminPasscode(passcode);
+      setIsAuthenticated(true);
+      setPasscode('');
+      showToast('Game Master identity confirmed. Console unlocked.');
+      loadData();
+    } catch (err) {
+      setAuthError(err.message || 'Invalid Game Master Passcode.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    adminApi.clearAdminKey();
+    setIsAuthenticated(false);
+    showToast('Game Master console locked.');
+  };
 
   // Handlers for room interventions
   const handleRoomAction = async (roomId, action, delta = 0, pulls = 1) => {
@@ -164,6 +221,122 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
     return true;
   });
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#0e1117] text-white flex flex-col font-sans select-none admin-console-root">
+        {/* Top Header with Back & Theme */}
+        <header className="h-[62px] bg-[#141822] border-b-2 border-[#2b3245] px-4 sm:px-6 flex items-center justify-between gap-3 shrink-0 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-[#8b1818] border-2 border-[#ff4444] flex items-center justify-center shadow-md">
+              <Shield className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h1 className="text-sm sm:text-base font-bold text-[#ffd700] mc-font tracking-wide">
+                COMMAND BLOCK CONSOLE
+              </h1>
+              <span className="text-[9px] font-mono text-[#ffaa00]">
+                RESTRICTED ACCESS • GAME MASTER ONLY
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {onToggleTheme && (
+              <button
+                type="button"
+                onClick={onToggleTheme}
+                title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+                className="mc-btn px-2.5 py-1.5 text-[10px] mc-font flex items-center gap-1.5 cursor-pointer"
+              >
+                {theme === 'dark' ? (
+                  <>
+                    <Sun className="w-3.5 h-3.5 text-[#fbbf24]" />
+                    <span className="text-[#fbbf24]">LIGHT</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-3.5 h-3.5 text-[#0369a1]" />
+                    <span className="text-[#0369a1]">DARK</span>
+                  </>
+                )}
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => onNavigate?.('home')}
+              className="mc-btn px-3 py-1.5 text-[10px] mc-font text-[#aaa] hover:text-white flex items-center gap-1.5 cursor-pointer"
+            >
+              <ArrowLeft className="w-3 h-3" />
+              <span>RETURN TO LOBBY</span>
+            </button>
+          </div>
+        </header>
+
+        {/* Security Gate Form */}
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="mc-panel-dark max-w-md w-full p-6 sm:p-8 shadow-2xl border-4 border-[#ffaa00] text-center animate-fadeIn relative">
+            <div className="w-14 h-14 mx-auto mb-3 bg-[#251505] border-2 border-[#ffaa00] flex items-center justify-center shadow-md">
+              <Lock className="w-7 h-7 text-[#ffd700] animate-pulse" />
+            </div>
+
+            <h2 className="text-base sm:text-lg font-bold text-white mc-font tracking-wide mb-1">
+              GAME MASTER SECURITY GATE
+            </h2>
+            <p className="text-xs text-[#aaa] font-mono mb-5 leading-relaxed">
+              Enter the facilitator key to unlock the Command Block Console and event orchestration controls.
+            </p>
+
+            {authError && (
+              <div className="mb-4 p-2.5 bg-[#3a0808] border-2 border-[#ff3333] text-[#ff8888] text-xs font-mono flex items-center gap-2 text-left">
+                <AlertTriangle className="w-4 h-4 text-[#ff5555] shrink-0" />
+                <span>{authError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <KeyRound className="w-4 h-4 text-[#888]" />
+                </div>
+                <input
+                  type={showPasscode ? 'text' : 'password'}
+                  value={passcode}
+                  onChange={(e) => setPasscode(e.target.value)}
+                  placeholder="Enter Game Master Passcode..."
+                  className="w-full bg-[#0b0e14] border-2 border-[#555] text-white pl-9 pr-10 py-2.5 text-xs sm:text-sm font-mono tracking-wider focus:outline-none focus:border-[#ffd700] transition-colors"
+                  autoFocus
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPasscode(!showPasscode)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#888] hover:text-white cursor-pointer"
+                  title={showPasscode ? 'Hide passcode' : 'Show passcode'}
+                >
+                  {showPasscode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="mc-btn mc-btn-green w-full py-3 text-xs sm:text-sm font-bold text-white flex items-center justify-center gap-2 cursor-pointer shadow-xl tracking-wider disabled:opacity-50"
+              >
+                <Lock className="w-4 h-4" />
+                <span>{authLoading ? 'VERIFYING KEY...' : 'AUTHENTICATE [ENTER] ➔'}</span>
+              </button>
+            </form>
+
+            <div className="mt-5 pt-3 border-t border-[#333] text-[10px] text-[#777] font-mono leading-relaxed">
+              <span>Restricted console. Facilitator access only.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0e1117] text-white flex flex-col font-sans select-none admin-console-root">
       {/* Toast Feedback */}
@@ -241,13 +414,27 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
             </button>
           )}
 
-          <div className="mc-btn px-3 py-1.5 text-[10px] mc-font text-[#ffd700] bg-[#221c10] border-2 border-[#ffd700] shadow-sm flex items-center gap-1.5 cursor-default">
-            <Shield className="w-3.5 h-3.5 text-[#ffd700]" />
-            <span>ADMIN PANEL</span>
-          </div>
           <button
             type="button"
-            onClick={() => onNavigate?.('guide')}
+            onClick={() => onNavigate?.('home')}
+            title="Return to Player Lobby"
+            className="mc-btn px-2.5 py-1.5 text-[10px] mc-font text-[#aaa] hover:text-white flex items-center gap-1.5 cursor-pointer"
+          >
+            <Home className="w-3 h-3 text-[#aaa]" />
+            <span>LOBBY</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleLogout}
+            title="Lock Game Master Console"
+            className="mc-btn px-2.5 py-1.5 text-[10px] mc-font text-[#ff6666] hover:text-white border-[#ff4444] bg-[#2a0808] flex items-center gap-1.5 cursor-pointer shadow-sm transition-colors"
+          >
+            <Lock className="w-3 h-3 text-[#ff6666]" />
+            <span>LOCK</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowFieldGuide(true)}
             className="mc-btn px-2.5 py-1.5 text-[10px] mc-font text-[#55ffff] hover:text-white flex items-center gap-1.5 cursor-pointer bg-[#0c1c28] border-[#38bdf8]"
           >
             <BookOpen className="w-3 h-3 text-[#55ffff]" />
@@ -968,6 +1155,14 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
             </div>
           </div>
         </div>
+      )}
+
+      {/* Field Guide Overlay (Facilitator Reference Mode) */}
+      {showFieldGuide && (
+        <CockpitFieldGuide
+          onClose={() => setShowFieldGuide(false)}
+          isAdminView={true}
+        />
       )}
     </div>
   );
