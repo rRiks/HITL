@@ -1,34 +1,22 @@
 import os
-# Load .env for local development (safe no-op in production)
-from dotenv import load_dotenv
-load_dotenv()
-
-import sys
 import time
 import hmac
 from typing import Optional, Dict, Any, List
 from fastapi import APIRouter, HTTPException, Depends, Header, Request
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 from game_state import room_manager
 from stages_data import STAGES
 
-# ---------------------------------------------------------------------------
-# Fix C2: Startup validation — refuse to run with missing or default secrets
-# ---------------------------------------------------------------------------
-_KNOWN_DEFAULT_KEYS = {"redstone-gm-2026", "corporate-gm-change-me", ""}
-_raw_admin_key = os.getenv("ADMIN_SECRET_KEY", "").strip()
-if _raw_admin_key in _KNOWN_DEFAULT_KEYS:
-    print(
-        "[FATAL] ADMIN_SECRET_KEY is not set or uses a known default value. "
-        "Set a strong, unique secret in your environment before starting the server.",
-        file=sys.stderr,
-    )
-    sys.exit(1)
-ADMIN_SECRET_KEY: str = _raw_admin_key
+# Load .env for local development (no-op in production)
+load_dotenv()
+
+# Read admin key purely from environment — no hardcoded fallback
+ADMIN_SECRET_KEY: str = os.getenv("ADMIN_SECRET_KEY", "").strip()
 
 
 def _secure_compare(supplied: str, expected: str) -> bool:
-    """Constant-time string comparison — prevents timing-oracle brute-force attacks."""
+    """Constant-time string comparison — prevents timing-oracle attacks."""
     return hmac.compare_digest(
         supplied.encode("utf-8"),
         expected.encode("utf-8"),
@@ -37,11 +25,10 @@ def _secure_compare(supplied: str, expected: str) -> bool:
 admin_router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 class VerifyKeyRequest(BaseModel):
-    # max_length guards against oversized payloads on the auth endpoint (Fix M3)
     key: str = Field(..., max_length=200)
 
 def verify_admin_auth(x_admin_key: Optional[str] = Header(None, alias="X-Admin-Key")):
-    """Validates the Game Master Secret Key using constant-time comparison (Fix C2)."""
+    """Validates the Game Master Secret Key using constant-time comparison."""
     supplied = (x_admin_key or "").strip()
     if not supplied or not _secure_compare(supplied, ADMIN_SECRET_KEY):
         raise HTTPException(
@@ -53,16 +40,14 @@ def verify_admin_auth(x_admin_key: Optional[str] = Header(None, alias="X-Admin-K
 
 @admin_router.post("/verify")
 def verify_admin_key(request: Request, req: VerifyKeyRequest):
-    """Validates Game Master Secret Key. Rate-limited to 5/min per IP (Fix H2 + C2)."""
-    # NOTE: slowapi limit is applied via app.state.limiter in main.py at route-registration time.
-    # To add it here directly, import and call limiter.limit("5/minute")(verify_admin_key)
-    # after the admin_router is registered in main.py. See main.py for the applied decorator.
+    """Validates Game Master Secret Key for entering the admin console."""
     supplied = (req.key or "").strip()
     if not supplied or not _secure_compare(supplied, ADMIN_SECRET_KEY):
         raise HTTPException(
             status_code=401,
             detail="Invalid Game Master Passcode. Please check your admin key."
         )
+
     return {"success": True, "message": "Game Master identity confirmed."}
 
 # In-memory storage for global administrative announcements
