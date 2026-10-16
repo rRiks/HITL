@@ -3,12 +3,10 @@ const ADMIN_BASE = `${API_BASE}/admin`;
 
 export function getAdminKey() {
   if (typeof window !== 'undefined') {
-    const key = localStorage.getItem('hitl_admin_key') || sessionStorage.getItem('hitl_admin_key') || '';
-    if (key) {
-      if (!localStorage.getItem('hitl_admin_key')) localStorage.setItem('hitl_admin_key', key);
-      if (!sessionStorage.getItem('hitl_admin_key')) sessionStorage.setItem('hitl_admin_key', key);
-    }
-    return key;
+    // Fix H1: Admin key stored in sessionStorage only.
+    // sessionStorage is cleared when the tab/browser closes — safer than localStorage
+    // on shared devices (corporate workshop laptops).
+    return sessionStorage.getItem('hitl_admin_key') || '';
   }
   return '';
 }
@@ -16,15 +14,16 @@ export function getAdminKey() {
 export function setAdminKey(key) {
   if (typeof window !== 'undefined') {
     const cleanKey = (key || '').trim();
-    localStorage.setItem('hitl_admin_key', cleanKey);
+    // Fix H1: ONLY write to sessionStorage — never persist admin key to disk via localStorage
     sessionStorage.setItem('hitl_admin_key', cleanKey);
   }
 }
 
 export function clearAdminKey() {
   if (typeof window !== 'undefined') {
-    localStorage.removeItem('hitl_admin_key');
     sessionStorage.removeItem('hitl_admin_key');
+    // Belt-and-suspenders: also clear any localStorage remnant from previous app versions
+    localStorage.removeItem('hitl_admin_key');
   }
 }
 

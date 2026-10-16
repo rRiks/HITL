@@ -1,18 +1,20 @@
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Literal
 from pydantic import BaseModel, Field
 
 class StartGameRequest(BaseModel):
-    team_name: str = Field(default="Alpha Devs", description="Name of the team")
+    team_name: str = Field(default="Alpha Devs", min_length=1, max_length=60, description="Name of the team")
     player_count: int = Field(default=4, ge=1, le=10, description="Number of players in team")
-    room_id: Optional[str] = Field(default="default", description="Room/table identifier for multi-team isolation")
-    room_code: Optional[str] = Field(default=None, description="Optional 4-character join code")
+    room_id: Optional[str] = Field(default="default", max_length=20, description="Room/table identifier for multi-team isolation")
+    room_code: Optional[str] = Field(default=None, max_length=6, description="Optional 4-character join code")
 
 class ActionRequest(BaseModel):
-    action_type: str = Field(..., description="'accept_as_is' | 'deny_and_move_on' | 'custom_prompt' | 'suggest_change'")
-    custom_prompt_text: Optional[str] = Field(default=None, description="Custom prompt provided by human team")
-    selected_rule_id: Optional[str] = Field(default=None, description="ID of structured guardrail rule selected")
+    # Fix L3: Literal whitelist — Pydantic rejects any value not in this set with a clean 422
+    action_type: Literal["accept_as_is", "deny_and_move_on", "custom_prompt", "suggest_change"]
+    # Fix M3: Bounded free-text fields to prevent memory exhaustion
+    custom_prompt_text: Optional[str] = Field(default=None, max_length=2000, description="Custom prompt provided by human team")
+    selected_rule_id: Optional[str] = Field(default=None, max_length=50, description="ID of structured guardrail rule selected")
     is_timeout: bool = Field(default=False, description="True if decision timed out at 00:00")
-    time_spent_seconds: int = Field(default=0, description="Seconds spent on this stage")
+    time_spent_seconds: int = Field(default=0, ge=0, le=300, description="Seconds spent on this stage")
 
 class PullAcknowledgmentRequest(BaseModel):
     acknowledged: bool = Field(default=True, description="Physical blocks acknowledged")
@@ -72,22 +74,22 @@ class PlayerInfo(BaseModel):
     last_seen: float
 
 class JoinPlayerRequest(BaseModel):
-    player_id: str
-    player_name: str
+    player_id: str = Field(..., min_length=1, max_length=64)
+    player_name: str = Field(..., min_length=1, max_length=50)
 
 class DraftRequest(BaseModel):
-    player_id: str
-    player_name: str
-    draft_type: str  # "custom_prompt" or "suggest_change"
-    custom_prompt_text: Optional[str] = None
-    selected_rule_id: Optional[str] = None
-    selected_suggestion_id: Optional[str] = None
+    player_id: str = Field(..., min_length=1, max_length=64)
+    player_name: str = Field(..., min_length=1, max_length=50)
+    draft_type: Literal["custom_prompt", "suggest_change"]
+    custom_prompt_text: Optional[str] = Field(default=None, max_length=2000)
+    selected_rule_id: Optional[str] = Field(default=None, max_length=50)
+    selected_suggestion_id: Optional[str] = Field(default=None, max_length=50)
 
 class VoteRequest(BaseModel):
-    player_id: str
-    player_name: str
-    action_type: str  # "accept_as_is" | "deny_and_move_on" | "custom_prompt" | "suggest_change"
-    time_spent_seconds: int = 0
+    player_id: str = Field(..., min_length=1, max_length=64)
+    player_name: str = Field(..., min_length=1, max_length=50)
+    action_type: Literal["accept_as_is", "deny_and_move_on", "custom_prompt", "suggest_change"]
+    time_spent_seconds: int = Field(default=0, ge=0, le=300)
 
 class GameStateResponse(BaseModel):
     room_id: str = "default"

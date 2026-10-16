@@ -1,3 +1,9 @@
-fastapi>=0.100.0
-uvicorn>=0.22.0
-pydantic>=2.0.0
+# Pinned to exact versions for supply-chain integrity (Fix M2)
+# To regenerate: pip freeze > requirements.txt after installing in a clean venv
+fastapi==0.115.12
+uvicorn==0.34.3
+pydantic==2.11.4
+# Rate-limiting middleware for brute-force & DoS protection (Fix H2)
+slowapi==0.1.9
+# Loads .env file for local development (no-op in production where env vars are set directly)
+python-dotenv==1.1.0

@@ -1,6 +1,14 @@
+import os
+# Load .env file for local development (safe no-op in production)
+from dotenv import load_dotenv
+load_dotenv()
+
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from models import (
     StartGameRequest,
     ActionRequest,
@@ -14,36 +22,63 @@ from models import (
 )
 from game_state import room_manager
 from stages_data import STAGES
-from admin_router import admin_router
+from admin_router import admin_router, verify_admin_auth
+
+# ---------------------------------------------------------------------------
+# Production-safe configuration
+# ---------------------------------------------------------------------------
+_is_production = os.getenv("ENVIRONMENT", "development").lower() == "production"
+
+# Read allowed CORS origins from environment.
+# Set CORS_ORIGINS on Render to your exact Netlify URL, e.g.:
+#   CORS_ORIGINS=https://your-app.netlify.app
+# Multiple origins can be comma-separated.
+_raw_origins = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:5173,http://localhost:3000"
+)
+ALLOWED_ORIGINS: list = [o.strip() for o in _raw_origins.split(",") if o.strip()]
 
 app = FastAPI(
     title="HITL Jenga: AI-Paced Development API",
     description="Multi-Room Backend State Machine & Cross-Room Leaderboard for Developer Day HITL Jenga.",
-    version="2.0.0"
+    version="2.0.0",
+    # Disable interactive API explorer in production (Fix L2)
+    docs_url=None if _is_production else "/docs",
+    redoc_url=None if _is_production else "/redoc",
+    openapi_url=None if _is_production else "/openapi.json",
 )
 
-# Enable CORS for frontend Vite dev server and workshop dashboards
+# Fix H2: Rate limiter — keyed by remote IP address
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Enable CORS — origins are explicitly scoped per environment (Fix C1)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=False,  # No cookie/session auth used; header-based only
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "X-Admin-Key"],
 )
 
 # Register isolated Admin Router
 app.include_router(admin_router)
 
+# Fix H2: Apply strict brute-force rate limit to the /verify auth endpoint (5 attempts/min per IP)
+# This must be done after include_router so the route object exists in app.routes
+for route in app.routes:
+    if hasattr(route, "path") and route.path == "/api/admin/verify":
+        route.endpoint = limiter.limit("5/minute")(route.endpoint)
+        break
+
 @app.get("/")
 @app.get("/healthz")
 @app.get("/api/health")
 def get_health():
-    return {
-        "status": "healthy",
-        "service": "hitl-jenga-backend-multi-room",
-        "active_rooms": len(room_manager._rooms),
-        "stages_loaded": len(STAGES)
-    }
+    # Fix L1: Return minimal response — do not leak internal telemetry
+    return {"status": "ok"}
 
 # -------------------------------------------------------------
 # Cross-Room Workshop Live Leaderboard
@@ -112,20 +147,23 @@ def get_state_room(room_id: str, player_id: Optional[str] = Query(default=None),
     return manager.get_state()
 
 @app.post("/api/game/{room_id}/join-player", response_model=GameStateResponse)
-def join_player_room(room_id: str, req: JoinPlayerRequest):
+@limiter.limit("20/minute")
+def join_player_room(request: Request, room_id: str, req: JoinPlayerRequest):
     manager = room_manager.get_room(room_id)
     manager.touch_player(req.player_id, req.player_name)
     return manager.get_state()
 
 @app.post("/api/game/{room_id}/draft", response_model=GameStateResponse)
-def submit_draft_room(room_id: str, req: DraftRequest):
+@limiter.limit("60/minute")
+def submit_draft_room(request: Request, room_id: str, req: DraftRequest):
     manager = room_manager.get_room(room_id)
     if manager.is_effective_timer_paused():
         raise HTTPException(status_code=403, detail="Table time is frozen by Game Master. Drafts are paused.")
     return manager.submit_draft(req)
 
 @app.post("/api/game/{room_id}/vote", response_model=GameStateResponse)
-def submit_vote_room(room_id: str, req: VoteRequest):
+@limiter.limit("60/minute")
+def submit_vote_room(request: Request, room_id: str, req: VoteRequest):
     manager = room_manager.get_room(room_id)
     if manager.is_effective_timer_paused():
         raise HTTPException(status_code=403, detail="Table time is frozen by Game Master. Voting is paused.")
@@ -146,7 +184,8 @@ def commit_decision_room(room_id: str):
     return manager.resolve_voting(is_timeout=False, time_spent_seconds=0)
 
 @app.post("/api/game/{room_id}/action", response_model=ActionResponse)
-def submit_action_room(room_id: str, req: ActionRequest):
+@limiter.limit("30/minute")
+def submit_action_room(request: Request, room_id: str, req: ActionRequest):
     manager = room_manager.get_room(room_id)
     if manager.is_effective_timer_paused():
         raise HTTPException(status_code=403, detail="Table time is frozen by Game Master. Actions are paused.")
@@ -161,13 +200,16 @@ def acknowledge_pull_room(room_id: str, req: PullAcknowledgmentRequest):
     manager.acknowledge_pulls(physical_tower_fell=req.physical_tower_fell)
     return manager.get_state()
 
-@app.post("/api/game/{room_id}/tower-toppled", response_model=GameStateResponse)
+# Fix M4: Require admin auth for destructive endpoints
+@app.post("/api/game/{room_id}/tower-toppled", response_model=GameStateResponse,
+          dependencies=[Depends(verify_admin_auth)])
 def tower_toppled_room(room_id: str):
     manager = room_manager.get_room(room_id)
     manager.force_tower_collapse()
     return manager.get_state()
 
-@app.post("/api/game/{room_id}/next-stage", response_model=GameStateResponse)
+@app.post("/api/game/{room_id}/next-stage", response_model=GameStateResponse,
+          dependencies=[Depends(verify_admin_auth)])
 def next_stage_room(room_id: str):
     manager = room_manager.get_room(room_id)
     if manager.is_effective_timer_paused():
@@ -175,7 +217,8 @@ def next_stage_room(room_id: str):
     manager.advance_to_next_stage()
     return manager.get_state()
 
-@app.post("/api/game/{room_id}/reset", response_model=GameStateResponse)
+@app.post("/api/game/{room_id}/reset", response_model=GameStateResponse,
+          dependencies=[Depends(verify_admin_auth)])
 def reset_game_room(room_id: str):
     manager = room_manager.get_room(room_id)
     manager.reset_game(team_name=manager.team_name, player_count=manager.player_count)
@@ -216,19 +259,22 @@ def acknowledge_pull_default(req: PullAcknowledgmentRequest, room: Optional[str]
     manager.acknowledge_pulls(physical_tower_fell=req.physical_tower_fell)
     return manager.get_state()
 
-@app.post("/api/game/tower-toppled", response_model=GameStateResponse)
+@app.post("/api/game/tower-toppled", response_model=GameStateResponse,
+          dependencies=[Depends(verify_admin_auth)])
 def tower_toppled_default(room: Optional[str] = Query(default=None)):
     manager = room_manager.get_room(room or "default")
     manager.force_tower_collapse()
     return manager.get_state()
 
-@app.post("/api/game/next-stage", response_model=GameStateResponse)
+@app.post("/api/game/next-stage", response_model=GameStateResponse,
+          dependencies=[Depends(verify_admin_auth)])
 def next_stage_default(room: Optional[str] = Query(default=None)):
     manager = room_manager.get_room(room or "default")
     manager.advance_to_next_stage()
     return manager.get_state()
 
-@app.post("/api/game/reset", response_model=GameStateResponse)
+@app.post("/api/game/reset", response_model=GameStateResponse,
+          dependencies=[Depends(verify_admin_auth)])
 def reset_game_default(room: Optional[str] = Query(default=None)):
     manager = room_manager.get_room(room or "default")
     manager.reset_game(team_name=manager.team_name, player_count=manager.player_count)

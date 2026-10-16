@@ -11,8 +11,12 @@ services:
       - "8000:8000"
     environment:
       - PORT=8000
-      - ADMIN_SECRET_KEY=${ADMIN_SECRET_KEY:-corporate-gm-change-me}
-      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+      # Fix C1: Set CORS_ORIGINS explicitly — never use wildcard in production.
+      # Copy .env.example to .env and set your real Netlify URL.
+      - ADMIN_SECRET_KEY=${ADMIN_SECRET_KEY}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      # Fix L2: Disables /docs and /redoc Swagger UI in production
+      - ENVIRONMENT=${ENVIRONMENT:-production}
     healthcheck:
       test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:8000/api/health\")' || exit 1"]
       interval: 15s
