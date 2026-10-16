@@ -325,18 +325,18 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
         <button
           type="button"
           onClick={onToggleTheme}
-          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-          className="absolute top-3 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-[#1e293b]/85 hover:bg-[#334155] border-2 border-[#475569] text-xs font-mono font-bold text-white transition-all shadow-md cursor-pointer mc-btn"
+          title={theme === 'light' ? 'Switch to Dark Realm' : 'Switch to Light Realm'}
+          className="absolute top-3 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-[#1e293b]/85 hover:bg-[#334155] border-2 border-[#475569] text-xs font-mono font-bold text-white transition-colors duration-100 active:scale-95 shadow-md cursor-pointer mc-btn select-none"
         >
-          {theme === 'dark' ? (
+          {theme === 'light' ? (
             <>
               <Sun className="w-3.5 h-3.5 text-[#fbbf24]" />
               <span className="text-[11px] text-[#fbbf24]">LIGHT</span>
             </>
           ) : (
             <>
-              <Moon className="w-3.5 h-3.5 text-[#0369a1]" />
-              <span className="text-[11px] text-[#0369a1]">DARK</span>
+              <Moon className="w-3.5 h-3.5 text-[#38bdf8]" />
+              <span className="text-[11px] text-[#38bdf8]">DARK</span>
             </>
           )}
         </button>

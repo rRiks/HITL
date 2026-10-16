@@ -165,3 +165,23 @@ class LeaderboardEntry(BaseModel):
 class LeaderboardResponse(BaseModel):
     total_rooms: int
     rooms: List[LeaderboardEntry]
+
+# -------------------------------------------------------------
+# Admin & Workshop Global Settings Models
+# -------------------------------------------------------------
+class VerifyKeyRequest(BaseModel):
+    key: str = Field(..., max_length=200)
+
+class BroadcastRequest(BaseModel):
+    message: str = Field(..., max_length=500)
+
+class ThemeConfigRequest(BaseModel):
+    theme: str = Field(..., max_length=50)
+    mode: Optional[str] = Field(default="dark", pattern="^(dark|light)$")
+
+class RoomControlRequest(BaseModel):
+    action: str = Field(..., max_length=30)  # advance, retry, health_adjust, debt_adjust, chaos_pull, collapse, reset, etc.
+    delta: Optional[int] = Field(default=0, ge=-100, le=100)
+    pulls: Optional[int] = Field(default=1, ge=1, le=10)
+    reason: Optional[str] = Field(default="Admin Intervention", max_length=200)
+

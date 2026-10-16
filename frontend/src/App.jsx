@@ -15,6 +15,7 @@ import CockpitFieldGuide from './components/CockpitFieldGuide';
 import { useSound } from './hooks/useSound';
 import * as api from './services/api';
 import AdminDashboard from './admin/AdminDashboard';
+import themeEngine from './themes/themeEngine';
 import { ArrowRight, Rotate3d, CheckCircle2, AlertTriangle, Layers, Zap, Radio } from 'lucide-react';
 
 function getRouteInfo() {
@@ -116,30 +117,24 @@ export default function App() {
   // Sound Engine
   const sound = useSound();
 
-  // Theme Management: 'dark' (Default) | 'light' (Parchment & Birch)
+  // Theme Engine Management: Supports custom themes with both dark & light options
   const [theme, setTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('hitl_theme') || 'dark';
-    }
-    return 'dark';
+    const current = themeEngine.init();
+    return current.mode;
   });
 
-  const toggleTheme = useCallback(() => {
-    setTheme((prev) => {
-      const next = prev === 'light' ? 'dark' : 'light';
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('hitl_theme', next);
-        document.documentElement.setAttribute('data-theme', next);
-      }
-      return next;
+  useEffect(() => {
+    const unsubscribe = themeEngine.subscribe((state) => {
+      setTheme(state.mode);
     });
+    return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      document.documentElement.setAttribute('data-theme', theme);
-    }
-  }, [theme]);
+  const lastKnownAdminThemeTsRef = useRef(null);
+
+  const toggleTheme = useCallback(() => {
+    themeEngine.toggleMode();
+  }, []);
 
   const [roomId, setRoomIdState] = useState(() => {
     const info = getRouteInfo();
@@ -207,16 +202,36 @@ export default function App() {
     refreshState();
   }, [refreshState]);
 
-  // Facilitator Broadcast Polling
+  // Facilitator Broadcast & Global Theme Polling
   useEffect(() => {
-    const checkBroadcast = async () => {
+    const checkGlobalSettings = async () => {
       try {
-        const data = await api.fetchBroadcast();
-        setActiveBroadcast(data.active ? data.message : null);
+        const [broadcastData, themeData] = await Promise.all([
+          api.fetchBroadcast(),
+          api.fetchGlobalTheme(),
+        ]);
+        setActiveBroadcast(broadcastData?.active ? broadcastData.message : null);
+
+        if (themeData?.theme && themeData?.mode && themeData?.updated_at) {
+          const remoteTs = Number(themeData.updated_at) || 0;
+
+          // Initial poll on mount: establish baseline server timestamp
+          if (lastKnownAdminThemeTsRef.current === null) {
+            lastKnownAdminThemeTsRef.current = remoteTs;
+            const hasLocalPref = typeof window !== 'undefined' && localStorage.getItem('hitl_theme_config');
+            if (!hasLocalPref) {
+              themeEngine.applyTheme(themeData.theme, themeData.mode, false);
+            }
+          } else if (remoteTs > lastKnownAdminThemeTsRef.current) {
+            // Only synchronize when Game Master explicitly broadcasts a brand-new theme
+            lastKnownAdminThemeTsRef.current = remoteTs;
+            themeEngine.applyTheme(themeData.theme, themeData.mode, true);
+          }
+        }
       } catch {}
     };
-    checkBroadcast();
-    const bInterval = setInterval(checkBroadcast, 3000);
+    checkGlobalSettings();
+    const bInterval = setInterval(checkGlobalSettings, 3000);
     return () => clearInterval(bInterval);
   }, []);
 

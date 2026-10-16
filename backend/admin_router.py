@@ -3,10 +3,16 @@ import time
 import hmac
 from typing import Optional, Dict, Any, List
 from fastapi import APIRouter, HTTPException, Depends, Header, Request
-from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from game_state import room_manager
 from stages_data import STAGES
+from workshop_settings import workshop_settings
+from models import (
+    VerifyKeyRequest,
+    BroadcastRequest,
+    ThemeConfigRequest,
+    RoomControlRequest,
+)
 
 # Load .env for local development (no-op in production)
 load_dotenv()
@@ -23,9 +29,6 @@ def _secure_compare(supplied: str, expected: str) -> bool:
     )
 
 admin_router = APIRouter(prefix="/api/admin", tags=["admin"])
-
-class VerifyKeyRequest(BaseModel):
-    key: str = Field(..., max_length=200)
 
 def verify_admin_auth(x_admin_key: Optional[str] = Header(None, alias="X-Admin-Key")):
     """Validates the Game Master Secret Key using constant-time comparison."""
@@ -50,30 +53,17 @@ def verify_admin_key(request: Request, req: VerifyKeyRequest):
 
     return {"success": True, "message": "Game Master identity confirmed."}
 
-# In-memory storage for global administrative announcements
-GLOBAL_ANNOUNCEMENT: Dict[str, Any] = {
-    "message": "",
-    "timestamp": 0.0,
-    "active": False,
-}
-
-class BroadcastRequest(BaseModel):
-    # Fix M3: Bound broadcast message — stored globally, served to all rooms
-    message: str = Field(..., max_length=500)
-
-class RoomControlRequest(BaseModel):
-    action: str = Field(..., max_length=30)  # advance, retry, health_adjust, debt_adjust, chaos_pull, collapse, reset
-    delta: Optional[int] = Field(default=0, ge=-100, le=100)
-    pulls: Optional[int] = Field(default=1, ge=1, le=10)
-    reason: Optional[str] = Field(default="Admin Intervention", max_length=200)
 
 @admin_router.get("/rooms", dependencies=[Depends(verify_admin_auth)])
 def get_all_rooms_detailed():
     """Returns detailed real-time telemetry for all registered workshop rooms."""
     rooms_data = []
+    total_active_players = 0
     
     for r_id, r in room_manager._rooms.items():
         curr_stage = STAGES[r.current_stage_index] if 0 <= r.current_stage_index < len(STAGES) else None
+        active_list = r.get_active_players()
+        total_active_players += len(active_list)
         
         # Determine status
         status = "active"
@@ -125,13 +115,14 @@ def get_all_rooms_detailed():
     # Sort rooms by current_stage desc, health desc
     rooms_data.sort(key=lambda x: (not x["is_game_over"], x["is_victory"], x["current_stage"], x["health"]), reverse=True)
 
-    total_active_players = sum(x["active_players_count"] for x in rooms_data)
+    announcement = workshop_settings.get_announcement()
     return {
         "rooms": rooms_data,
         "total_rooms": len(rooms_data),
         "total_active_players": total_active_players,
-        "global_announcement": GLOBAL_ANNOUNCEMENT if GLOBAL_ANNOUNCEMENT["active"] else None,
+        "global_announcement": announcement if announcement.get("active") else None,
         "global_timer_paused": getattr(room_manager, "global_timer_paused", False),
+        "global_theme": workshop_settings.get_theme(),
         "server_time": time.time(),
     }
 
@@ -222,28 +213,34 @@ def perform_room_action(room_id: str, req: RoomControlRequest):
 @admin_router.post("/global/broadcast", dependencies=[Depends(verify_admin_auth)])
 def set_broadcast(req: BroadcastRequest):
     """Broadcasts a high-priority announcement to all active rooms."""
-    msg = req.message.strip()
-    if not msg:
-        GLOBAL_ANNOUNCEMENT["active"] = False
-        GLOBAL_ANNOUNCEMENT["message"] = ""
-    else:
-        GLOBAL_ANNOUNCEMENT["active"] = True
-        GLOBAL_ANNOUNCEMENT["message"] = msg
-        GLOBAL_ANNOUNCEMENT["timestamp"] = time.time()
-        
-    return {"success": True, "broadcast": GLOBAL_ANNOUNCEMENT}
+    broadcast = workshop_settings.set_announcement(req.message)
+    return {"success": True, "broadcast": broadcast}
 
 @admin_router.post("/global/clear-broadcast", dependencies=[Depends(verify_admin_auth)])
 def clear_broadcast():
     """Dismisses active global broadcast."""
-    GLOBAL_ANNOUNCEMENT["active"] = False
-    GLOBAL_ANNOUNCEMENT["message"] = ""
+    workshop_settings.clear_announcement()
     return {"success": True, "message": "Broadcast cleared."}
 
 @admin_router.get("/broadcast")
 def get_current_broadcast():
     """Public read endpoint for client HUDs to display broadcast alerts."""
-    return GLOBAL_ANNOUNCEMENT if GLOBAL_ANNOUNCEMENT["active"] else {"active": False, "message": ""}
+    return workshop_settings.get_public_announcement()
+
+@admin_router.post("/global/theme", dependencies=[Depends(verify_admin_auth)])
+def set_global_theme(req: ThemeConfigRequest):
+    """Sets the global workshop theme and mode across all connected screens."""
+    updated = workshop_settings.set_theme(req.theme, req.mode)
+    return {
+        "success": True,
+        "theme_config": updated,
+        "message": f"Global theme updated to '{updated['theme']}' ({updated['mode']}).",
+    }
+
+@admin_router.get("/theme")
+def get_global_theme():
+    """Public read endpoint for client displays to fetch the active theme & mode."""
+    return workshop_settings.get_theme()
 
 @admin_router.post("/global/reset-all", dependencies=[Depends(verify_admin_auth)])
 def reset_all_rooms():

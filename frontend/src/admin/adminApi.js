@@ -173,3 +173,22 @@ export async function resumeAllRooms() {
 export async function toggleRoomTimer(roomId) {
   return sendRoomAction(roomId, 'toggle_pause');
 }
+
+export async function fetchGlobalTheme() {
+  const res = await fetch(`${ADMIN_BASE}/theme`);
+  if (!res.ok) return { theme: 'minecraft', mode: 'dark' };
+  return res.json();
+}
+
+export async function setGlobalTheme(theme, mode = 'dark') {
+  const res = await fetch(`${ADMIN_BASE}/global/theme`, {
+    method: 'POST',
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ theme, mode }),
+  });
+  if (res.status === 401) {
+    throw new Error('401_UNAUTHORIZED');
+  }
+  if (!res.ok) throw new Error(`Failed to update global theme: ${res.statusText}`);
+  return res.json();
+}

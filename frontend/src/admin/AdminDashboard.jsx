@@ -28,9 +28,11 @@ import {
   EyeOff,
   ArrowLeft,
   Trash2,
+  Palette,
 } from 'lucide-react';
 import * as adminApi from './adminApi';
 import CockpitFieldGuide from '../components/CockpitFieldGuide';
+import ThemeManager from './ThemeManager';
 
 const BROADCAST_PRESETS = [
   '⚡ 5-minute warning: Cast your consensus votes now!',
@@ -47,7 +49,7 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
   const [showPasscode, setShowPasscode] = useState(false);
   const [showFieldGuide, setShowFieldGuide] = useState(false);
 
-  const [activeTab, setActiveTab] = useState('squads'); // 'squads' | 'analytics'
+  const [activeTab, setActiveTab] = useState('squads'); // 'squads' | 'analytics' | 'themes'
   const [rooms, setRooms] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -59,6 +61,7 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
   const [confirmResetAll, setConfirmResetAll] = useState(false);
   const [tableToDelete, setTableToDelete] = useState(null);
   const [globalTimerPaused, setGlobalTimerPaused] = useState(false);
+  const [themeConfig, setThemeConfig] = useState({ theme: 'minecraft', mode: 'dark' });
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -76,6 +79,12 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
       setRooms(data.rooms || []);
       setActiveBroadcast(data.global_announcement);
       setGlobalTimerPaused(!!data.global_timer_paused);
+      if (data.global_theme) {
+        setThemeConfig({
+          theme: data.global_theme.theme || 'minecraft',
+          mode: data.global_theme.mode || 'dark',
+        });
+      }
       setIsAuthenticated(true);
     } catch (err) {
       if (err.message === '401_UNAUTHORIZED') {
@@ -249,18 +258,18 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
               <button
                 type="button"
                 onClick={onToggleTheme}
-                title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+                title={theme === 'light' ? 'Switch to Dark Realm' : 'Switch to Light Realm'}
                 className="mc-btn px-2.5 py-1.5 text-[10px] mc-font flex items-center gap-1.5 cursor-pointer"
               >
-                {theme === 'dark' ? (
+                {theme === 'light' ? (
                   <>
                     <Sun className="w-3.5 h-3.5 text-[#fbbf24]" />
                     <span className="text-[#fbbf24]">LIGHT</span>
                   </>
                 ) : (
                   <>
-                    <Moon className="w-3.5 h-3.5 text-[#0369a1]" />
-                    <span className="text-[#0369a1]">DARK</span>
+                    <Moon className="w-3.5 h-3.5 text-[#38bdf8]" />
+                    <span className="text-[#38bdf8]">DARK</span>
                   </>
                 )}
               </button>
@@ -401,18 +410,18 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
             <button
               type="button"
               onClick={onToggleTheme}
-              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+              title={theme === 'light' ? 'Switch to Dark Realm' : 'Switch to Light Realm'}
               className="mc-btn px-2.5 py-1.5 text-[10px] mc-font flex items-center gap-1.5 cursor-pointer"
             >
-              {theme === 'dark' ? (
+              {theme === 'light' ? (
                 <>
                   <Sun className="w-3.5 h-3.5 text-[#fbbf24]" />
                   <span className="text-[#fbbf24]">LIGHT</span>
                 </>
               ) : (
                 <>
-                  <Moon className="w-3.5 h-3.5 text-[#0369a1]" />
-                  <span className="text-[#0369a1]">DARK</span>
+                  <Moon className="w-3.5 h-3.5 text-[#38bdf8]" />
+                  <span className="text-[#38bdf8]">DARK</span>
                 </>
               )}
             </button>
@@ -566,6 +575,19 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
           >
             <BarChart3 className="w-3.5 h-3.5" />
             <span>WORKSHOP TELEMETRY</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('themes')}
+            className={`px-3.5 py-1.5 text-xs font-mono font-bold border transition-colors flex items-center gap-2 cursor-pointer ${
+              activeTab === 'themes'
+                ? 'bg-[#ffd700] text-black border-[#ffd700]'
+                : 'bg-[#181c28] text-[#8e98ad] border-[#2b3245] hover:text-white'
+            }`}
+          >
+            <Palette className="w-3.5 h-3.5 text-[#ffd700]" />
+            <span>THEME ENGINE</span>
           </button>
         </div>
 
@@ -1132,6 +1154,17 @@ export default function AdminDashboard({ onNavigate, theme = 'dark', onToggleThe
               </div>
             </div>
           </div>
+        )}
+
+        {activeTab === 'themes' && (
+          <ThemeManager
+            currentThemeId={themeConfig.theme}
+            currentMode={themeConfig.mode}
+            onThemeChange={(newTheme, newMode) => {
+              setThemeConfig({ theme: newTheme, mode: newMode });
+            }}
+            showToast={showToast}
+          />
         )}
       </main>
 

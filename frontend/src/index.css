@@ -1000,5 +1000,313 @@
   border-color: #c4baaa !important;
 }
 
+/* =============================================================
+ * THEME ENGINE: CUSTOM THEME FAMILY ACCENTS & REALMS
+ * (Supports both Dark and Light variants for all custom themes)
+ * =========================================================== */
+
+/* =============================================================
+ * 1. PIXEL ART THEME
+ * =========================================================== */
+[data-theme-family="pixel-art"][data-theme="dark"],
+[data-theme-family="pixel-art"][data-theme="dark"] body,
+[data-theme-family="pixel-art"][data-theme="dark"] #root,
+[data-theme-family="pixel-art"][data-theme="dark"] .bg-\[\#14161a\] {
+  background-color: #140f26 !important;
+  background-image: 
+    radial-gradient(#20183b 20%, transparent 20%),
+    linear-gradient(rgba(255, 0, 127, 0.05) 1px, transparent 1px) !important;
+  background-size: 8px 8px, 100% 4px !important;
+  color: #f1e6ff !important;
+}
+
+[data-theme-family="pixel-art"][data-theme="dark"] .mc-panel-dark {
+  background: #20183b !important;
+  border: 3px solid #ff007f !important;
+  box-shadow: 4px 4px 0px #0d091a, -2px -2px 0px #ff007f inset !important;
+}
+
+[data-theme-family="pixel-art"][data-theme="dark"] h1,
+[data-theme-family="pixel-art"][data-theme="dark"] h2,
+[data-theme-family="pixel-art"][data-theme="dark"] h3 {
+  color: #ff007f !important;
+  text-shadow: 2px 2px 0px #380020, 0 0 10px rgba(255, 0, 127, 0.6) !important;
+}
+
+[data-theme-family="pixel-art"][data-theme="dark"] .mc-btn {
+  background: #2b1f4d !important;
+  border-top: 3px solid #573f99 !important;
+  border-left: 3px solid #573f99 !important;
+  border-right: 3px solid #100b21 !important;
+  border-bottom: 3px solid #100b21 !important;
+  color: #00f5d4 !important;
+}
+
+[data-theme-family="pixel-art"][data-theme="light"],
+[data-theme-family="pixel-art"][data-theme="light"] body,
+[data-theme-family="pixel-art"][data-theme="light"] #root,
+[data-theme-family="pixel-art"][data-theme="light"] .bg-\[\#14161a\] {
+  background-color: #eeebe2 !important;
+  background-image: radial-gradient(#dcd5c7 15%, transparent 16%) !important;
+  background-size: 8px 8px !important;
+  color: #1f1b29 !important;
+}
+
+[data-theme-family="pixel-art"][data-theme="light"] .mc-panel-dark {
+  background: #dfdad0 !important;
+  border: 3px solid #baa89b !important;
+  box-shadow: 4px 4px 0px #baa89b, 2px 2px 0px #ffffff inset !important;
+}
+
+[data-theme-family="pixel-art"][data-theme="light"] h1,
+[data-theme-family="pixel-art"][data-theme="light"] h2 {
+  color: #c91857 !important;
+  text-shadow: 1px 1px 0px #ffffff !important;
+}
+
+/* =============================================================
+ * 2. GLASSMORPHISM THEME
+ * =========================================================== */
+[data-theme-family="glassmorphism"][data-theme="dark"],
+[data-theme-family="glassmorphism"][data-theme="dark"] body,
+[data-theme-family="glassmorphism"][data-theme="dark"] #root,
+[data-theme-family="glassmorphism"][data-theme="dark"] .bg-\[\#14161a\] {
+  background-color: #090d16 !important;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(192, 132, 252, 0.12) 0%, transparent 40%) !important;
+  color: #f8fafc !important;
+}
+
+[data-theme-family="glassmorphism"][data-theme="dark"] .mc-panel-dark {
+  background: rgba(18, 27, 45, 0.65) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+[data-theme-family="glassmorphism"][data-theme="dark"] .mc-btn {
+  background: rgba(30, 41, 67, 0.7) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme-family="glassmorphism"][data-theme="light"],
+[data-theme-family="glassmorphism"][data-theme="light"] body,
+[data-theme-family="glassmorphism"][data-theme="light"] #root,
+[data-theme-family="glassmorphism"][data-theme="light"] .bg-\[\#14161a\] {
+  background-color: #e8f2fc !important;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(186, 230, 253, 0.5) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(233, 213, 255, 0.4) 0%, transparent 50%) !important;
+  color: #0f172a !important;
+}
+
+[data-theme-family="glassmorphism"][data-theme="light"] .mc-panel-dark {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1), inset 0 1px 2px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+/* =============================================================
+ * 3. NEUMORPHISM THEME
+ * =========================================================== */
+[data-theme-family="neumorphism"][data-theme="dark"],
+[data-theme-family="neumorphism"][data-theme="dark"] body,
+[data-theme-family="neumorphism"][data-theme="dark"] #root,
+[data-theme-family="neumorphism"][data-theme="dark"] .bg-\[\#14161a\] {
+  background-color: #1b1d22 !important;
+  background-image: none !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme-family="neumorphism"][data-theme="dark"] .mc-panel-dark {
+  background: #1b1d22 !important;
+  border: 1px solid #232730 !important;
+  box-shadow: 6px 6px 14px #111216, -6px -6px 14px #252830 !important;
+}
+
+[data-theme-family="neumorphism"][data-theme="dark"] .mc-btn {
+  background: #1b1d22 !important;
+  border: 1px solid #232730 !important;
+  box-shadow: 4px 4px 8px #111216, -4px -4px 8px #252830 !important;
+  color: #60a5fa !important;
+}
+
+[data-theme-family="neumorphism"][data-theme="dark"] .mc-btn:active:not(:disabled) {
+  box-shadow: inset 4px 4px 8px #111216, inset -4px -4px 8px #252830 !important;
+}
+
+[data-theme-family="neumorphism"][data-theme="light"],
+[data-theme-family="neumorphism"][data-theme="light"] body,
+[data-theme-family="neumorphism"][data-theme="light"] #root,
+[data-theme-family="neumorphism"][data-theme="light"] .bg-\[\#14161a\] {
+  background-color: #e6ebf2 !important;
+  background-image: none !important;
+  color: #1e293b !important;
+}
+
+[data-theme-family="neumorphism"][data-theme="light"] .mc-panel-dark {
+  background: #e6ebf2 !important;
+  border: 1px solid #dce2ed !important;
+  box-shadow: 7px 7px 15px #c4cad4, -7px -7px 15px #ffffff !important;
+}
+
+[data-theme-family="neumorphism"][data-theme="light"] .mc-btn {
+  background: #e6ebf2 !important;
+  border: 1px solid #dce2ed !important;
+  box-shadow: 4px 4px 10px #c4cad4, -4px -4px 10px #ffffff !important;
+  color: #2563eb !important;
+}
+
+/* =============================================================
+ * 4. BENTO GRID THEME
+ * =========================================================== */
+[data-theme-family="bento-grid"][data-theme="dark"],
+[data-theme-family="bento-grid"][data-theme="dark"] body,
+[data-theme-family="bento-grid"][data-theme="dark"] #root,
+[data-theme-family="bento-grid"][data-theme="dark"] .bg-\[\#14161a\] {
+  background-color: #090a0f !important;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) !important;
+  background-size: 32px 32px !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme-family="bento-grid"][data-theme="dark"] .mc-panel-dark {
+  background: #13151f !important;
+  border: 1px solid #232738 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+  border-radius: 6px !important;
+}
+
+[data-theme-family="bento-grid"][data-theme="dark"] h1,
+[data-theme-family="bento-grid"][data-theme="dark"] h2 {
+  color: #ffffff !important;
+  letter-spacing: -0.01em !important;
+}
+
+[data-theme-family="bento-grid"][data-theme="light"],
+[data-theme-family="bento-grid"][data-theme="light"] body,
+[data-theme-family="bento-grid"][data-theme="light"] #root,
+[data-theme-family="bento-grid"][data-theme="light"] .bg-\[\#14161a\] {
+  background-color: #f8fafc !important;
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px) !important;
+  background-size: 32px 32px !important;
+  color: #0f172a !important;
+}
+
+[data-theme-family="bento-grid"][data-theme="light"] .mc-panel-dark {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 6px !important;
+}
+
+/* =============================================================
+ * 5. SPATIAL UI THEME
+ * =========================================================== */
+[data-theme-family="spatial-ui"][data-theme="dark"],
+[data-theme-family="spatial-ui"][data-theme="dark"] body,
+[data-theme-family="spatial-ui"][data-theme="dark"] #root,
+[data-theme-family="spatial-ui"][data-theme="dark"] .bg-\[\#14161a\] {
+  background-color: #040712 !important;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.15) 0%, transparent 65%),
+    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.1) 0%, transparent 50%) !important;
+  color: #f8fafc !important;
+}
+
+[data-theme-family="spatial-ui"][data-theme="dark"] .mc-panel-dark {
+  background: rgba(15, 23, 42, 0.78) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.2) !important;
+}
+
+[data-theme-family="spatial-ui"][data-theme="dark"] h1,
+[data-theme-family="spatial-ui"][data-theme="dark"] h2 {
+  color: #c084fc !important;
+  text-shadow: 0 0 16px rgba(192, 132, 252, 0.5) !important;
+}
+
+[data-theme-family="spatial-ui"][data-theme="light"],
+[data-theme-family="spatial-ui"][data-theme="light"] body,
+[data-theme-family="spatial-ui"][data-theme="light"] #root,
+[data-theme-family="spatial-ui"][data-theme="light"] .bg-\[\#14161a\] {
+  background-color: #f3f6fc !important;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(2, 132, 199, 0.08) 0%, transparent 50%) !important;
+  color: #090d16 !important;
+}
+
+[data-theme-family="spatial-ui"][data-theme="light"] .mc-panel-dark {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(124, 58, 237, 0.22) !important;
+  box-shadow: 0 20px 45px rgba(124, 58, 237, 0.1) !important;
+}
+
+/* =============================================================
+ * 6. LIQUID GLASS THEME
+ * =========================================================== */
+[data-theme-family="liquid-glass"][data-theme="dark"],
+[data-theme-family="liquid-glass"][data-theme="dark"] body,
+[data-theme-family="liquid-glass"][data-theme="dark"] #root,
+[data-theme-family="liquid-glass"][data-theme="dark"] .bg-\[\#14161a\] {
+  background-color: #050c18 !important;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(0, 242, 254, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(240, 147, 251, 0.12) 0%, transparent 50%) !important;
+  color: #e0f7fa !important;
+}
+
+[data-theme-family="liquid-glass"][data-theme="dark"] .mc-panel-dark {
+  background: rgba(13, 27, 50, 0.72) !important;
+  backdrop-filter: blur(18px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(190%) !important;
+  border: 1px solid rgba(0, 242, 254, 0.45) !important;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(240, 147, 251, 0.3) !important;
+}
+
+[data-theme-family="liquid-glass"][data-theme="dark"] h1,
+[data-theme-family="liquid-glass"][data-theme="dark"] h2 {
+  color: #00f2fe !important;
+  text-shadow: 0 0 14px rgba(0, 242, 254, 0.6) !important;
+}
+
+[data-theme-family="liquid-glass"][data-theme="light"],
+[data-theme-family="liquid-glass"][data-theme="light"] body,
+[data-theme-family="liquid-glass"][data-theme="light"] #root,
+[data-theme-family="liquid-glass"][data-theme="light"] .bg-\[\#14161a\] {
+  background-color: #edf7fc !important;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(0, 147, 233, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(217, 70, 239, 0.08) 0%, transparent 50%) !important;
+  color: #0b2038 !important;
+}
+
+[data-theme-family="liquid-glass"][data-theme="light"] .mc-panel-dark {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(18px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(170%) !important;
+  border: 1px solid rgba(0, 147, 233, 0.35) !important;
+  box-shadow: 0 10px 30px rgba(0, 147, 233, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.9) !important;
+}
+
+
+
 
 

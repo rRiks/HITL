@@ -265,3 +265,13 @@ export async function fetchBroadcast() {
   return res.json();
 }
 
+export async function fetchGlobalTheme() {
+  try {
+    const res = await fetch(`${API_BASE}/admin/theme`);
+    if (!res.ok) return { theme: 'minecraft', mode: 'dark' };
+    return res.json();
+  } catch {
+    return { theme: 'minecraft', mode: 'dark' };
+  }
+}
+
