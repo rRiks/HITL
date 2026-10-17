@@ -47,6 +47,7 @@ export const glassmorphismTheme = {
         '--theme-radius-card': '16px',
         '--theme-radius-btn': '12px',
         '--theme-radius-slot': '10px',
+        '--theme-radius-badge': '9999px',
 
         // Borders & Specular Sheen
         '--theme-border': 'rgba(255, 255, 255, 0.12)',
@@ -111,6 +112,7 @@ export const glassmorphismTheme = {
         '--theme-radius-card': '16px',
         '--theme-radius-btn': '12px',
         '--theme-radius-slot': '10px',
+        '--theme-radius-badge': '9999px',
 
         // Borders & Specular Highlights
         '--theme-border': 'rgba(255, 255, 255, 0.6)',

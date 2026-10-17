@@ -52,7 +52,10 @@ function StageScenarioViewer({
       {/* 1. Stage Threat Header */}
       <div className="flex items-center justify-between gap-1.5 mb-2 shrink-0">
         <div className="flex items-center gap-1.5 min-w-0">
-          <span className="px-2 py-0.5 text-[9px] mc-font uppercase tracking-wider bg-[#3a0000] text-[#ff5555] border-2 border-[#aa0000] flex items-center gap-1.5 shrink-0">
+          <span
+            className="px-2 py-0.5 text-[9px] mc-font uppercase tracking-wider bg-[#3a0000] text-[#ff5555] border-2 border-[#aa0000] flex items-center gap-1.5 shrink-0 mc-badge-pill"
+            style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+          >
             <span className="w-1.5 h-1.5 bg-[#ff3333] animate-ping inline-block" />
             <span>QUEST WAVE {stage.id}</span>
           </span>
@@ -62,7 +65,10 @@ function StageScenarioViewer({
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
-          <div className="hidden sm:flex items-center gap-1 text-[8.5px] mc-font text-[#ffd700] bg-[#221a0f] border border-[#553311] px-1.5 py-0.5">
+          <div
+            className="hidden sm:flex items-center gap-1 text-[8.5px] mc-font text-[#ffd700] bg-[#221a0f] border border-[#553311] px-1.5 py-0.5 mc-badge-pill"
+            style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+          >
             <Sparkles className="w-3 h-3 text-[#ffd700] animate-spin" style={{ animationDuration: '4s' }} />
             <span>AI GOLEM PR</span>
           </div>
@@ -79,7 +85,10 @@ function StageScenarioViewer({
       </div>
 
       {/* 2. Business Requirement / User Story (Requirement Focus - No Spoilers!) */}
-      <div className="mb-2 shrink-0 bg-[#161310]/80 p-2.5 sm:p-3 border border-[#3e3428] shadow-xs">
+      <div
+        className="mb-2 shrink-0 bg-[#161310]/80 p-2.5 sm:p-3 border border-[#3e3428] shadow-xs mc-inner-box"
+        style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+      >
         <div className="flex items-center justify-between gap-2 mb-1">
           <span className="text-[9px] mc-font text-[#55ff55] uppercase tracking-wider flex items-center gap-1">
             <span>📋</span>
@@ -96,13 +105,19 @@ function StageScenarioViewer({
       </div>
 
       {/* 3. AI Golem Proposal Card (Full, Uncompacted Text) */}
-      <div className="bg-[#1b150c] border-2 border-[#ffaa00]/60 p-2.5 sm:p-3 mb-2 shrink-0 shadow-sm">
+      <div
+        className="bg-[#1b150c] border-2 border-[#ffaa00]/60 p-2.5 sm:p-3 mb-2 shrink-0 shadow-sm mc-inner-box"
+        style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+      >
         <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
           <div className="flex items-center gap-1.5 text-xs text-[#ffd700] mc-font font-bold">
             <GitPullRequest className="w-3.5 h-3.5 text-[#ffd700] shrink-0" />
             <span className="text-[10px] uppercase tracking-wider">AI GOLEM PROPOSAL</span>
           </div>
-          <code className="text-[#55ff55] font-mono text-[9.5px] bg-[#0c0d10] px-2 py-0.5 border border-[#444] select-all">
+          <code
+            className="text-[#55ff55] font-mono text-[9.5px] bg-[#0c0d10] px-2 py-0.5 border border-[#444] select-all mc-badge-pill"
+            style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+          >
             {stage.file_name}
           </code>
         </div>
@@ -112,7 +127,10 @@ function StageScenarioViewer({
       </div>
 
       {/* 4. Unified Code Diff Viewer (Relative Flex: Stretches to fill remaining space!) */}
-      <div className="border-2 border-[#333] bg-[#0c0d10] flex-1 min-h-[120px] flex flex-col overflow-hidden shadow-inner mb-2">
+      <div
+        className="border-2 border-[#333] bg-[#0c0d10] flex-1 min-h-[120px] flex flex-col overflow-hidden shadow-inner mb-2 mc-inner-box"
+        style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+      >
         <div className="bg-[#1a1c22] px-2.5 py-1 border-b-2 border-[#333] flex items-center justify-between text-xs mc-font text-[#aaa] shrink-0">
           <div className="flex items-center gap-1.5">
             <FileCode className="w-3.5 h-3.5 text-[#ffd700]" />
@@ -153,7 +171,10 @@ function StageScenarioViewer({
       {/* 5. Architectural Hint Economy (Locked / Unlocked Accordion) */}
       <div className="shrink-0">
         {!isHintRevealed ? (
-          <div className="border border-[#444] bg-[#1a1a1a] p-2 flex items-center justify-between gap-2">
+          <div
+            className="border border-[#444] bg-[#1a1a1a] p-2 flex items-center justify-between gap-2 mc-inner-box"
+            style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+          >
             <div className="flex items-center gap-2 min-w-0">
               <Lock className="w-3.5 h-3.5 text-[#888] shrink-0" />
               <div className="truncate">
@@ -170,11 +191,12 @@ function StageScenarioViewer({
               type="button"
               disabled={hintsRemaining <= 0 || isRevealing}
               onClick={handleRevealClick}
-              className={`px-3 py-1.5 text-[9px] mc-font font-bold border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+              className={`mc-btn px-3 py-1.5 text-[9px] mc-font font-bold border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
                 hintsRemaining > 0
                   ? 'bg-[#2a2000] border-[#ffd700] text-[#ffd700] hover:bg-[#3d3000] shadow-xs'
                   : 'bg-[#222] border-[#444] text-[#666] cursor-not-allowed opacity-60'
               }`}
+              style={{ borderRadius: 'var(--theme-radius-btn, 0px)' }}
             >
               <Lightbulb className="w-3 h-3 text-[#ffd700]" />
               <span>
@@ -185,7 +207,10 @@ function StageScenarioViewer({
             </button>
           </div>
         ) : (
-          <div className="p-2.5 bg-[#251505] border-2 border-[#ffaa00] text-[10px] text-[#ffddaa] mc-font leading-relaxed shadow-sm">
+          <div
+            className="p-2.5 bg-[#251505] border-2 border-[#ffaa00] text-[10px] text-[#ffddaa] mc-font leading-relaxed shadow-sm mc-inner-box"
+            style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+          >
             <div className="flex items-center justify-between gap-2 mb-1.5 border-b border-[#aa5500]/50 pb-1">
               <div className="flex items-center gap-1.5 text-[#ffd700]">
                 <Unlock className="w-3.5 h-3.5 text-[#55ff55]" />
@@ -193,13 +218,19 @@ function StageScenarioViewer({
                   ARCHITECTURAL HINT UNLOCKED
                 </span>
               </div>
-              <span className="text-[8px] text-[#ffaa00] bg-[#1a0e00] px-1.5 py-0.2 border border-[#884400]">
+              <span
+                className="text-[8px] text-[#ffaa00] bg-[#1a0e00] px-1.5 py-0.2 border border-[#884400] mc-badge-pill"
+                style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+              >
                 BUDGET: {hintsRemaining}/{maxHints} LEFT
               </span>
             </div>
 
             {/* Stage threat title revealed only inside hint */}
-            <div className="mb-1.5 bg-[#3a0d0d]/70 border border-[#ff3333]/50 px-2 py-1 flex items-center gap-1.5">
+            <div
+              className="mb-1.5 bg-[#3a0d0d]/70 border border-[#ff3333]/50 px-2 py-1 flex items-center gap-1.5 mc-inner-box"
+              style={{ borderRadius: 'calc(var(--theme-radius-slot, 0px) * 0.7)' }}
+            >
               <AlertTriangle className="w-3.5 h-3.5 text-[#ff5555] shrink-0" />
               <span className="text-[9.5px] text-[#ff7777] mc-font uppercase">
                 SUSPECTED THREAT: <strong className="text-[#ffff55] underline decoration-[#ffaa00]">{stage.title}</strong>
@@ -221,7 +252,10 @@ function StageScenarioViewer({
             {/* Modal Top Bar */}
             <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b-2 border-[#444] shrink-0">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 text-[10px] mc-font uppercase tracking-wider bg-[#3a0000] text-[#ff5555] border-2 border-[#aa0000]">
+                <span
+                  className="px-2.5 py-1 text-[10px] mc-font uppercase tracking-wider bg-[#3a0000] text-[#ff5555] border-2 border-[#aa0000] mc-badge-pill"
+                  style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                >
                   QUEST WAVE {stage.id}: {stage.phase_name}
                 </span>
                 <span className="text-xs text-[#ffd700] mc-font font-bold hidden sm:inline">
@@ -242,7 +276,10 @@ function StageScenarioViewer({
             {/* Split: Story/Telemetry on Left, Code Diff on Right */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 flex-1 min-h-0 overflow-hidden">
               <div className="lg:col-span-5 flex flex-col justify-between gap-2.5 min-h-0 overflow-y-auto pr-1">
-                <div className="space-y-1.5 bg-[#161310]/90 p-3 border border-[#3e3428]">
+                <div
+                  className="space-y-1.5 bg-[#161310]/90 p-3 border border-[#3e3428] mc-inner-box"
+                  style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+                >
                   <span className="text-[9px] mc-font text-[#55ff55] uppercase tracking-wider block">
                     📋 BUSINESS REQUIREMENT (USER STORY)
                   </span>
@@ -254,7 +291,10 @@ function StageScenarioViewer({
                   </p>
                 </div>
 
-                <div className="bg-[#181818] border-2 border-[#444] p-2.5 flex flex-col gap-1.5">
+                <div
+                  className="bg-[#181818] border-2 border-[#444] p-2.5 flex flex-col gap-1.5 mc-inner-box"
+                  style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+                >
                   <div className="flex items-start gap-2">
                     <GitPullRequest className="w-3.5 h-3.5 text-[#ffd700] shrink-0 mt-0.5" />
                     <div>
@@ -266,14 +306,20 @@ function StageScenarioViewer({
                       </span>
                     </div>
                   </div>
-                  <code className="text-[#55ff55] font-mono text-[10px] bg-[#101010] px-2 py-0.5 border border-[#333] self-start select-all">
+                  <code
+                    className="text-[#55ff55] font-mono text-[10px] bg-[#101010] px-2 py-0.5 border border-[#333] self-start select-all mc-badge-pill"
+                    style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                  >
                     {stage.file_name}
                   </code>
                 </div>
 
                 {/* Modal Hint Box */}
                 {!isHintRevealed ? (
-                  <div className="p-3 bg-[#1e1e1e] border-2 border-[#444] flex flex-col items-center justify-center gap-2 text-center">
+                  <div
+                    className="p-3 bg-[#1e1e1e] border-2 border-[#444] flex flex-col items-center justify-center gap-2 text-center mc-inner-box"
+                    style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+                  >
                     <Lock className="w-5 h-5 text-[#888]" />
                     <span className="text-xs mc-font text-[#ffd700]">
                       ARCHITECTURAL TELEMETRY HINT
@@ -285,11 +331,12 @@ function StageScenarioViewer({
                       type="button"
                       disabled={hintsRemaining <= 0 || isRevealing}
                       onClick={handleRevealClick}
-                      className={`px-3 py-1.5 text-xs mc-font font-bold border cursor-pointer mt-1 ${
+                      className={`mc-btn px-3 py-1.5 text-xs mc-font font-bold border cursor-pointer mt-1 ${
                         hintsRemaining > 0
                           ? 'bg-[#2a2000] border-[#ffd700] text-[#ffd700] hover:bg-[#3d3000]'
                           : 'bg-[#222] border-[#444] text-[#666] cursor-not-allowed'
                       }`}
+                      style={{ borderRadius: 'var(--theme-radius-btn, 0px)' }}
                     >
                       {hintsRemaining > 0
                         ? (isRevealing ? 'UNLOCKING...' : `REVEAL HINT (${hintsRemaining} LEFT)`)
@@ -297,7 +344,10 @@ function StageScenarioViewer({
                     </button>
                   </div>
                 ) : (
-                  <div className="p-3 bg-[#251505] border-2 border-[#ffaa00] shadow-lg flex-1 min-h-0 flex flex-col justify-start">
+                  <div
+                    className="p-3 bg-[#251505] border-2 border-[#ffaa00] shadow-lg flex-1 min-h-0 flex flex-col justify-start mc-inner-box"
+                    style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+                  >
                     <div className="flex items-center gap-2 text-[#55ff55] mb-1.5 shrink-0">
                       <Unlock className="w-4 h-4 text-[#55ff55] shrink-0" />
                       <span className="text-[10px] sm:text-xs mc-font font-bold uppercase tracking-wider">
@@ -305,7 +355,10 @@ function StageScenarioViewer({
                       </span>
                     </div>
                     {/* Stage threat title inside modal hint */}
-                    <div className="mb-2 bg-[#3a0d0d]/70 border border-[#ff3333]/50 px-2.5 py-1.5 flex items-center gap-2 shrink-0">
+                    <div
+                      className="mb-2 bg-[#3a0d0d]/70 border border-[#ff3333]/50 px-2.5 py-1.5 flex items-center gap-2 shrink-0 mc-inner-box"
+                      style={{ borderRadius: 'calc(var(--theme-radius-slot, 0px) * 0.7)' }}
+                    >
                       <AlertTriangle className="w-4 h-4 text-[#ff5555] shrink-0" />
                       <span className="text-xs text-[#ff7777] mc-font uppercase">
                         DETECTED THREAT: <strong className="text-[#ffff55] underline decoration-[#ffaa00]">{stage.title}</strong>
@@ -321,7 +374,10 @@ function StageScenarioViewer({
                 )}
               </div>
 
-              <div className="lg:col-span-7 border-2 border-[#444] bg-[#0c0d10] flex flex-col h-full min-h-0 shadow-inner overflow-hidden">
+              <div
+                className="lg:col-span-7 border-2 border-[#444] bg-[#0c0d10] flex flex-col h-full min-h-0 shadow-inner overflow-hidden mc-inner-box"
+                style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+              >
                 <div className="bg-[#1a1c22] px-3 py-1.5 border-b-2 border-[#444] flex items-center justify-between text-xs mc-font text-[#aaa] shrink-0">
                   <div className="flex items-center gap-2">
                     <FileCode className="w-3.5 h-3.5 text-[#ffd700]" />

@@ -16,6 +16,7 @@
     --theme-radius-card: 0px;
     --theme-radius-btn: 0px;
     --theme-radius-slot: 0px;
+    --theme-radius-badge: 0px;
   }
 
   html, body, #root {
@@ -240,7 +241,27 @@
   text-transform: var(--theme-text-transform, none) !important;
 }
 
-[data-theme-family]:not([data-theme-family="minecraft"]) .mc-slot-dark {
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-slot,
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-slot-dark,
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-inner-box {
+  border-radius: var(--theme-radius-slot, 10px) !important;
+}
+
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-badge-pill {
+  border-radius: var(--theme-radius-badge, 9999px) !important;
+}
+
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-hud-box {
+  border-radius: var(--theme-radius-slot, 10px) !important;
+}
+
+[data-theme-family]:not([data-theme-family="minecraft"]) .result-modal-badge {
+  border-radius: var(--theme-radius-badge, 9999px) !important;
+}
+
+[data-theme-family]:not([data-theme-family="minecraft"]) .result-modal-roll-box,
+[data-theme-family]:not([data-theme-family="minecraft"]) .result-modal-feedback-box,
+[data-theme-family]:not([data-theme-family="minecraft"]) .result-modal-stat-box {
   border-radius: var(--theme-radius-slot, 10px) !important;
 }
 

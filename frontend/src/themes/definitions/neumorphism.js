@@ -47,6 +47,7 @@ export const neumorphismTheme = {
         '--theme-radius-card': '20px',
         '--theme-radius-btn': '16px',
         '--theme-radius-slot': '12px',
+        '--theme-radius-badge': '9999px',
 
         // Sculpted Dual Shadows (No hard borders)
         '--theme-border': 'transparent',
@@ -111,6 +112,7 @@ export const neumorphismTheme = {
         '--theme-radius-card': '20px',
         '--theme-radius-btn': '16px',
         '--theme-radius-slot': '12px',
+        '--theme-radius-badge': '9999px',
 
         // Sculpted Dual Shadows
         '--theme-border': 'transparent',

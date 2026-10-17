@@ -41,7 +41,7 @@ export function CustomPromptModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-fadeIn select-none">
-      <div className="mc-panel-dark w-full max-w-xl p-5 sm:p-6 shadow-2xl relative text-white max-h-[92vh] overflow-y-auto">
+      <div className="mc-panel-dark w-full max-w-lg p-4 sm:p-5 shadow-2xl relative text-white max-h-[88vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-[#888] hover:text-white cursor-pointer p-1"
@@ -50,7 +50,10 @@ export function CustomPromptModal({
         </button>
 
         <div className="flex items-center gap-3 mb-3">
-          <div className="p-2 bg-[#1a110a] border-2 border-[#553311] text-[#ffd700] text-xl">
+          <div
+            className="p-2 bg-[#1a110a] border-2 border-[#553311] text-[#ffd700] text-xl mc-inner-box"
+            style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+          >
             🪶
           </div>
           <div>
@@ -73,7 +76,8 @@ export function CustomPromptModal({
               value={promptText}
               onChange={(e) => setPromptText(e.target.value)}
               placeholder="e.g., Do not query inside loops. Extract parent IDs into a Set, run a bulkified SOQL query outside iteration, and map in-memory..."
-              className="w-full bg-[#111] border-2 border-[#555] focus:border-[#ffd700] p-3 text-xs text-white placeholder-[#666] focus:outline-none font-mono resize-none transition-all"
+              className="w-full bg-[#111] border-2 border-[#555] focus:border-[#ffd700] p-3 text-xs text-white placeholder-[#666] focus:outline-none font-mono resize-none transition-all mc-inner-box"
+              style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
               autoFocus
             />
             <div className="flex justify-between items-center text-[8px] mc-font text-[#888] mt-1">
@@ -131,7 +135,7 @@ export function GuardrailsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-fadeIn select-none">
-      <div className="mc-panel-dark w-full max-w-xl p-5 sm:p-6 shadow-2xl relative text-white max-h-[92vh] overflow-y-auto">
+      <div className="mc-panel-dark w-full max-w-lg p-4 sm:p-5 shadow-2xl relative text-white max-h-[88vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-[#888] hover:text-white cursor-pointer p-1"
@@ -140,7 +144,10 @@ export function GuardrailsModal({
         </button>
 
         <div className="flex items-center gap-3 mb-3">
-          <div className="p-2 bg-[#1a110a] border-2 border-[#ffaa00] text-[#ffd700] text-xl">
+          <div
+            className="p-2 bg-[#1a110a] border-2 border-[#ffaa00] text-[#ffd700] text-xl mc-inner-box"
+            style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+          >
             🤖
           </div>
           <div>
@@ -160,11 +167,12 @@ export function GuardrailsModal({
               <div
                 key={rule.id || idx}
                 onClick={() => setSelectedRuleId(rule.id)}
-                className={`p-3 border-2 transition-all cursor-pointer flex items-start gap-3 ${
+                className={`p-3 border-2 transition-all cursor-pointer flex items-start gap-3 mc-inner-box ${
                   isSelected
                     ? 'bg-[#2b2210] border-[#ffd700] shadow-md'
                     : 'bg-[#1a1a1a] border-[#444] hover:border-[#666]'
                 }`}
+                style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
               >
                 <div className="pt-0.5">
                   <div
@@ -173,15 +181,24 @@ export function GuardrailsModal({
                         ? 'border-[#ffd700] bg-[#ffd700]'
                         : 'border-[#555] bg-transparent'
                     }`}
+                    style={{ borderRadius: 'calc(var(--theme-radius-slot, 0px) * 0.35)' }}
                   >
-                    {isSelected && <div className="w-1.5 h-1.5 bg-black" />}
+                    {isSelected && (
+                      <div
+                        className="w-1.5 h-1.5 bg-black"
+                        style={{ borderRadius: 'calc(var(--theme-radius-slot, 0px) * 0.2)' }}
+                      />
+                    )}
                   </div>
                 </div>
 
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1 gap-2">
                     <h4 className="text-xs font-bold text-white mc-font">{rule.title}</h4>
-                    <span className="text-[8px] mc-font text-[#ffd700] bg-[#221808] px-1.5 py-0.5 border border-[#885500] shrink-0">
+                    <span
+                      className="text-[8px] mc-font text-[#ffd700] bg-[#221808] px-1.5 py-0.5 border border-[#885500] shrink-0 mc-badge-pill"
+                      style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                    >
                       OPTION {idx + 1}
                     </span>
                   </div>
@@ -263,37 +280,38 @@ export function ResultModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-fadeIn select-none">
-      <div className="mc-panel-dark w-full max-w-xl p-5 sm:p-7 shadow-2xl relative text-white max-h-[92vh] overflow-y-auto">
+      <div className="mc-panel-dark w-full max-w-lg p-4 sm:p-5 shadow-2xl relative text-white max-h-[88vh] overflow-y-auto">
         {onClose && (
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 text-[#888] hover:text-white cursor-pointer p-1 transition-colors z-10"
+            className="absolute top-3.5 right-3.5 text-[#888] hover:text-white cursor-pointer p-1 transition-colors z-10"
             title="Close Debrief"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         )}
         {/* Header Icon & Title */}
-        <div className="text-center mb-4">
+        <div className="text-center mb-3">
           <div
-            className={`result-modal-badge w-12 h-12 mx-auto flex items-center justify-center mb-2.5 border-2 ${
+            className={`result-modal-badge w-10 h-10 mx-auto flex items-center justify-center mb-1.5 border-2 ${
               isFailure
                 ? 'bg-[#3a0000] border-[#ff3333] text-[#ff5555]'
                 : 'bg-[#002b00] border-[#55ff55] text-[#55ff55]'
             }`}
+            style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
           >
             {isFailure ? (
-              <AlertOctagon className="w-7 h-7 animate-bounce" />
+              <AlertOctagon className="w-5 h-5 animate-bounce" />
             ) : (
-              <CheckCircle2 className="w-7 h-7" />
+              <CheckCircle2 className="w-5 h-5" />
             )}
           </div>
 
-          <span className="text-[9px] mc-font uppercase tracking-widest text-[#aaa] block mb-1">
+          <span className="text-[8.5px] mc-font uppercase tracking-widest text-[#aaa] block mb-0.5">
             {actionResult.action_label}
           </span>
-          <h3 className="text-base sm:text-lg font-bold text-white mc-font tracking-wide">
+          <h3 className="text-sm sm:text-base font-bold text-white mc-font tracking-wide">
             {isGameOver
               ? 'Fatal Production Incident!'
               : isFailure
@@ -305,7 +323,10 @@ export function ResultModal({
 
           {/* Voting Consensus & Tie-Breaker Badges */}
           {actionResult.tie_broken && (
-            <div className="mt-2.5 bg-[#251505] border-2 border-[#ffaa00] p-2.5 text-left flex items-center gap-2">
+            <div
+              className="mt-2.5 bg-[#251505] border-2 border-[#ffaa00] p-2.5 text-left flex items-center gap-2 mc-inner-box"
+              style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+            >
               <span className="text-xl">🎲</span>
               <div>
                 <span className="text-[8px] mc-font text-[#ffd700] uppercase block">
@@ -319,7 +340,10 @@ export function ResultModal({
           )}
 
           {actionResult.winning_votes_count && !actionResult.tie_broken && (
-            <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#1a331a] text-[#55ff55] text-[9px] mc-font border border-[#2d5a2d]">
+            <div
+              className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#1a331a] text-[#55ff55] text-[9px] mc-font border border-[#2d5a2d] mc-badge-pill"
+              style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+            >
               <span>✓ Democratic Decision ({actionResult.winning_votes_count} of {actionResult.total_votes_cast} votes)</span>
             </div>
           )}
@@ -327,45 +351,57 @@ export function ResultModal({
 
         {/* Dice roll percentage graphic */}
         {isAcceptAsIs && actionResult.roll_value !== null && (
-          <div className="result-modal-roll-box bg-[#111] border-2 border-[#444] p-3 mb-4 text-center">
-            <div className="flex items-center justify-center gap-1.5 text-[9px] mc-font text-[#aaa] mb-1">
-              <Dice5 className={`w-3.5 h-3.5 ${animatingRoll ? 'animate-spin' : 'text-[#ffd700]'}`} />
+          <div
+            className="result-modal-roll-box bg-[#111] border-2 border-[#444] p-2 sm:p-2.5 mb-2.5 text-center mc-inner-box"
+            style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+          >
+            <div className="flex items-center justify-center gap-1 text-[8.5px] mc-font text-[#aaa] mb-0.5">
+              <Dice5 className={`w-3 h-3 ${animatingRoll ? 'animate-spin' : 'text-[#ffd700]'}`} />
               <span>RISK PROBABILITY ROLL</span>
             </div>
-            <div className="text-3xl sm:text-4xl font-bold mc-font tracking-widest text-[#ffd700] my-1">
+            <div className="text-2xl sm:text-3xl font-bold mc-font tracking-widest text-[#ffd700] my-0.5">
               {displayedRoll}%
             </div>
-            <p className="text-[9px] text-[#888] mc-font">
+            <p className="text-[8.5px] text-[#888] mc-font">
               Threshold: <strong className="text-white">{Math.round((actionResult.roll_threshold || 0.4) * 100)}%</strong> (Roll below = Clean Pass)
             </p>
           </div>
         )}
 
         {/* Feedback Narrative */}
-        <div className="result-modal-feedback-box bg-[#181818] border-2 border-[#333] p-3 mb-4">
-          <p className="text-xs text-[#ddd] leading-relaxed font-sans">
+        <div
+          className="result-modal-feedback-box bg-[#181818] border-2 border-[#333] p-2.5 mb-2.5 mc-inner-box"
+          style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+        >
+          <p className="text-[11.5px] text-[#ddd] leading-normal font-sans">
             {actionResult.feedback_message}
           </p>
         </div>
 
-        {/* Stats Impact Banner */}
-        <div className="grid grid-cols-2 gap-2.5 mb-5 mc-font text-center">
-          <div className="result-modal-stat-box bg-[#151515] border border-[#444] p-3">
-            <span className="text-[8px] text-[#aaa] block mb-0.5 uppercase">Health Impact</span>
+        {/* Stats Impact Banner (Clean 2-Column Grid) */}
+        <div className="grid grid-cols-2 gap-2 mb-3 mc-font text-center">
+          <div
+            className="result-modal-stat-box bg-[#151515] border border-[#444] p-2 mc-inner-box"
+            style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+          >
+            <span className="text-[7.5px] text-[#aaa] block mb-0.5 uppercase">Health Impact</span>
             <span
-              className={`text-base sm:text-lg font-bold ${
+              className={`text-sm sm:text-base font-bold ${
                 actionResult.health_delta >= 0 ? 'text-[#55ff55]' : 'text-[#ff5555]'
               }`}
             >
               {actionResult.health_delta >= 0 ? `+${actionResult.health_delta}%` : `${actionResult.health_delta}%`}
             </span>
-            <span className="text-[8px] text-[#777] block mt-0.5">Now: {actionResult.new_health}%</span>
+            <span className="text-[7.5px] text-[#777] block mt-0.5">Now: {actionResult.new_health}%</span>
           </div>
 
-          <div className="result-modal-stat-box bg-[#151515] border border-[#444] p-3">
-            <span className="text-[8px] text-[#aaa] block mb-0.5 uppercase">Tower Loss</span>
+          <div
+            className="result-modal-stat-box bg-[#151515] border border-[#444] p-2 mc-inner-box"
+            style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+          >
+            <span className="text-[7.5px] text-[#aaa] block mb-0.5 uppercase">Tower Loss</span>
             <span
-              className={`text-base sm:text-lg font-bold ${
+              className={`text-sm sm:text-base font-bold ${
                 isGameOver || hasBlocksToRemove ? 'text-[#ff5555]' : 'text-[#55ff55]'
               }`}
             >
@@ -375,19 +411,19 @@ export function ResultModal({
                 ? `-${actionResult.jenga_pulls} Blocks`
                 : '0 Blocks Lost'}
             </span>
-            <span className="text-[8px] text-[#777] block mt-0.5">
+            <span className="text-[7.5px] text-[#777] block mt-0.5">
               {isGameOver ? 'Critical Failure' : hasBlocksToRemove ? 'Mining from tower' : 'Tower Stable'}
             </span>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {isGameOver ? (
             <button
               type="button"
               onClick={onWatchCollapse}
-              className="mc-btn mc-btn-red w-full py-3.5 px-4 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer mc-font shadow-2xl animate-pulse"
+              className="mc-btn mc-btn-red w-full py-2.5 px-3 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer mc-font shadow-2xl animate-pulse"
             >
               <AlertOctagon className="w-4 h-4 text-white pointer-events-none" />
               <span className="pointer-events-none">SEE STATUS: WATCH TOWER COLLAPSE ➔</span>
@@ -396,7 +432,7 @@ export function ResultModal({
             <button
               type="button"
               onClick={onWatchRemoval}
-              className="mc-btn mc-btn-green w-full py-3 px-4 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer mc-font shadow-lg"
+              className="mc-btn mc-btn-green w-full py-2.5 px-3 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer mc-font shadow-lg"
             >
               <Rotate3d className="w-4 h-4 pointer-events-none" />
               <span className="pointer-events-none">Watch Block Removal (-{actionResult.jenga_pulls} Blocks)</span>
@@ -411,7 +447,7 @@ export function ResultModal({
                 isTimerPaused
                   ? 'opacity-60 cursor-not-allowed bg-[#444] border-[#666] text-[#aaa]'
                   : 'mc-btn-green cursor-pointer text-white'
-              } w-full py-3 px-4 text-xs font-bold flex items-center justify-center gap-2 mc-font shadow-lg transition-all`}
+              } w-full py-2.5 px-3 text-xs font-bold flex items-center justify-center gap-2 mc-font shadow-lg transition-all`}
             >
               <span className="pointer-events-none">
                 {isTimerPaused

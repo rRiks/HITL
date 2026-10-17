@@ -16,11 +16,14 @@ export default function GameOverModal({
 
   return (
     <div className="fixed inset-0 z-[60] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 select-none animate-fadeIn pointer-events-auto">
-      <div className="mc-panel-dark p-5 sm:p-6 shadow-2xl border-4 border-[#ff3333] max-w-xl w-full text-center space-y-4 relative">
+      <div className="mc-panel-dark p-4 sm:p-5 shadow-2xl border-4 border-[#ff3333] max-w-lg w-full text-center space-y-3 relative max-h-[88vh] overflow-y-auto">
         {/* Header: Catastrophic Incident Notice */}
         <div className="flex items-center justify-between gap-3 border-b-2 border-[#552222] pb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#3a0000] border-2 border-[#ff3333] flex items-center justify-center shrink-0">
+            <div
+              className="w-10 h-10 bg-[#3a0000] border-2 border-[#ff3333] flex items-center justify-center shrink-0 mc-inner-box"
+              style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+            >
               <span className="text-xl">💀</span>
             </div>
             <div className="text-left">
@@ -34,14 +37,20 @@ export default function GameOverModal({
           </div>
 
           <div className="text-right hidden sm:block">
-            <span className="text-[9px] mc-font px-2 py-0.5 bg-[#250505] text-[#ff5555] border border-[#aa0000]">
+            <span
+              className="text-[9px] mc-font px-2 py-0.5 bg-[#250505] text-[#ff5555] border border-[#aa0000] mc-badge-pill"
+              style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+            >
               TOWER TOPPLED
             </span>
           </div>
         </div>
 
         {/* Fatal Outage Log */}
-        <div className="bg-[#0e0c0a] border-2 border-[#442222] p-3 text-left">
+        <div
+          className="bg-[#0e0c0a] border-2 border-[#442222] p-3 text-left mc-inner-box"
+          style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+        >
           <div className="flex items-center gap-1.5 text-[9px] mc-font text-[#ff5555] mb-1.5">
             <Terminal className="w-3.5 h-3.5 text-[#ff5555] pointer-events-none" />
             <span>ROOT CAUSE TELEMETRY:</span>

@@ -47,6 +47,7 @@ export const spatialUITheme = {
         '--theme-radius-card': '18px',
         '--theme-radius-btn': '14px',
         '--theme-radius-slot': '12px',
+        '--theme-radius-badge': '9999px',
 
         // Holographic Horizon Borders
         '--theme-border': 'rgba(0, 240, 255, 0.25)',
@@ -111,6 +112,7 @@ export const spatialUITheme = {
         '--theme-radius-card': '18px',
         '--theme-radius-btn': '14px',
         '--theme-radius-slot': '12px',
+        '--theme-radius-badge': '9999px',
 
         // Borders & Structure
         '--theme-border': 'rgba(2, 132, 199, 0.25)',

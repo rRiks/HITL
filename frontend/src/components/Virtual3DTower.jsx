@@ -1387,31 +1387,39 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
 
       {/* Header: Hint Budget & Debt Count */}
       <div className="shrink-0 mb-1.5 flex items-center justify-between gap-2">
-        <span className={`text-[9.5px] px-2 py-0.5 mc-font border font-bold flex items-center gap-1.5 ${
-          hintsRemaining === 0
-            ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000]'
-            : hintsRemaining <= 2
-            ? 'text-[#ffaa00] border-[#aa5500] bg-[#3a2200]'
-            : 'text-[#ffd700] border-[#554400] bg-[#221a00]'
-        }`}>
+        <span
+          className={`text-[9.5px] px-2 py-0.5 mc-font border font-bold flex items-center gap-1.5 mc-badge-pill ${
+            hintsRemaining === 0
+              ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000]'
+              : hintsRemaining <= 2
+              ? 'text-[#ffaa00] border-[#aa5500] bg-[#3a2200]'
+              : 'text-[#ffd700] border-[#554400] bg-[#221a00]'
+          }`}
+          style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+        >
           <span>💡</span>
           <span>HINTS: {hintsRemaining}/{maxHints}</span>
         </span>
 
-        <span className={`text-[9.5px] px-2 py-0.5 mc-font border font-bold ${
-          technicalDebt >= 4
-            ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000] animate-pulse'
-            : technicalDebt > 0
-            ? 'text-[#ffaa00] border-[#aa5500] bg-[#3a2200]'
-            : 'text-[#888] border-[#444] bg-[#1a1a1a]'
-        }`}>
+        <span
+          className={`text-[9.5px] px-2 py-0.5 mc-font border font-bold mc-badge-pill ${
+            technicalDebt >= 4
+              ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000] animate-pulse'
+              : technicalDebt > 0
+              ? 'text-[#ffaa00] border-[#aa5500] bg-[#3a2200]'
+              : 'text-[#888] border-[#444] bg-[#1a1a1a]'
+          }`}
+          style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+        >
           DEBT: {technicalDebt}/5 {technicalDebt >= 4 ? '⚠️ FRAGILE' : ''}
         </span>
       </div>
 
-
       {/* 3D WebGL Canvas with Close-up Focus & Minecraft Crosshair */}
-      <div className="relative w-full flex-1 min-h-[200px] bg-[#101318] border-2 border-[#333] overflow-hidden group select-none shadow-inner">
+      <div
+        className="relative w-full flex-1 min-h-[200px] bg-[#101318] border-2 border-[#333] overflow-hidden group select-none shadow-inner mc-inner-box"
+        style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+      >
         <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
         {/* Full-view Target Reticle */}
@@ -1427,7 +1435,10 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
             </div>
 
             {/* Bottom Live Extraction Status Ticker */}
-            <div className="self-center bg-[#1a110a]/95 border-2 border-[#ffd700] text-[#ffd700] px-3 py-1 text-[9px] mc-font flex items-center gap-2 backdrop-blur-md shadow-xl">
+            <div
+              className="self-center bg-[#1a110a]/95 border-2 border-[#ffd700] text-[#ffd700] px-3 py-1 text-[9px] mc-font flex items-center gap-2 backdrop-blur-md shadow-xl mc-badge-pill"
+              style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+            >
               <span className="w-2 h-2 bg-[#ff5555] animate-ping inline-block" />
               <span>BLOCK DESTABILIZATION IN PROGRESS...</span>
             </div>
@@ -1460,7 +1471,10 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
         </div>
 
         {/* Drag Hint */}
-        <div className="absolute bottom-2 left-2 text-[9px] mc-font text-[#ccc] pointer-events-none flex items-center gap-1.5 bg-[#1e1e1e]/90 px-2 py-1 border border-[#555] backdrop-blur-sm shadow-sm">
+        <div
+          className="absolute bottom-2 left-2 text-[9px] mc-font text-[#ccc] pointer-events-none flex items-center gap-1.5 bg-[#1e1e1e]/90 px-2 py-1 border border-[#555] backdrop-blur-sm shadow-sm mc-badge-pill"
+          style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+        >
           <Rotate3d className="w-3 h-3 text-[#ffd700]" />
           <span>DRAG TO ORBIT • VOXEL WORLD 360°</span>
         </div>

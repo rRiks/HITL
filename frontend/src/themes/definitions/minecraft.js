@@ -47,6 +47,7 @@ export const minecraftTheme = {
         '--theme-radius-card': '0px',
         '--theme-radius-btn': '0px',
         '--theme-radius-slot': '0px',
+        '--theme-radius-badge': '0px',
 
         // Borders & Bevels
         '--theme-border': '#4a4238',
@@ -111,6 +112,7 @@ export const minecraftTheme = {
         '--theme-radius-card': '0px',
         '--theme-radius-btn': '0px',
         '--theme-radius-slot': '0px',
+        '--theme-radius-badge': '0px',
 
         // Borders & Bevels
         '--theme-border': '#c2b3a1',

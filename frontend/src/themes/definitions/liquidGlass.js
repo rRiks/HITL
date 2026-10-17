@@ -47,6 +47,7 @@ export const liquidGlassTheme = {
         '--theme-radius-card': '22px',
         '--theme-radius-btn': '9999px', // Pill
         '--theme-radius-slot': '14px',
+        '--theme-radius-badge': '9999px',
 
         // Iridescent Fluid Borders & Specular Sheen
         '--theme-border': 'rgba(192, 132, 252, 0.3)',
@@ -111,6 +112,7 @@ export const liquidGlassTheme = {
         '--theme-radius-card': '22px',
         '--theme-radius-btn': '9999px',
         '--theme-radius-slot': '14px',
+        '--theme-radius-badge': '9999px',
 
         // Borders & Structure
         '--theme-border': 'rgba(124, 58, 237, 0.2)',

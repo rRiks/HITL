@@ -47,6 +47,7 @@ export const bentoGridTheme = {
         '--theme-radius-card': '14px',
         '--theme-radius-btn': '10px',
         '--theme-radius-slot': '8px',
+        '--theme-radius-badge': '6px',
 
         // Borders & Structure
         '--theme-border': '#30363d',
@@ -111,6 +112,7 @@ export const bentoGridTheme = {
         '--theme-radius-card': '14px',
         '--theme-radius-btn': '10px',
         '--theme-radius-slot': '8px',
+        '--theme-radius-badge': '6px',
 
         // Borders & Structure
         '--theme-border': '#e2e8f0',

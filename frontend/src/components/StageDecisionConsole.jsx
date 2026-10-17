@@ -84,11 +84,12 @@ function StageDecisionConsole({
               return (
                 <div
                   key={player.player_id}
-                  className={`flex items-center gap-1 px-1.5 py-0.5 text-[8px] mc-font border transition-all ${
+                  className={`flex items-center gap-1 px-1.5 py-0.5 text-[8px] mc-font border transition-all mc-badge-pill ${
                     hasVoted
                       ? 'bg-[#1a331a] border-[#2d5a2d] text-[#55ff55]'
                       : 'bg-[#282828] border-[#444] text-[#888]'
                   }`}
+                  style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
                 >
                   <span
                     className={`w-1.5 h-1.5 inline-block ${
@@ -123,12 +124,18 @@ function StageDecisionConsole({
         >
           <div>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[8px] mc-font text-[#ffd700] bg-[#332200] px-1 border border-[#664400]">
+              <span
+                className="text-[8px] mc-font text-[#ffd700] bg-[#332200] px-1 border border-[#664400] mc-badge-pill"
+                style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+              >
                 SLOT 1
               </span>
               <div className="flex items-center gap-1">
                 {(votesTally['accept_as_is'] || 0) > 0 && (
-                  <span className="text-[8.5px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                  <span
+                    className="text-[8.5px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d] mc-badge-pill"
+                    style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                  >
                     +{votesTally['accept_as_is']}
                   </span>
                 )}
@@ -174,12 +181,18 @@ function StageDecisionConsole({
         >
           <div>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[8px] mc-font text-[#aaa] bg-[#222] px-1 border border-[#444]">
+              <span
+                className="text-[8px] mc-font text-[#aaa] bg-[#222] px-1 border border-[#444] mc-badge-pill"
+                style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+              >
                 SLOT 2
               </span>
               <div className="flex items-center gap-1">
                 {(votesTally['deny_and_move_on'] || 0) > 0 && (
-                  <span className="text-[8.5px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                  <span
+                    className="text-[8.5px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d] mc-badge-pill"
+                    style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                  >
                     +{votesTally['deny_and_move_on']}
                   </span>
                 )}
@@ -226,12 +239,18 @@ function StageDecisionConsole({
           <div>
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[8px] mc-font text-[#55ffff] bg-[#002233] px-1 border border-[#005577]">
+                <span
+                  className="text-[8px] mc-font text-[#55ffff] bg-[#002233] px-1 border border-[#005577] mc-badge-pill"
+                  style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                >
                   SLOT 3
                 </span>
                 <div className="flex items-center gap-1">
                   {(votesTally['custom_prompt'] || 0) > 0 && (
-                    <span className="text-[8.5px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                    <span
+                      className="text-[8.5px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d] mc-badge-pill"
+                      style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                    >
                       +{votesTally['custom_prompt']}
                     </span>
                   )}
@@ -248,7 +267,10 @@ function StageDecisionConsole({
             </div>
 
             {customPromptDraft?.text ? (
-              <div className="bg-[#111] border border-[#005577] p-1 my-1 text-[8.5px] text-[#aaddff]">
+              <div
+                className="bg-[#111] border border-[#005577] p-1 my-1 text-[8.5px] text-[#aaddff] mc-inner-box"
+                style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+              >
                 <div className="flex items-center justify-between mb-0.5 text-[7.5px] text-[#55ffff] mc-font">
                   <span>BY {customPromptDraft.player_name}:</span>
                   <button
@@ -305,12 +327,18 @@ function StageDecisionConsole({
           <div>
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[8px] mc-font text-[#ffaa00] bg-[#2a1a00] px-1 border border-[#885500]">
+                <span
+                  className="text-[8px] mc-font text-[#ffaa00] bg-[#2a1a00] px-1 border border-[#885500] mc-badge-pill"
+                  style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                >
                   SLOT 4
                 </span>
                 <div className="flex items-center gap-1">
                   {(votesTally['suggest_change'] || 0) > 0 && (
-                    <span className="text-[8.5px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                    <span
+                      className="text-[8.5px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d] mc-badge-pill"
+                      style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                    >
                       +{votesTally['suggest_change']}
                     </span>
                   )}
@@ -327,7 +355,10 @@ function StageDecisionConsole({
             </div>
 
             {guardrailRuleDraft?.title ? (
-              <div className="bg-[#111] border border-[#ffaa00] p-1 my-1 text-[8.5px] text-[#ffddaa]">
+              <div
+                className="bg-[#111] border border-[#ffaa00] p-1 my-1 text-[8.5px] text-[#ffddaa] mc-inner-box"
+                style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+              >
                 <div className="flex items-center justify-between mb-0.5 text-[7.5px] text-[#ffd700] mc-font">
                   <span>BY {guardrailRuleDraft.player_name}:</span>
                   <button

@@ -147,7 +147,10 @@ function Navbar({
       {/* Left: Branding & 11-Stage Circuit Nodes */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-[#3c3c3c] border-2 border-[#555] flex items-center justify-center shadow-md text-base shrink-0">
+          <div
+            className="w-8 h-8 bg-[#3c3c3c] border-2 border-[#555] flex items-center justify-center shadow-md text-base shrink-0 mc-hud-box"
+            style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+          >
             ⛏️
           </div>
           <div>
@@ -155,13 +158,17 @@ function Navbar({
               <span className="font-bold text-[#ffd700] text-xs sm:text-sm tracking-wider mc-font">
                 HITL MINECRAFT
               </span>
-              <span className="hidden md:inline text-[8px] mc-font px-1.5 py-0.5 bg-[#2a2a2a] text-[#aaa] border border-[#444]">
+              <span
+                className="hidden md:inline text-[8px] mc-font px-1.5 py-0.5 bg-[#2a2a2a] text-[#aaa] border border-[#444] mc-badge-pill"
+                style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+              >
                 WORLD AIDLC
               </span>
               <button
                 onClick={handleCopyInvite}
                 title="Copy realm link or PIN for teammates"
-                className="text-[8px] mc-font px-2 py-0.5 bg-[#2a1d0d] hover:bg-[#3a2812] text-[#ffd700] border-2 border-[#ffd700] flex items-center gap-1.5 cursor-pointer transition-all shadow-sm"
+                className="text-[8px] mc-font px-2 py-0.5 bg-[#2a1d0d] hover:bg-[#3a2812] text-[#ffd700] border-2 border-[#ffd700] flex items-center gap-1.5 cursor-pointer transition-all shadow-sm mc-badge-pill"
+                style={{ borderRadius: 'var(--theme-radius-btn, 0px)' }}
               >
                 {copiedLink ? <Check className="w-3 h-3 text-[#55ff55]" /> : <Share2 className="w-3 h-3 text-[#ffd700]" />}
                 <span className="font-bold">PIN: {displayPin}</span>
@@ -173,7 +180,10 @@ function Navbar({
                 <span className="w-1.5 h-1.5 bg-[#55ff55] animate-pulse shrink-0 inline-block" />
                 <span>REALM: <strong className="text-white">{teamName}</strong></span>
               </span>
-              <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.2 bg-[#2d241e] text-[#ffaa00] border border-[#553311] text-[8px]">
+              <span
+                className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.2 bg-[#2d241e] text-[#ffaa00] border border-[#553311] text-[8px] mc-badge-pill"
+                style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+              >
                 <User className="w-2.5 h-2.5 text-[#ffd700]" />
                 <span>{getPlayerName()}</span>
               </span>
@@ -182,7 +192,10 @@ function Navbar({
         </div>
 
         {/* Compact 11-Segment Stage Progression Indicator */}
-        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#15120e] border border-[#ffaa00]/40 shrink-0">
+        <div
+          className="flex items-center gap-1.5 px-2 py-1 bg-[#15120e] border border-[#ffaa00]/40 shrink-0 mc-hud-box"
+          style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+        >
           <span className="text-[9px] mc-font text-[#ffd700] whitespace-nowrap">LV{stageNumber}/{totalStages}</span>
           <div className="hidden sm:flex items-center gap-0.5">
             {Array.from({ length: totalStages }).map((_, i) => {
@@ -201,6 +214,7 @@ function Navbar({
                       ? 'bg-[#55ff55] border-[#2d5a2d]'
                       : 'bg-[#2a2a2a] border-[#444]'
                   }`}
+                  style={{ borderRadius: 'calc(var(--theme-radius-slot, 0px) * 0.25)' }}
                 />
               );
             })}
@@ -209,7 +223,10 @@ function Navbar({
       </div>
 
       {/* Center: Authentic 10 Minecraft Hearts Bar */}
-      <div className="hidden md:flex items-center gap-2 bg-[#121212] border-2 border-[#333] px-2 sm:px-2.5 py-1 shadow-inner shrink-0">
+      <div
+        className="hidden md:flex items-center gap-2 bg-[#121212] border-2 border-[#333] px-2 sm:px-2.5 py-1 shadow-inner shrink-0 mc-hud-box"
+        style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+      >
         <div className="flex items-center gap-0.5">
           {hearts.map((state, idx) => (
             <MinecraftHeart key={idx} state={state} shake={isLowHealth} />
@@ -226,7 +243,7 @@ function Navbar({
       <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 ml-auto">
         {/* Minecraft Clock Timer */}
         <div
-          className={`flex items-center gap-1.5 px-2 py-1 border-2 mc-font transition-all shrink-0 ${
+          className={`flex items-center gap-1.5 px-2 py-1 border-2 mc-font transition-all shrink-0 mc-hud-box ${
             isTimerPaused
               ? 'bg-[#332200] border-[#ffd700] text-[#ffd700] animate-pulse shadow-md shadow-amber-900/40'
               : isUrgent
@@ -235,6 +252,7 @@ function Navbar({
               ? 'bg-[#550000] border-[#ff0000] text-[#ffffff] animate-bounce'
               : 'bg-[#252525] border-[#444] text-[#ffd700]'
           }`}
+          style={{ borderRadius: 'var(--theme-radius-btn, 0px)' }}
           title={isTimerPaused ? 'Game Master paused the countdown timer' : 'Stage countdown timer'}
         >
           <Clock className={`w-3.5 h-3.5 ${isTimerPaused ? 'text-[#ffd700]' : isUrgent ? 'text-[#ff5555] animate-spin' : 'text-[#ffd700]'}`} />
@@ -243,7 +261,10 @@ function Navbar({
               {formattedTime}
             </span>
             {isTimerPaused && (
-              <span className="hidden sm:inline-block text-[8px] bg-[#553300] px-1 py-0.2 border border-[#ffd700] text-[#ffd700] ml-0.5">
+              <span
+                className="hidden sm:inline-block text-[8px] bg-[#553300] px-1 py-0.2 border border-[#ffd700] text-[#ffd700] ml-0.5 mc-badge-pill"
+                style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+              >
                 PAUSED
               </span>
             )}

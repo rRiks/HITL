@@ -261,12 +261,18 @@ export default function StageArena({
           >
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[8px] mc-font text-[#ffd700] bg-[#332200] px-1 border border-[#664400]">
+                <span
+                  className="text-[8px] mc-font text-[#ffd700] bg-[#332200] px-1 border border-[#664400] mc-badge-pill"
+                  style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                >
                   SLOT 1
                 </span>
                 <div className="flex items-center gap-1">
                   {(votesTally['accept_as_is'] || 0) > 0 && (
-                    <span className="text-[9px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                    <span
+                      className="text-[9px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d] mc-badge-pill"
+                      style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                    >
                       +{votesTally['accept_as_is']}
                     </span>
                   )}
@@ -314,12 +320,18 @@ export default function StageArena({
           >
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[8px] mc-font text-[#aaa] bg-[#222] px-1 border border-[#444]">
+                <span
+                  className="text-[8px] mc-font text-[#aaa] bg-[#222] px-1 border border-[#444] mc-badge-pill"
+                  style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                >
                   SLOT 2
                 </span>
                 <div className="flex items-center gap-1">
                   {(votesTally['deny_and_move_on'] || 0) > 0 && (
-                    <span className="text-[9px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                    <span
+                      className="text-[9px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d] mc-badge-pill"
+                      style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                    >
                       +{votesTally['deny_and_move_on']}
                     </span>
                   )}
@@ -367,12 +379,18 @@ export default function StageArena({
           >
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[8px] mc-font text-[#55ffff] bg-[#002233] px-1 border border-[#005577]">
+                <span
+                  className="text-[8px] mc-font text-[#55ffff] bg-[#002233] px-1 border border-[#005577] mc-badge-pill"
+                  style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                >
                   SLOT 3
                 </span>
                 <div className="flex items-center gap-1">
                   {(votesTally['custom_prompt'] || 0) > 0 && (
-                    <span className="text-[9px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                    <span
+                      className="text-[9px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d] mc-badge-pill"
+                      style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                    >
                       +{votesTally['custom_prompt']}
                     </span>
                   )}
@@ -389,7 +407,10 @@ export default function StageArena({
 
               {/* Collaborative Draft Preview */}
               {customPromptDraft?.text ? (
-                <div className="bg-[#111] border border-[#005577] p-1 my-1 text-[9px] text-[#aaddff]">
+                <div
+                  className="bg-[#111] border border-[#005577] p-1 my-1 text-[9px] text-[#aaddff] mc-inner-box"
+                  style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
+                >
                   <div className="flex items-center justify-between mb-0.5 text-[8px] text-[#55ffff] mc-font">
                     <span>BY {customPromptDraft.player_name}:</span>
                     <button
@@ -447,12 +468,18 @@ export default function StageArena({
           >
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[8px] mc-font text-[#ffaa00] bg-[#2a1a00] px-1 border border-[#885500]">
+                <span
+                  className="text-[8px] mc-font text-[#ffaa00] bg-[#2a1a00] px-1 border border-[#885500] mc-badge-pill"
+                  style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                >
                   SLOT 4
                 </span>
                 <div className="flex items-center gap-1">
                   {(votesTally['suggest_change'] || 0) > 0 && (
-                    <span className="text-[9px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                    <span
+                      className="text-[9px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d] mc-badge-pill"
+                      style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
+                    >
                       +{votesTally['suggest_change']}
                     </span>
                   )}

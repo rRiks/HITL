@@ -47,6 +47,7 @@ export const pixelArtTheme = {
         '--theme-radius-card': '0px',
         '--theme-radius-btn': '0px',
         '--theme-radius-slot': '0px',
+        '--theme-radius-badge': '0px',
 
         // Borders & Retro Outlines
         '--theme-border': '#ff007f',
@@ -111,6 +112,7 @@ export const pixelArtTheme = {
         '--theme-radius-card': '0px',
         '--theme-radius-btn': '0px',
         '--theme-radius-slot': '0px',
+        '--theme-radius-badge': '0px',
 
         // Borders & Solid Pixel Outlines
         '--theme-border': '#0f380f',
