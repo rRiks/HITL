@@ -122,32 +122,53 @@ function StageDecisionConsole({
               <span className="text-[10px] opacity-75 font-normal">({consensusPct}%)</span>
             </div>
 
-            {/* Subtext */}
-            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider hidden sm:inline">
-              (LOCKS AT 100%)
-            </span>
+            {/* Dynamic Status Subtext */}
+            {totalVotesCast === 0 ? (
+              <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider hidden sm:inline">
+                (Awaiting Votes)
+              </span>
+            ) : totalVotesCast >= totalActivePlayers ? (
+              <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider hidden sm:inline flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping inline-block" />
+                (All Votes Cast • Ready to Resolve)
+              </span>
+            ) : (
+              <span className="text-[10px] font-medium text-amber-300 uppercase tracking-wider hidden sm:inline">
+                ({totalVotesCast} of {totalActivePlayers} Voted • Ready to Resolve)
+              </span>
+            )}
 
             {/* Subtle Inline Progress Bar */}
             <div className="w-20 sm:w-28 h-1.5 bg-slate-800 rounded-full overflow-hidden border border-white/5">
               <div
-                className="h-full bg-emerald-400 transition-all duration-300 rounded-full"
+                className={`h-full transition-all duration-300 rounded-full ${
+                  totalVotesCast >= totalActivePlayers ? 'bg-emerald-400' : 'bg-amber-400'
+                }`}
                 style={{ width: `${consensusPct}%` }}
               />
             </div>
           </div>
 
-          {/* Right Action: Resolve Now Button (if votes exist & not taken) */}
-          {!stageActionTaken && totalVotesCast > 0 && onCommitDecision && !isTimerPaused && (
+          {/* Right Action: Resolve Now Button (APPEARS AS SOON AS AT LEAST 1 VOTE IS CAST) */}
+          {!stageActionTaken && totalVotesCast >= 1 && onCommitDecision && !isTimerPaused && (
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 onCommitDecision();
               }}
-              className="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs ml-auto shrink-0"
-              title="Lock in current votes and resolve immediately"
+              className={`px-3 py-1.5 text-xs font-bold rounded-md flex items-center gap-1.5 cursor-pointer transition-all shadow-md ml-auto shrink-0 ${
+                totalVotesCast >= totalActivePlayers
+                  ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/25 ring-2 ring-emerald-400/50 animate-pulse'
+                  : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
+              }`}
+              title={
+                totalVotesCast >= totalActivePlayers
+                  ? 'All players voted! Click to submit decision immediately, or wait for timer'
+                  : `Submit decision now with ${totalVotesCast} of ${totalActivePlayers} votes`
+              }
             >
-              <Zap className="w-3 h-3 text-amber-400" />
+              <Zap className={`w-3.5 h-3.5 ${totalVotesCast >= totalActivePlayers ? 'text-slate-950 fill-current' : 'text-amber-400'}`} />
               <span>RESOLVE NOW</span>
             </button>
           )}

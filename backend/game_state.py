@@ -250,16 +250,9 @@ class GameStateManager:
         # Record or update vote
         self.votes[req.player_id] = req.action_type
 
-        # Check if decision should resolve immediately:
-        active = self.get_active_players()
-        tally = self.get_votes_tally()
-        max_v = max(tally.values(), default=0)
-
-        # 1. Only 1 active player online in room (solo / test) -> resolve immediately
-        # 2. All active players have voted -> resolve immediately
-        # 3. An action holds strict mathematical majority (> active / 2) -> resolve immediately
-        if len(active) <= 1 or all(p.player_id in self.votes for p in active) or (len(active) > 1 and max_v > len(active) / 2):
-            self.resolve_voting(is_timeout=False, time_spent_seconds=req.time_spent_seconds)
+        # NOTE: Do NOT auto-resolve on consensus, majority, or solo play.
+        # Decisions are submitted only when someone clicks "Resolve Now" (/commit-decision)
+        # or when the countdown timer runs out (/resolve-timeout).
 
         return self.get_state()
 
