@@ -48,9 +48,9 @@ function StageScenarioViewer({
   };
 
   return (
-    <div className="flex flex-col h-full min-h-0 bg-slate-900/60 border border-white/10 rounded-xl overflow-hidden shadow-xl select-none">
-      {/* 1. Compact Context Header (Story + PR Callout) */}
-      <div className="p-2.5 [@media(min-height:860px)]:p-4 pb-2.5 shrink-0 border-b border-white/10 bg-slate-950/40">
+    <div className="flex flex-col h-full min-h-0 gap-2 [@media(min-height:860px)]:gap-2.5 select-none overflow-hidden">
+      {/* 1. Context & User Story Card */}
+      <div className="shrink-0 bg-slate-900/80 border border-white/10 rounded-xl p-3 [@media(min-height:860px)]:p-3.5 shadow-sm">
         {/* Top meta strip */}
         <div className="flex items-center justify-between gap-2 mb-1.5">
           <div className="flex items-center gap-2 min-w-0">
@@ -64,10 +64,6 @@ function StageScenarioViewer({
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            <div className="hidden sm:flex items-center gap-1.5 text-xs xl:text-sm font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-md">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>AI Proposal</span>
-            </div>
             <button
               type="button"
               onClick={() => setIsExpandedModalOpen(true)}
@@ -81,36 +77,36 @@ function StageScenarioViewer({
         </div>
 
         {/* User Story Title & Summary */}
-        <h2 className="font-theme-heading text-[clamp(1rem,1.8vh,1.35rem)] font-bold tracking-tight text-white mb-1 leading-tight">
+        <h2 className="font-theme-heading text-[clamp(0.95rem,1.6vh,1.25rem)] font-bold tracking-tight text-white mb-1 leading-tight">
           {stage.ticket_title || stage.title}
         </h2>
-        <p className="text-xs [@media(min-height:860px)]:text-[14px] leading-relaxed text-slate-300 font-sans select-text line-clamp-2">
+        <p className="text-xs [@media(min-height:860px)]:text-[13.5px] leading-relaxed text-slate-300 font-sans select-text line-clamp-2">
           {stage.story}
         </p>
-
-        {/* Inline PR Commit Callout with Left Accent Border */}
-        <div className="mt-2 [@media(min-height:860px)]:mt-3 border-l-4 border-amber-500 bg-amber-500/5 px-3 [@media(min-height:860px)]:px-4 py-1.5 [@media(min-height:860px)]:py-2.5 rounded-r-md border-y border-r border-amber-500/10">
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <div className="flex items-center gap-2">
-              <GitPullRequest className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
-                AI Golem Proposal
-              </span>
-            </div>
-            <code className="text-emerald-400 font-mono text-xs bg-slate-950/70 px-2 py-0.5 rounded border border-white/10 select-all">
-              {stage.file_name}
-            </code>
-          </div>
-          <p className="text-xs [@media(min-height:860px)]:text-sm text-amber-100/90 italic font-sans select-text leading-relaxed">
-            "{stage.ai_proposal_summary}"
-          </p>
-        </div>
       </div>
 
-      {/* 2. Dominant Diff Viewer (flex-1, line-numbered, scaled code typography) */}
-      <div className="flex-1 min-h-[160px] flex flex-col bg-slate-950/90 overflow-hidden">
+      {/* 2. AI Golem Proposal Card */}
+      <div className="shrink-0 bg-slate-900/80 border border-white/10 border-l-4 border-l-amber-500 rounded-xl px-3.5 py-2 [@media(min-height:860px)]:py-2.5 shadow-sm">
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-amber-300 font-medium">
+              AI Golem Proposal
+            </span>
+          </div>
+          <code className="text-emerald-400 font-mono text-xs bg-slate-950/70 px-2 py-0.5 rounded border border-white/10 select-all truncate max-w-[320px]">
+            {stage.file_name}
+          </code>
+        </div>
+        <p className="text-xs [@media(min-height:860px)]:text-[13.5px] text-amber-100/90 italic font-sans select-text leading-relaxed">
+          "{stage.ai_proposal_summary}"
+        </p>
+      </div>
+
+      {/* 3. Dominant Code Diff Viewer Card */}
+      <div className="flex-1 min-h-[160px] flex flex-col bg-slate-900/80 border border-white/10 rounded-xl overflow-hidden shadow-sm">
         {/* Diff Toolbar */}
-        <div className="px-3.5 py-2 border-b border-white/10 bg-slate-900/60 flex items-center justify-between text-xs xl:text-sm text-slate-400 shrink-0">
+        <div className="px-3.5 py-2 border-b border-white/10 bg-slate-900/90 flex items-center justify-between text-xs xl:text-sm text-slate-400 shrink-0">
           <div className="flex items-center gap-2">
             <FileCode className="w-4 h-4 text-slate-400" />
             <span className="font-mono text-xs xl:text-sm text-slate-200">{stage.file_name}</span>
@@ -130,37 +126,32 @@ function StageScenarioViewer({
         {/* Diff Workspace with Softly-Clipped Ghost Filler */}
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-slate-950">
           {/* Actual Diff Lines: Only scrolls if actual diff code + end footer exceeds viewport height */}
-          <div className="p-2 font-mono text-[12.5px] [@media(min-height:860px)]:text-[14px] overflow-y-auto overflow-x-auto max-h-full leading-6 [@media(min-height:860px)]:leading-7 select-text divide-y divide-white/[0.02]">
+          <div className="p-2 font-mono text-[12.5px] [@media(min-height:860px)]:text-[14px] overflow-y-auto overflow-x-auto max-h-full leading-6 [@media(min-height:860px)]:leading-7 select-text">
             {diffLines.map((line, idx) => {
               const isAdd = line.startsWith('+') && !line.startsWith('+++');
               const isRemove = line.startsWith('-') && !line.startsWith('---');
               const isHeader = line.startsWith('@@');
               const isFileMeta = line.startsWith('---') || line.startsWith('+++');
 
-              let rowBg = 'hover:bg-white/[0.02] text-slate-300';
               let lineTextColor = 'text-slate-300';
 
               if (isAdd) {
-                rowBg = 'bg-emerald-950/30 hover:bg-emerald-950/40 border-l-2 border-emerald-500';
-                lineTextColor = 'text-emerald-300 font-medium';
+                lineTextColor = 'text-emerald-400 font-medium';
               } else if (isRemove) {
-                rowBg = 'bg-rose-950/30 hover:bg-rose-950/40 border-l-2 border-rose-500';
-                lineTextColor = 'text-rose-300 font-medium';
+                lineTextColor = 'text-rose-400 font-medium';
               } else if (isHeader) {
-                rowBg = 'bg-sky-950/20 text-sky-400 font-medium border-l-2 border-sky-500/40';
-                lineTextColor = 'text-sky-400';
+                lineTextColor = 'text-sky-400 font-medium';
               } else if (isFileMeta) {
-                rowBg = 'text-slate-500 bg-slate-900/40';
-                lineTextColor = 'text-slate-400 font-mono';
+                lineTextColor = 'text-slate-500 font-mono';
               }
 
               return (
                 <div
                   key={idx}
-                  className={`flex items-start py-0.5 px-2 transition-colors ${rowBg}`}
+                  className="flex items-start py-0.5 px-2 hover:bg-white/[0.03] transition-colors"
                 >
                   {/* Line number gutter */}
-                  <span className="w-9 xl:w-11 shrink-0 text-right pr-3.5 text-slate-500 select-none font-mono text-xs xl:text-sm leading-6 [@media(min-height:860px)]:leading-7">
+                  <span className="w-9 xl:w-11 shrink-0 text-right pr-3.5 text-slate-600 select-none font-mono text-xs xl:text-sm leading-6 [@media(min-height:860px)]:leading-7">
                     {idx + 1}
                   </span>
                   {/* Diff line code content */}
@@ -192,8 +183,8 @@ function StageScenarioViewer({
         </div>
       </div>
 
-      {/* 3. Docked Hint Footer (Bottom Status Drawer with Smooth Transition) */}
-      <div className="shrink-0 border-t border-white/10 bg-slate-950/90 px-4 py-3 transition-all duration-200">
+      {/* 4. Docked Architectural Telemetry Hint Card */}
+      <div className="shrink-0 bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 [@media(min-height:860px)]:px-4 [@media(min-height:860px)]:py-3 shadow-sm transition-all duration-200">
         {!isHintRevealed ? (
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
@@ -371,34 +362,29 @@ function StageScenarioViewer({
                   </div>
                   <span className="text-[10px] text-slate-500">UNIFIED DIFF</span>
                 </div>
-                <div className="p-3 font-mono text-xs overflow-y-auto overflow-x-auto flex-1 leading-relaxed select-text bg-slate-950 divide-y divide-white/[0.02]">
+                <div className="p-3 font-mono text-xs overflow-y-auto overflow-x-auto flex-1 leading-relaxed select-text bg-slate-950">
                   {diffLines.map((line, idx) => {
                     const isAdd = line.startsWith('+') && !line.startsWith('+++');
                     const isRemove = line.startsWith('-') && !line.startsWith('---');
                     const isHeader = line.startsWith('@@');
                     const isFileMeta = line.startsWith('---') || line.startsWith('+++');
 
-                    let rowBg = 'hover:bg-white/[0.02] text-slate-300';
                     let lineTextColor = 'text-slate-300';
 
                     if (isAdd) {
-                      rowBg = 'bg-emerald-950/30 hover:bg-emerald-950/40 border-l-2 border-emerald-500';
-                      lineTextColor = 'text-emerald-300 font-medium';
+                      lineTextColor = 'text-emerald-400 font-medium';
                     } else if (isRemove) {
-                      rowBg = 'bg-rose-950/30 hover:bg-rose-950/40 border-l-2 border-rose-500';
-                      lineTextColor = 'text-rose-300 font-medium';
+                      lineTextColor = 'text-rose-400 font-medium';
                     } else if (isHeader) {
-                      rowBg = 'bg-sky-950/20 text-sky-400 font-medium border-l-2 border-sky-500/40';
-                      lineTextColor = 'text-sky-400';
+                      lineTextColor = 'text-sky-400 font-medium';
                     } else if (isFileMeta) {
-                      rowBg = 'text-slate-500 bg-slate-900/40';
-                      lineTextColor = 'text-slate-400 font-mono';
+                      lineTextColor = 'text-slate-500 font-mono';
                     }
 
                     return (
                       <div
                         key={idx}
-                        className={`flex items-start text-xs py-0.5 px-2 transition-colors ${rowBg}`}
+                        className="flex items-start text-xs py-0.5 px-2 hover:bg-white/[0.03] transition-colors"
                       >
                         <span className="w-10 shrink-0 text-right pr-3 text-slate-600 select-none font-mono text-[11px] leading-5">
                           {idx + 1}
