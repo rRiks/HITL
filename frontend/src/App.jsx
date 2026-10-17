@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Navbar from './components/Navbar';
-import LiveLeaderboardTicker from './components/LiveLeaderboardTicker';
+import StageScenarioViewer from './components/StageScenarioViewer';
+import StageDecisionConsole from './components/StageDecisionConsole';
 import StageArena from './components/StageArena';
 import Virtual3DTower from './components/Virtual3DTower';
 import WelcomeScreen from './components/WelcomeScreen';
@@ -961,60 +962,56 @@ export default function App() {
         </div>
       )}
 
-      {/* 2. Room Rivalry Leaderboard Ticker */}
-      <LiveLeaderboardTicker
-        currentRoomId={roomId}
-        currentTeamName={gameState?.team_name || 'Alpha Devs'}
-        currentHealth={gameState?.health ?? 100}
-        currentStage={(gameState?.current_stage_index ?? 0) + 1}
-        totalStages={gameState?.total_stages ?? 11}
-        totalPulls={gameState?.total_jenga_pulls ?? 0}
-      />
-
-      {/* 3. Main Cockpit Arena (Dynamic Flexbox Layout: Zero Hardcoded Heights) */}
+      {/* Main Cockpit Arena (Dynamic Flexbox Layout: Zero Hardcoded Heights) */}
       <main className="flex-1 p-2 sm:p-3 overflow-y-auto min-h-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0 lg:h-full items-stretch">
-          {/* Left Wing (6 cols): Stage Scenario & 4 Arcade Action Consoles */}
-          <div className="lg:col-span-6 min-h-0 lg:h-full flex flex-col overflow-hidden">
-            <StageArena
-              stage={currentStage}
-              onSelectAction={handleSelectAction}
-              disabled={isSpectator || loading || gameState?.is_game_over || gameState?.stage_action_taken || resultModalOpen || isWatchingRemoval}
-              stageActionTaken={gameState?.stage_action_taken}
-              lastActionResult={gameState?.last_action_result}
-              onProceedNextStage={handleProceedNextStage}
-              onWatchRemoval={handleWatchRemoval}
-              onWatchCollapse={handleWatchCollapse}
-              onReopenResult={() => {
-                setActionResult(gameState?.last_action_result);
-                setResultModalOpen(true);
-              }}
-              onCommitDecision={handleCommitDecision}
-              votesTally={gameState?.votes_tally || {}}
-              activePlayers={gameState?.active_players || []}
-              myVote={myVote}
-              customPromptDraft={gameState?.custom_prompt_draft}
-              guardrailRuleDraft={gameState?.guardrail_rule_draft}
-              technicalDebt={gameState?.technical_debt || 0}
-              onOpenDraftPrompt={() => setPromptModalOpen(true)}
-              onOpenDraftRule={() => setGuardrailsModalOpen(true)}
-              isTimerPaused={isTimerPausedByAdmin}
-            />
+          {/* Left Wing (7 cols): Full Height Scenario, Problem Statement & Git Diff */}
+          <div className="lg:col-span-7 min-h-0 lg:h-full flex flex-col overflow-hidden">
+            <StageScenarioViewer stage={currentStage} />
           </div>
 
-          {/* Right Wing (6 cols): Majestic 3D Virtual Architecture Tower */}
-          <div className="lg:col-span-6 min-h-[380px] lg:h-full flex flex-col overflow-hidden">
-            <Virtual3DTower
-              key="beige-tower-scene"
-              ref={towerRef}
-              totalPulls={gameState?.total_jenga_pulls ?? 0}
-              instabilityPct={Math.min(100, Math.max(0, Math.max(100 - (gameState?.health ?? 100), gameState?.tower_instability_pct ?? 0)))}
-              technicalDebt={gameState?.technical_debt || 0}
-              isGameOver={gameState?.is_game_over ?? false}
-              onBlockSlide={sound.playSlide}
-              onBlockLand={handleBlockLand}
-              onTriggerStressCollapse={handleStressCollapse}
-            />
+          {/* Right Wing (5 cols): Decision Console (Top) & 3D Jenga Tower (Bottom) */}
+          <div className="lg:col-span-5 min-h-0 lg:h-full flex flex-col gap-2.5 overflow-hidden">
+            {/* Top Right: Options & Team Voting Console */}
+            <div className="shrink-0">
+              <StageDecisionConsole
+                onSelectAction={handleSelectAction}
+                disabled={isSpectator || loading || gameState?.is_game_over || gameState?.stage_action_taken || resultModalOpen || isWatchingRemoval}
+                stageActionTaken={gameState?.stage_action_taken}
+                lastActionResult={gameState?.last_action_result}
+                onProceedNextStage={handleProceedNextStage}
+                onWatchRemoval={handleWatchRemoval}
+                onWatchCollapse={handleWatchCollapse}
+                onReopenResult={() => {
+                  setActionResult(gameState?.last_action_result);
+                  setResultModalOpen(true);
+                }}
+                onCommitDecision={handleCommitDecision}
+                votesTally={gameState?.votes_tally || {}}
+                activePlayers={gameState?.active_players || []}
+                myVote={myVote}
+                customPromptDraft={gameState?.custom_prompt_draft}
+                guardrailRuleDraft={gameState?.guardrail_rule_draft}
+                onOpenDraftPrompt={() => setPromptModalOpen(true)}
+                onOpenDraftRule={() => setGuardrailsModalOpen(true)}
+                isTimerPaused={isTimerPausedByAdmin}
+              />
+            </div>
+
+            {/* Bottom Right: Virtual 3D Jenga Tower */}
+            <div className="flex-1 min-h-[220px] flex flex-col overflow-hidden">
+              <Virtual3DTower
+                key="beige-tower-scene"
+                ref={towerRef}
+                totalPulls={gameState?.total_jenga_pulls ?? 0}
+                instabilityPct={Math.min(100, Math.max(0, Math.max(100 - (gameState?.health ?? 100), gameState?.tower_instability_pct ?? 0)))}
+                technicalDebt={gameState?.technical_debt || 0}
+                isGameOver={gameState?.is_game_over ?? false}
+                onBlockSlide={sound.playSlide}
+                onBlockLand={handleBlockLand}
+                onTriggerStressCollapse={handleStressCollapse}
+              />
+            </div>
           </div>
         </div>
       </main>

@@ -189,64 +189,72 @@ export default function StageArena({
           </div>
         )}
 
-        {/* Live Multiplayer Roster Bar */}
-        <div className="bg-[#1b1b1b] border-2 border-[#333] px-2.5 py-1.5 flex flex-wrap items-center justify-between gap-2 shadow-xs">
-          <div className="flex items-center gap-2">
-            <Users className="w-3.5 h-3.5 text-[#ffd700] shrink-0" />
-            <span className="text-[9px] mc-font text-[#e0e0e0] uppercase tracking-wider">
-              REALM CONSENSUS:
-            </span>
-            <span className="text-[9px] mc-font px-1.5 py-0.2 bg-[#2d241e] text-[#55ff55] border border-[#553311]">
-              {totalVotesCast} / {totalActivePlayers} VOTES
-            </span>
-            <span className="text-[8px] mc-font text-[#888] hidden sm:inline">
-              (LOCKS AT 100% OR 2MIN)
-            </span>
-            {!stageActionTaken && totalVotesCast > 0 && onCommitDecision && !isTimerPaused && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCommitDecision();
-                }}
-                className="mc-btn mc-btn-green px-2 py-0.5 text-[8px] mc-font text-white flex items-center gap-1 cursor-pointer ml-1"
-                title="Lock in current votes and resolve immediately without waiting"
-              >
-                <Zap className="w-2.5 h-2.5 text-[#ffd700]" />
-                <span>RESOLVE NOW</span>
-              </button>
-            )}
-          </div>
-
-          {/* Active Player Badges */}
-          <div className="flex flex-wrap items-center gap-1">
-            {activePlayers.map((player) => {
-              const hasVoted = player.has_voted;
-              return (
-                <div
-                  key={player.player_id}
-                  className={`flex items-center gap-1 px-1.5 py-0.5 text-[8px] mc-font border transition-all ${
-                    hasVoted
-                      ? 'bg-[#1a331a] border-[#2d5a2d] text-[#55ff55]'
-                      : 'bg-[#282828] border-[#444] text-[#888]'
-                  }`}
+        {/* Live Multiplayer Roster Bar (Shown only during active voting) */}
+        {!stageActionTaken && (
+          <div className="bg-[#1b1b1b] border-2 border-[#333] px-2.5 py-1.5 flex flex-wrap items-center justify-between gap-2 shadow-xs">
+            <div className="flex items-center gap-2">
+              <Users className="w-3.5 h-3.5 text-[#ffd700] shrink-0" />
+              <span className="text-[9px] mc-font text-[#e0e0e0] uppercase tracking-wider">
+                REALM CONSENSUS:
+              </span>
+              <span className="text-[9px] mc-font px-1.5 py-0.2 bg-[#2d241e] text-[#55ff55] border border-[#553311]">
+                {totalVotesCast} / {totalActivePlayers} VOTES
+              </span>
+              <span className="text-[8px] mc-font text-[#888] hidden sm:inline">
+                (LOCKS AT 100% OR 2MIN)
+              </span>
+              {!stageActionTaken && totalVotesCast > 0 && onCommitDecision && !isTimerPaused && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCommitDecision();
+                  }}
+                  className="mc-btn mc-btn-green px-2 py-0.5 text-[8px] mc-font text-white flex items-center gap-1 cursor-pointer ml-1"
+                  title="Lock in current votes and resolve immediately without waiting"
                 >
-                  <span
-                    className={`w-1.5 h-1.5 inline-block ${
-                      hasVoted ? 'bg-[#55ff55]' : 'bg-[#ffaa00] animate-pulse'
-                    }`}
-                  />
-                  <span>{player.player_name}</span>
-                  {hasVoted && <Check className="w-2.5 h-2.5 text-[#55ff55]" />}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                  <Zap className="w-2.5 h-2.5 text-[#ffd700]" />
+                  <span>RESOLVE NOW</span>
+                </button>
+              )}
+            </div>
 
-        {/* Stage Decision Resolution Banner (Appears when decision is taken) */}
+            {/* Active Player Badges */}
+            <div className="flex flex-wrap items-center gap-1">
+              {activePlayers.map((player) => {
+                const hasVoted = player.has_voted;
+                return (
+                  <div
+                    key={player.player_id}
+                    className={`flex items-center gap-1 px-1.5 py-0.5 text-[8px] mc-font border transition-all ${
+                      hasVoted
+                        ? 'bg-[#1a331a] border-[#2d5a2d] text-[#55ff55]'
+                        : 'bg-[#282828] border-[#444] text-[#888]'
+                    }`}
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 inline-block ${
+                        hasVoted ? 'bg-[#55ff55]' : 'bg-[#ffaa00] animate-pulse'
+                      }`}
+                    />
+                    <span>{player.player_name}</span>
+                    {hasVoted && <Check className="w-2.5 h-2.5 text-[#55ff55]" />}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Stage Decision Resolution Banner (Replaces consensus bar when decision is taken) */}
         {stageActionTaken && lastActionResult && (
-          <div className="mc-panel-dark p-2.5 sm:p-3 border-2 border-[#ffd700] bg-[#1a1400]/95 flex flex-wrap items-center justify-between gap-2.5 shadow-lg animate-fadeIn">
+          <div
+            className={`mc-panel-dark p-2 sm:p-2.5 border-2 shadow-lg animate-fadeIn flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 ${
+              lastActionResult.outcome === 'failure'
+                ? 'border-[#ff4444] bg-[#220a0a]'
+                : 'border-[#22c55e] bg-[#0a1e0a]'
+            }`}
+          >
             <div className="flex items-center gap-2.5 min-w-0">
               <div
                 className={`w-8 h-8 flex items-center justify-center border-2 shrink-0 ${

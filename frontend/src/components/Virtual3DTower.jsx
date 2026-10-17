@@ -1375,7 +1375,7 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
       : 'text-emerald-800 border-emerald-300 bg-emerald-50';
 
   return (
-    <div className="mc-panel-dark p-3 sm:p-4 flex flex-col justify-between h-full relative overflow-hidden select-none">
+    <div className="mc-panel-dark p-2 sm:p-2.5 flex flex-col justify-between h-full relative overflow-hidden select-none">
       {/* Background ambient lighting */}
       <div
         className={`absolute -top-16 -right-16 w-64 h-64 rounded-full blur-3xl opacity-15 pointer-events-none transition-colors duration-700 ${
@@ -1383,82 +1383,22 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
         }`}
       />
 
-      {/* Header */}
-      <div className="shrink-0 mb-2">
-        <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">⛏️</span>
-            <div>
-              <h3 className="text-white text-xs sm:text-sm font-bold flex items-center gap-2 mc-font tracking-wide">
-                <span>REDSTONE TOWER</span>
-                <span className="text-[9px] bg-[#1a110a] text-[#ffd700] border border-[#555] px-1.5 py-0.5 mc-font">
-                  VOXEL AIDLC
-                </span>
-              </h3>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {technicalDebt > 0 && (
-              <span className={`text-[9px] px-2 py-0.5 mc-font border font-bold ${
-                technicalDebt >= 4
-                  ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000] animate-pulse'
-                  : 'text-[#ffaa00] border-[#aa5500] bg-[#3a2200]'
-              }`}>
-                DEBT: {technicalDebt}/5 {technicalDebt >= 4 ? '⚠️ FRAGILE' : ''}
-              </span>
-            )}
-            <span className={`text-[9px] px-2 py-0.5 mc-font border ${
-              instabilityPct >= 65
-                ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000]'
-                : instabilityPct >= 30
-                ? 'text-[#ffaa00] border-[#aa5500] bg-[#3a2200]'
-                : 'text-[#55ff55] border-[#00aa00] bg-[#002b00]'
-            }`}>
-              STABILITY: {Math.max(0, 100 - instabilityPct)}% {instabilityPct >= 65 ? '⚠️ CRITICAL' : instabilityPct >= 30 ? '⚡ LEANING' : '🛡️ SOLID'}
-            </span>
-          </div>
-        </div>
-
-        {/* Ender Dragon / Boss Bar style Instability progress bar */}
-        <div className="w-full bg-[#111111] p-[2px] border-2 border-[#555555] shadow-inner mb-2">
-          <div className="w-full bg-[#200020] h-2.5 relative overflow-hidden">
-            <div
-              className={`h-full transition-all duration-700 ${
-                instabilityPct >= 75
-                  ? 'bg-gradient-to-r from-[#aa00aa] via-[#ff55ff] to-[#ff5555]'
-                  : instabilityPct >= 40
-                  ? 'bg-gradient-to-r from-[#5500aa] via-[#aa00aa] to-[#ffaa00]'
-                  : 'bg-gradient-to-r from-[#00aa00] via-[#55ff55] to-[#55ffff]'
-              }`}
-              style={{ width: `${Math.max(3, instabilityPct)}%` }}
-            />
-            {/* Boss bar notches */}
-            <div className="absolute inset-0 flex justify-between pointer-events-none opacity-40">
-              <span className="w-[2px] h-full bg-black" />
-              <span className="w-[2px] h-full bg-black" />
-              <span className="w-[2px] h-full bg-black" />
-              <span className="w-[2px] h-full bg-black" />
-              <span className="w-[2px] h-full bg-black" />
-            </div>
-          </div>
-        </div>
-
-        {/* Subsystem Voxel Domain Badges */}
-        <div className="flex flex-wrap gap-1 text-[9px] mc-font">
-          {Object.entries(DOMAIN_CONFIG).map(([key, dom]) => (
-            <span
-              key={key}
-              className="voxel-domain-pill px-1.5 py-0.5 bg-[#2b2b2b] border border-[#555] flex items-center gap-1 text-[#e0e0e0] shadow-xs"
-            >
-              <span className="w-2 h-2 inline-block border border-black/40 shrink-0" style={{ backgroundColor: dom.color }} />
-              <span className="truncate">{dom.name}</span>
-            </span>
-          ))}
-        </div>
+      {/* Header: Debt Count Only */}
+      <div className="shrink-0 mb-1.5 flex items-center justify-end">
+        <span className={`text-[9.5px] px-2 py-0.5 mc-font border font-bold ${
+          technicalDebt >= 4
+            ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000] animate-pulse'
+            : technicalDebt > 0
+            ? 'text-[#ffaa00] border-[#aa5500] bg-[#3a2200]'
+            : 'text-[#888] border-[#444] bg-[#1a1a1a]'
+        }`}>
+          DEBT: {technicalDebt}/5 {technicalDebt >= 4 ? '⚠️ FRAGILE' : ''}
+        </span>
       </div>
 
+
       {/* 3D WebGL Canvas with Close-up Focus & Minecraft Crosshair */}
-      <div className="relative w-full flex-1 min-h-[280px] sm:min-h-[320px] bg-[#101318] border-2 border-[#333] overflow-hidden group select-none shadow-inner">
+      <div className="relative w-full flex-1 min-h-[200px] bg-[#101318] border-2 border-[#333] overflow-hidden group select-none shadow-inner">
         <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
         {/* Full-view Target Reticle & Minecraft Mining Banner */}
@@ -1541,50 +1481,7 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
         </div>
       </div>
 
-      {/* Extracted Subsystems List */}
-      <div className="shrink-0 mt-2">
-        <div className="flex items-center justify-between text-[9px] mc-font text-[#aaa] mb-1">
-          <span>MINED BLOCKS ({totalPulls} EXTRACTED):</span>
-        </div>
 
-        {extractedHistory.length === 0 ? (
-          <div className="p-2 bg-[#1b1b1b] border border-[#444] text-[9px] text-[#888] mc-font text-center">
-            All 54 Voxel Architecture Blocks Intact.
-          </div>
-        ) : (
-          <div className="space-y-1 max-h-16 overflow-y-auto pr-1">
-            {extractedHistory.slice(0, 4).map((item, idx) => {
-              const dom = DOMAIN_CONFIG[item.domain] || DOMAIN_CONFIG.governors;
-              return (
-                <div
-                  key={idx}
-                  className="flex items-center justify-between text-[9px] mc-font bg-[#252525] border border-[#444] px-2 py-0.5 shadow-xs"
-                >
-                  <div className="flex items-center gap-1.5 truncate">
-                    <span className="w-2 h-2 inline-block border border-black/40" style={{ backgroundColor: dom.color }} />
-                    <span className="text-[#e0e0e0] font-bold truncate">
-                      L{item.layer}: {item.label}
-                    </span>
-                  </div>
-                  <span className="text-[#ff5555] text-[8px] shrink-0 font-bold">
-                    MINED
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Quick stress test link */}
-      <div className="shrink-0 pt-1 text-center">
-        <button
-          onClick={onTriggerStressCollapse}
-          className="text-[8px] text-[#777] hover:text-[#ff5555] transition-colors cursor-pointer mc-font"
-        >
-          [TNT Stress Test: Trigger Full Block Collapse]
-        </button>
-      </div>
     </div>
   );
 });

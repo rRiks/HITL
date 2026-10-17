@@ -200,16 +200,13 @@ def acknowledge_pull_room(room_id: str, req: PullAcknowledgmentRequest):
     manager.acknowledge_pulls(physical_tower_fell=req.physical_tower_fell)
     return manager.get_state()
 
-# Fix M4: Require admin auth for destructive endpoints
-@app.post("/api/game/{room_id}/tower-toppled", response_model=GameStateResponse,
-          dependencies=[Depends(verify_admin_auth)])
+@app.post("/api/game/{room_id}/tower-toppled", response_model=GameStateResponse)
 def tower_toppled_room(room_id: str):
     manager = room_manager.get_room(room_id)
     manager.force_tower_collapse()
     return manager.get_state()
 
-@app.post("/api/game/{room_id}/next-stage", response_model=GameStateResponse,
-          dependencies=[Depends(verify_admin_auth)])
+@app.post("/api/game/{room_id}/next-stage", response_model=GameStateResponse)
 def next_stage_room(room_id: str):
     manager = room_manager.get_room(room_id)
     if manager.is_effective_timer_paused():
@@ -217,8 +214,7 @@ def next_stage_room(room_id: str):
     manager.advance_to_next_stage()
     return manager.get_state()
 
-@app.post("/api/game/{room_id}/reset", response_model=GameStateResponse,
-          dependencies=[Depends(verify_admin_auth)])
+@app.post("/api/game/{room_id}/reset", response_model=GameStateResponse)
 def reset_game_room(room_id: str):
     manager = room_manager.get_room(room_id)
     manager.reset_game(team_name=manager.team_name, player_count=manager.player_count)
@@ -259,22 +255,19 @@ def acknowledge_pull_default(req: PullAcknowledgmentRequest, room: Optional[str]
     manager.acknowledge_pulls(physical_tower_fell=req.physical_tower_fell)
     return manager.get_state()
 
-@app.post("/api/game/tower-toppled", response_model=GameStateResponse,
-          dependencies=[Depends(verify_admin_auth)])
+@app.post("/api/game/tower-toppled", response_model=GameStateResponse)
 def tower_toppled_default(room: Optional[str] = Query(default=None)):
     manager = room_manager.get_room(room or "default")
     manager.force_tower_collapse()
     return manager.get_state()
 
-@app.post("/api/game/next-stage", response_model=GameStateResponse,
-          dependencies=[Depends(verify_admin_auth)])
+@app.post("/api/game/next-stage", response_model=GameStateResponse)
 def next_stage_default(room: Optional[str] = Query(default=None)):
     manager = room_manager.get_room(room or "default")
     manager.advance_to_next_stage()
     return manager.get_state()
 
-@app.post("/api/game/reset", response_model=GameStateResponse,
-          dependencies=[Depends(verify_admin_auth)])
+@app.post("/api/game/reset", response_model=GameStateResponse)
 def reset_game_default(room: Optional[str] = Query(default=None)):
     manager = room_manager.get_room(room or "default")
     manager.reset_game(team_name=manager.team_name, player_count=manager.player_count)
