@@ -4,15 +4,22 @@ import {
   FileCode,
   AlertTriangle,
   Sparkles,
-  ChevronDown,
-  ChevronUp,
   Maximize2,
   X,
+  Lightbulb,
+  Lock,
+  Unlock,
 } from 'lucide-react';
 
-export default function StageScenarioViewer({ stage }) {
-  const [showRiskScanner, setShowRiskScanner] = useState(false);
+function StageScenarioViewer({
+  stage,
+  hintsRemaining = 6,
+  maxHints = 6,
+  revealedHints = [],
+  onRevealHint,
+}) {
   const [isExpandedModalOpen, setIsExpandedModalOpen] = useState(false);
+  const [isRevealing, setIsRevealing] = useState(false);
 
   // Close expanded modal on Escape key
   useEffect(() => {
@@ -28,6 +35,17 @@ export default function StageScenarioViewer({ stage }) {
   if (!stage) return null;
 
   const diffLines = stage.code_diff ? stage.code_diff.split('\n') : [];
+  const isHintRevealed = Array.isArray(revealedHints) && revealedHints.includes(stage.id);
+
+  const handleRevealClick = async () => {
+    if (isHintRevealed || hintsRemaining <= 0 || !onRevealHint || isRevealing) return;
+    setIsRevealing(true);
+    try {
+      await onRevealHint(stage.id);
+    } finally {
+      setIsRevealing(false);
+    }
+  };
 
   return (
     <div className="mc-panel-dark p-2.5 sm:p-3 flex flex-col h-full min-h-0 overflow-hidden shadow-md select-none">
@@ -60,17 +78,24 @@ export default function StageScenarioViewer({ stage }) {
         </div>
       </div>
 
-      {/* 2. Story Title & Problem Statement (Primary Focus) */}
-      <div className="mb-2 shrink-0 bg-[#161310]/70 p-2.5 sm:p-3 border border-[#3e3428] shadow-xs">
-        <h2 className="text-sm sm:text-base font-bold text-white tracking-wide mb-1.5 mc-font text-[#ffff55]">
-          {stage.title}
+      {/* 2. Business Requirement / User Story (Requirement Focus - No Spoilers!) */}
+      <div className="mb-2 shrink-0 bg-[#161310]/80 p-2.5 sm:p-3 border border-[#3e3428] shadow-xs">
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <span className="text-[9px] mc-font text-[#55ff55] uppercase tracking-wider flex items-center gap-1">
+            <span>📋</span>
+            <span>BUSINESS REQUIREMENT (USER STORY)</span>
+          </span>
+          <span className="text-[9px] mc-font text-[#888]">WAVE {stage.id}/11</span>
+        </div>
+        <h2 className="text-sm sm:text-base font-bold tracking-wide mb-1 mc-font text-[#ffff55]">
+          {stage.ticket_title || stage.title}
         </h2>
-        <p className="text-xs sm:text-[12.5px] text-[#e0e0e0] leading-relaxed font-sans select-text">
+        <p className="text-xs sm:text-[12px] text-[#e0e0e0] leading-relaxed font-sans select-text">
           {stage.story}
         </p>
       </div>
 
-      {/* 3. AI Golem Proposal Card (Full, Uncompacted Text!) */}
+      {/* 3. AI Golem Proposal Card (Full, Uncompacted Text) */}
       <div className="bg-[#1b150c] border-2 border-[#ffaa00]/60 p-2.5 sm:p-3 mb-2 shrink-0 shadow-sm">
         <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
           <div className="flex items-center gap-1.5 text-xs text-[#ffd700] mc-font font-bold">
@@ -81,7 +106,7 @@ export default function StageScenarioViewer({ stage }) {
             {stage.file_name}
           </code>
         </div>
-        <p className="text-xs sm:text-[12.5px] text-[#ffe6cc] italic font-sans select-text leading-relaxed">
+        <p className="text-xs sm:text-[12px] text-[#ffe6cc] italic font-sans select-text leading-relaxed">
           "{stage.ai_proposal_summary}"
         </p>
       </div>
@@ -125,23 +150,66 @@ export default function StageScenarioViewer({ stage }) {
         </div>
       </div>
 
-      {/* 5. Detected Architectural Risks Accordion */}
+      {/* 5. Architectural Hint Economy (Locked / Unlocked Accordion) */}
       <div className="shrink-0">
-        <button
-          onClick={() => setShowRiskScanner(!showRiskScanner)}
-          className="w-full flex items-center justify-between px-2.5 py-1.5 bg-[#252525] hover:bg-[#2d2d2d] border border-[#444] text-[9.5px] mc-font text-[#ffd700] transition-colors cursor-pointer"
-        >
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-3.5 h-3.5 text-[#ffaa00]" />
-            <span>DETECTED ARCHITECTURE TELEMETRY</span>
-          </div>
-          {showRiskScanner ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-        </button>
+        {!isHintRevealed ? (
+          <div className="border border-[#444] bg-[#1a1a1a] p-2 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <Lock className="w-3.5 h-3.5 text-[#888] shrink-0" />
+              <div className="truncate">
+                <span className="text-[9px] mc-font text-[#aaa] block">
+                  ARCHITECTURAL TELEMETRY HINT
+                </span>
+                <span className="text-[8px] text-[#777] font-sans block">
+                  Cost: 1 Hint • {hintsRemaining}/{maxHints} Hints Remaining in Budget
+                </span>
+              </div>
+            </div>
 
-        {showRiskScanner && (
-          <div className="mt-1 p-2 bg-[#251505] border-2 border-[#aa5500] text-[10px] text-[#ffddaa] mc-font leading-relaxed">
+            <button
+              type="button"
+              disabled={hintsRemaining <= 0 || isRevealing}
+              onClick={handleRevealClick}
+              className={`px-3 py-1.5 text-[9px] mc-font font-bold border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                hintsRemaining > 0
+                  ? 'bg-[#2a2000] border-[#ffd700] text-[#ffd700] hover:bg-[#3d3000] shadow-xs'
+                  : 'bg-[#222] border-[#444] text-[#666] cursor-not-allowed opacity-60'
+              }`}
+            >
+              <Lightbulb className="w-3 h-3 text-[#ffd700]" />
+              <span>
+                {hintsRemaining > 0
+                  ? (isRevealing ? 'UNLOCKING...' : `REVEAL HINT (${hintsRemaining} LEFT)`)
+                  : 'NO HINTS LEFT'}
+              </span>
+            </button>
+          </div>
+        ) : (
+          <div className="p-2.5 bg-[#251505] border-2 border-[#ffaa00] text-[10px] text-[#ffddaa] mc-font leading-relaxed shadow-sm">
+            <div className="flex items-center justify-between gap-2 mb-1.5 border-b border-[#aa5500]/50 pb-1">
+              <div className="flex items-center gap-1.5 text-[#ffd700]">
+                <Unlock className="w-3.5 h-3.5 text-[#55ff55]" />
+                <span className="text-[9.5px] uppercase font-bold text-[#55ff55]">
+                  ARCHITECTURAL HINT UNLOCKED
+                </span>
+              </div>
+              <span className="text-[8px] text-[#ffaa00] bg-[#1a0e00] px-1.5 py-0.2 border border-[#884400]">
+                BUDGET: {hintsRemaining}/{maxHints} LEFT
+              </span>
+            </div>
+
+            {/* Stage threat title revealed only inside hint */}
+            <div className="mb-1.5 bg-[#3a0d0d]/70 border border-[#ff3333]/50 px-2 py-1 flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5 text-[#ff5555] shrink-0" />
+              <span className="text-[9.5px] text-[#ff7777] mc-font uppercase">
+                SUSPECTED THREAT: <strong className="text-[#ffff55] underline decoration-[#ffaa00]">{stage.title}</strong>
+              </span>
+            </div>
+
             <strong className="text-[#ffd700] block mb-0.5">SUSPECT PATTERN:</strong>
-            {stage.hidden_risks}
+            <p className="font-sans text-[11px] text-[#ffddaa] leading-relaxed select-text">
+              {stage.hidden_risks}
+            </p>
           </div>
         )}
       </div>
@@ -174,9 +242,12 @@ export default function StageScenarioViewer({ stage }) {
             {/* Split: Story/Telemetry on Left, Code Diff on Right */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 flex-1 min-h-0 overflow-hidden">
               <div className="lg:col-span-5 flex flex-col justify-between gap-2.5 min-h-0 overflow-y-auto pr-1">
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 bg-[#161310]/90 p-3 border border-[#3e3428]">
+                  <span className="text-[9px] mc-font text-[#55ff55] uppercase tracking-wider block">
+                    📋 BUSINESS REQUIREMENT (USER STORY)
+                  </span>
                   <h3 className="text-sm sm:text-base font-bold text-[#ffff55] mc-font leading-snug">
-                    {stage.title}
+                    {stage.ticket_title || stage.title}
                   </h3>
                   <p className="text-xs text-[#ddd] leading-relaxed font-sans select-text">
                     {stage.story}
@@ -200,18 +271,54 @@ export default function StageScenarioViewer({ stage }) {
                   </code>
                 </div>
 
-                <div className="p-3 bg-[#251505] border-2 border-[#ffaa00] shadow-lg flex-1 min-h-0 flex flex-col justify-start">
-                  <div className="flex items-center gap-2 text-[#ffd700] mb-1.5 shrink-0">
-                    <AlertTriangle className="w-4 h-4 text-[#ffaa00] shrink-0" />
-                    <span className="text-[10px] sm:text-xs mc-font font-bold uppercase tracking-wider">
-                      DETECTED ARCHITECTURE TELEMETRY
+                {/* Modal Hint Box */}
+                {!isHintRevealed ? (
+                  <div className="p-3 bg-[#1e1e1e] border-2 border-[#444] flex flex-col items-center justify-center gap-2 text-center">
+                    <Lock className="w-5 h-5 text-[#888]" />
+                    <span className="text-xs mc-font text-[#ffd700]">
+                      ARCHITECTURAL TELEMETRY HINT
                     </span>
+                    <span className="text-[9.5px] text-[#888] font-sans">
+                      Uses 1 Hint ({hintsRemaining}/{maxHints} Left in Session Budget)
+                    </span>
+                    <button
+                      type="button"
+                      disabled={hintsRemaining <= 0 || isRevealing}
+                      onClick={handleRevealClick}
+                      className={`px-3 py-1.5 text-xs mc-font font-bold border cursor-pointer mt-1 ${
+                        hintsRemaining > 0
+                          ? 'bg-[#2a2000] border-[#ffd700] text-[#ffd700] hover:bg-[#3d3000]'
+                          : 'bg-[#222] border-[#444] text-[#666] cursor-not-allowed'
+                      }`}
+                    >
+                      {hintsRemaining > 0
+                        ? (isRevealing ? 'UNLOCKING...' : `REVEAL HINT (${hintsRemaining} LEFT)`)
+                        : 'NO HINTS REMAINING'}
+                    </button>
                   </div>
-                  <div className="text-[11px] text-[#ffddaa] mc-font leading-relaxed overflow-y-auto">
-                    <strong className="text-[#ffd700] block mb-1">SUSPECT PATTERN:</strong>
-                    {stage.hidden_risks}
+                ) : (
+                  <div className="p-3 bg-[#251505] border-2 border-[#ffaa00] shadow-lg flex-1 min-h-0 flex flex-col justify-start">
+                    <div className="flex items-center gap-2 text-[#55ff55] mb-1.5 shrink-0">
+                      <Unlock className="w-4 h-4 text-[#55ff55] shrink-0" />
+                      <span className="text-[10px] sm:text-xs mc-font font-bold uppercase tracking-wider">
+                        ARCHITECTURAL HINT UNLOCKED
+                      </span>
+                    </div>
+                    {/* Stage threat title inside modal hint */}
+                    <div className="mb-2 bg-[#3a0d0d]/70 border border-[#ff3333]/50 px-2.5 py-1.5 flex items-center gap-2 shrink-0">
+                      <AlertTriangle className="w-4 h-4 text-[#ff5555] shrink-0" />
+                      <span className="text-xs text-[#ff7777] mc-font uppercase">
+                        DETECTED THREAT: <strong className="text-[#ffff55] underline decoration-[#ffaa00]">{stage.title}</strong>
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-[#ffddaa] mc-font leading-relaxed overflow-y-auto">
+                      <strong className="text-[#ffd700] block mb-1">SUSPECT PATTERN:</strong>
+                      <p className="font-sans text-xs text-[#ffddaa] leading-relaxed select-text">
+                        {stage.hidden_risks}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               <div className="lg:col-span-7 border-2 border-[#444] bg-[#0c0d10] flex flex-col h-full min-h-0 shadow-inner overflow-hidden">
@@ -245,7 +352,7 @@ export default function StageScenarioViewer({ stage }) {
 
             <div className="pt-2.5 mt-2.5 border-t-2 border-[#444] flex items-center justify-between shrink-0">
               <span className="text-[9px] text-[#888] mc-font hidden sm:inline">
-                Inspect proposal & telemetry side-by-side with code diff.
+                Inspect business story & diff side-by-side.
               </span>
               <button
                 type="button"
@@ -262,3 +369,5 @@ export default function StageScenarioViewer({ stage }) {
     </div>
   );
 }
+
+export default React.memo(StageScenarioViewer);

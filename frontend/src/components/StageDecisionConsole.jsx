@@ -10,7 +10,7 @@ import {
   Zap,
 } from 'lucide-react';
 
-export default function StageDecisionConsole({
+function StageDecisionConsole({
   onSelectAction,
   disabled = false,
   stageActionTaken = false,
@@ -219,9 +219,9 @@ export default function StageDecisionConsole({
             myVote === 'accept_as_is' ? 'mc-slot-selected' : 'mc-slot-dark'
           } p-2 flex flex-col justify-between ${
             disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-[#666]'
-          } transition-colors`}
+          } transition-colors select-none`}
         >
-          <div>
+          <div className="pointer-events-none select-none">
             <div className="flex items-center justify-between mb-1">
               <span className="text-[8px] mc-font text-[#ffd700] bg-[#332200] px-1 border border-[#664400]">
                 SLOT 1
@@ -232,7 +232,7 @@ export default function StageDecisionConsole({
                     +{votesTally['accept_as_is']}
                   </span>
                 )}
-                <span className="text-sm pointer-events-none">🍏</span>
+                <span className="text-sm">🍏</span>
               </div>
             </div>
             <h4 className="text-[11px] font-bold text-white mc-font mb-0.5 flex items-center justify-between">
@@ -272,9 +272,9 @@ export default function StageDecisionConsole({
             myVote === 'deny_and_move_on' ? 'mc-slot-selected' : 'mc-slot-dark'
           } p-2 flex flex-col justify-between ${
             disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-[#666]'
-          } transition-colors`}
+          } transition-colors select-none`}
         >
-          <div>
+          <div className="pointer-events-none select-none">
             <div className="flex items-center justify-between mb-1">
               <span className="text-[8px] mc-font text-[#aaa] bg-[#222] px-1 border border-[#444]">
                 SLOT 2
@@ -285,7 +285,7 @@ export default function StageDecisionConsole({
                     +{votesTally['deny_and_move_on']}
                   </span>
                 )}
-                <span className="text-sm pointer-events-none">🛡️</span>
+                <span className="text-sm">🛡️</span>
               </div>
             </div>
             <h4 className="text-[11px] font-bold text-white mc-font mb-0.5 flex items-center justify-between">
@@ -325,29 +325,31 @@ export default function StageDecisionConsole({
             myVote === 'custom_prompt' ? 'mc-slot-selected' : 'mc-slot-dark'
           } p-2 flex flex-col justify-between ${
             disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-[#666]'
-          } transition-colors`}
+          } transition-colors select-none`}
         >
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[8px] mc-font text-[#55ffff] bg-[#002233] px-1 border border-[#005577]">
-                SLOT 3
-              </span>
-              <div className="flex items-center gap-1">
-                {(votesTally['custom_prompt'] || 0) > 0 && (
-                  <span className="text-[8.5px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
-                    +{votesTally['custom_prompt']}
-                  </span>
-                )}
-                <span className="text-sm pointer-events-none">🪶</span>
+            <div className="pointer-events-none select-none">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[8px] mc-font text-[#55ffff] bg-[#002233] px-1 border border-[#005577]">
+                  SLOT 3
+                </span>
+                <div className="flex items-center gap-1">
+                  {(votesTally['custom_prompt'] || 0) > 0 && (
+                    <span className="text-[8.5px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                      +{votesTally['custom_prompt']}
+                    </span>
+                  )}
+                  <span className="text-sm">🪶</span>
+                </div>
               </div>
-            </div>
 
-            <h4 className="text-[11px] font-bold text-white mc-font mb-0.5 flex items-center justify-between">
-              <span>Human Guidance</span>
-              {myVote === 'custom_prompt' && (
-                <span className="text-[7.5px] text-[#55ff55] mc-font">[VOTED]</span>
-              )}
-            </h4>
+              <h4 className="text-[11px] font-bold text-white mc-font mb-0.5 flex items-center justify-between">
+                <span>Human Guidance</span>
+                {myVote === 'custom_prompt' && (
+                  <span className="text-[7.5px] text-[#55ff55] mc-font">[VOTED]</span>
+                )}
+              </h4>
+            </div>
 
             {customPromptDraft?.text ? (
               <div className="bg-[#111] border border-[#005577] p-1 my-1 text-[8.5px] text-[#aaddff]">
@@ -360,16 +362,16 @@ export default function StageDecisionConsole({
                       e.stopPropagation();
                       if (!disabled && !isTimerPaused) onOpenDraftPrompt && onOpenDraftPrompt();
                     }}
-                    className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer disabled:opacity-50"
+                    className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer disabled:opacity-50 pointer-events-auto"
                   >
                     <Edit3 className="w-2.5 h-2.5 pointer-events-none" />
                     <span>EDIT</span>
                   </button>
                 </div>
-                <p className="line-clamp-1 italic font-sans">"{customPromptDraft.text}"</p>
+                <p className="line-clamp-1 italic font-sans pointer-events-none select-none">"{customPromptDraft.text}"</p>
               </div>
             ) : (
-              <p className="text-[9.5px] text-[#aaa] line-clamp-1 font-sans leading-tight">
+              <p className="text-[9.5px] text-[#aaa] line-clamp-1 font-sans leading-tight pointer-events-none select-none">
                 Draft steering prompt in Book & Quill.
               </p>
             )}
@@ -404,29 +406,31 @@ export default function StageDecisionConsole({
             myVote === 'suggest_change' ? 'mc-slot-selected' : 'mc-slot-dark'
           } p-2 flex flex-col justify-between ${
             disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-[#666]'
-          } transition-colors`}
+          } transition-colors select-none`}
         >
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[8px] mc-font text-[#ffaa00] bg-[#2a1a00] px-1 border border-[#885500]">
-                SLOT 4
-              </span>
-              <div className="flex items-center gap-1">
-                {(votesTally['suggest_change'] || 0) > 0 && (
-                  <span className="text-[8.5px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
-                    +{votesTally['suggest_change']}
-                  </span>
-                )}
-                <span className="text-sm pointer-events-none">🤖</span>
+            <div className="pointer-events-none select-none">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[8px] mc-font text-[#ffaa00] bg-[#2a1a00] px-1 border border-[#885500]">
+                  SLOT 4
+                </span>
+                <div className="flex items-center gap-1">
+                  {(votesTally['suggest_change'] || 0) > 0 && (
+                    <span className="text-[8.5px] mc-font px-1 bg-[#1a331a] text-[#55ff55] border border-[#2d5a2d]">
+                      +{votesTally['suggest_change']}
+                    </span>
+                  )}
+                  <span className="text-sm">🤖</span>
+                </div>
               </div>
-            </div>
 
-            <h4 className="text-[11px] font-bold text-white mc-font mb-0.5 flex items-center justify-between">
-              <span>AI Suggestions</span>
-              {myVote === 'suggest_change' && (
-                <span className="text-[7.5px] text-[#55ff55] mc-font">[VOTED]</span>
-              )}
-            </h4>
+              <h4 className="text-[11px] font-bold text-white mc-font mb-0.5 flex items-center justify-between">
+                <span>AI Suggestions</span>
+                {myVote === 'suggest_change' && (
+                  <span className="text-[7.5px] text-[#55ff55] mc-font">[VOTED]</span>
+                )}
+              </h4>
+            </div>
 
             {guardrailRuleDraft?.title ? (
               <div className="bg-[#111] border border-[#ffaa00] p-1 my-1 text-[8.5px] text-[#ffddaa]">
@@ -439,16 +443,16 @@ export default function StageDecisionConsole({
                       e.stopPropagation();
                       if (!disabled && !isTimerPaused) onOpenDraftRule && onOpenDraftRule();
                     }}
-                    className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer disabled:opacity-50"
+                    className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer disabled:opacity-50 pointer-events-auto"
                   >
                     <Edit3 className="w-2.5 h-2.5 pointer-events-none" />
                     <span>EDIT</span>
                   </button>
                 </div>
-                <p className="line-clamp-1 font-semibold font-sans">{guardrailRuleDraft.title}</p>
+                <p className="line-clamp-1 font-semibold font-sans pointer-events-none select-none">{guardrailRuleDraft.title}</p>
               </div>
             ) : (
-              <p className="text-[9.5px] text-[#aaa] line-clamp-1 font-sans leading-tight">
+              <p className="text-[9.5px] text-[#aaa] line-clamp-1 font-sans leading-tight pointer-events-none select-none">
                 Review 3 AI-proposed technical fixes.
               </p>
             )}
@@ -479,3 +483,5 @@ export default function StageDecisionConsole({
     </div>
   );
 }
+
+export default React.memo(StageDecisionConsole);

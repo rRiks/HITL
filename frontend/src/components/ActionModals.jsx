@@ -395,7 +395,7 @@ export function ResultModal({
             <button
               type="button"
               onClick={onWatchRemoval}
-              className="mc-btn mc-btn-green w-full py-3 px-4 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer mc-font shadow-lg active:scale-[0.98] transition-transform"
+              className="mc-btn mc-btn-green w-full py-3 px-4 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer mc-font shadow-lg"
             >
               <Rotate3d className="w-4 h-4 pointer-events-none" />
               <span className="pointer-events-none">Watch Block Removal (-{actionResult.jenga_pulls} Blocks)</span>

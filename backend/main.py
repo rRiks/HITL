@@ -19,8 +19,9 @@ from models import (
     JoinPlayerRequest,
     DraftRequest,
     VoteRequest,
+    RevealHintRequest,
 )
-from game_state import room_manager
+from game_state import room_manager, GameStateManager
 from stages_data import STAGES
 from admin_router import admin_router, verify_admin_auth
 
@@ -226,6 +227,11 @@ def retry_stage_room(room_id: str):
     manager.retry_current_stage(restore_health=35)
     return manager.get_state()
 
+@app.post("/api/game/{room_id}/reveal-hint", response_model=GameStateResponse)
+def reveal_hint_room(room_id: str, req: RevealHintRequest):
+    manager = room_manager.get_room(room_id)
+    return manager.reveal_hint(req.stage_id)
+
 # -------------------------------------------------------------
 # Backwards-Compatible Global Endpoints (Default Room)
 # -------------------------------------------------------------
@@ -272,6 +278,11 @@ def reset_game_default(room: Optional[str] = Query(default=None)):
     manager = room_manager.get_room(room or "default")
     manager.reset_game(team_name=manager.team_name, player_count=manager.player_count)
     return manager.get_state()
+
+@app.post("/api/game/reveal-hint", response_model=GameStateResponse)
+def reveal_hint_default(req: RevealHintRequest, room: Optional[str] = Query(default=None)):
+    manager = room_manager.get_room(room or "default")
+    return manager.reveal_hint(req.stage_id)
 
 if __name__ == "__main__":
     import uvicorn

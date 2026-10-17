@@ -57,6 +57,7 @@ class AISuggestionItem(BaseModel):
 class StageDetails(BaseModel):
     id: int
     title: str
+    ticket_title: Optional[str] = None
     phase_name: str
     story: str
     ai_proposal_summary: str
@@ -122,6 +123,13 @@ class GameStateResponse(BaseModel):
     tie_broken: bool = False
     tied_options: Optional[List[str]] = None
     is_timer_paused: bool = False
+    # Hint Economy
+    max_hints: int = 6
+    hints_remaining: int = 6
+    revealed_hints: List[int] = []
+
+class RevealHintRequest(BaseModel):
+    stage_id: int
 
 class ActionResponse(BaseModel):
     room_id: str = "default"

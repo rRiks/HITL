@@ -111,6 +111,7 @@ export default function App() {
   const [myVote, setMyVote] = useState(null);
   const lastHandledStageResultRef = useRef(-1);
   const isAdvancingStageRef = useRef(false);
+  const isSubmittingVoteRef = useRef(false);
 
   // Tower 3D Ref
   const towerRef = useRef(null);
@@ -253,7 +254,7 @@ export default function App() {
           const me = remoteState.active_players?.find((p) => p.player_id === myId);
           if (me?.voted_action) {
             setMyVote(me.voted_action);
-          } else if (!remoteState.stage_action_taken && !me?.voted_action) {
+          } else if (!remoteState.stage_action_taken && !me?.voted_action && !isSubmittingVoteRef.current) {
             setMyVote(null);
           }
         }
@@ -407,6 +408,7 @@ export default function App() {
     }
 
     try {
+      isSubmittingVoteRef.current = true;
       setLoading(true);
       const timeSpent = 120 - timeLeftRef.current;
       setMyVote(actionType);
@@ -436,6 +438,7 @@ export default function App() {
     } catch (err) {
       alert(`Vote error: ${err.message}`);
     } finally {
+      isSubmittingVoteRef.current = false;
       setLoading(false);
     }
   }, [gameState, sound]);
@@ -589,6 +592,7 @@ export default function App() {
   const handleSubmitPrompt = async (promptText) => {
     if (isSpectator || isTimerPausedByAdmin) return;
     try {
+      isSubmittingVoteRef.current = true;
       setLoading(true);
       setPromptModalOpen(false);
       const timeSpent = 120 - timeLeftRef.current;
@@ -623,6 +627,7 @@ export default function App() {
     } catch (err) {
       alert(`Prompt draft error: ${err.message}`);
     } finally {
+      isSubmittingVoteRef.current = false;
       setLoading(false);
     }
   };
@@ -631,6 +636,7 @@ export default function App() {
   const handleSubmitRule = async (ruleId) => {
     if (isSpectator || isTimerPausedByAdmin) return;
     try {
+      isSubmittingVoteRef.current = true;
       setLoading(true);
       setGuardrailsModalOpen(false);
       const timeSpent = 120 - timeLeftRef.current;
@@ -666,6 +672,7 @@ export default function App() {
     } catch (err) {
       alert(`Rule draft error: ${err.message}`);
     } finally {
+      isSubmittingVoteRef.current = false;
       setLoading(false);
     }
   };
@@ -749,7 +756,16 @@ export default function App() {
     }
   };
 
-  // Stress Collapse Simulation
+  const handleRevealHint = useCallback(async (stageId) => {
+    try {
+      const updated = await api.revealHint(stageId);
+      setGameState(updated);
+      sound.playSuccess();
+    } catch (err) {
+      console.error('Failed to reveal hint:', err);
+    }
+  }, [sound]);
+
   const handleStressCollapse = async () => {
     sound.playCrash();
     setScreenShaking(true);
@@ -967,7 +983,13 @@ export default function App() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0 lg:h-full items-stretch">
           {/* Left Wing (7 cols): Full Height Scenario, Problem Statement & Git Diff */}
           <div className="lg:col-span-7 min-h-0 lg:h-full flex flex-col overflow-hidden">
-            <StageScenarioViewer stage={currentStage} />
+            <StageScenarioViewer
+              stage={currentStage}
+              hintsRemaining={gameState?.hints_remaining ?? 6}
+              maxHints={gameState?.max_hints ?? 6}
+              revealedHints={gameState?.revealed_hints ?? []}
+              onRevealHint={handleRevealHint}
+            />
           </div>
 
           {/* Right Wing (5 cols): Decision Console (Top) & 3D Jenga Tower (Bottom) */}
@@ -1006,6 +1028,8 @@ export default function App() {
                 totalPulls={gameState?.total_jenga_pulls ?? 0}
                 instabilityPct={Math.min(100, Math.max(0, Math.max(100 - (gameState?.health ?? 100), gameState?.tower_instability_pct ?? 0)))}
                 technicalDebt={gameState?.technical_debt || 0}
+                hintsRemaining={gameState?.hints_remaining ?? 6}
+                maxHints={gameState?.max_hints ?? 6}
                 isGameOver={gameState?.is_game_over ?? false}
                 onBlockSlide={sound.playSlide}
                 onBlockLand={handleBlockLand}
@@ -1039,7 +1063,7 @@ export default function App() {
             <button
               type="button"
               onClick={handleProceedNextStage}
-              className="mc-btn mc-btn-green px-3.5 py-2 text-[9px] mc-font text-white flex items-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-[0.98] transition-transform"
+              className="mc-btn mc-btn-green px-3.5 py-2 text-[9px] mc-font text-white flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
               <span className="pointer-events-none">NEXT STAGE [SPACE]</span>
               <ArrowRight className="w-3.5 h-3.5 pointer-events-none" />

@@ -8,9 +8,10 @@ STAGES = [
     {
         "id": 1,
         "title": "The Governor Limit Trap",
-        "phase_name": "Apex Trigger & Bulkification",
-        "story": "The AI coding agent generated an Account-to-Contact synchronization trigger in 3 seconds. To make it 'simple and readable', the AI placed a SOQL query and a DML update directly inside a for-loop iterating over Trigger.new! During smoke testing with 1 record it worked fine, but in production a bulk data load of 200 records will trigger a catastrophic failure.",
-        "ai_proposal_summary": "Implemented Contact-to-Account phone sync. Simplified logic using direct query lookups inside iteration.",
+        "ticket_title": "CSC-101: Account-to-Contact Phone Sync",
+        "phase_name": "Apex Trigger Architecture",
+        "story": "When an Account phone number is updated, automatically synchronize the new phone number to all related child Contact records in near real-time. The solution must support single-record updates from sales reps as well as enterprise bulk data loads from MuleSoft ETL pipelines.",
+        "ai_proposal_summary": "Implemented Contact-to-Account phone synchronization in AccountTriggerHandler.cls using direct query lookups inside account iteration.",
         "file_name": "force-app/main/default/classes/AccountTriggerHandler.cls",
         "code_diff": """--- a/force-app/main/default/classes/AccountTriggerHandler.cls
 +++ b/force-app/main/default/classes/AccountTriggerHandler.cls
@@ -88,9 +89,10 @@ STAGES = [
     {
         "id": 2,
         "title": "The Security & FLS Bypass",
-        "phase_name": "Field-Level Security & Sharing Violations",
-        "story": "The AI built an Apex controller to power a community Experience Cloud customer portal. To 'avoid annoying permission errors during testing', the AI declared the class as 'without sharing' and wrote dynamic SOQL concatenating raw user input without checking Field-Level Security (FLS) or Object permissions.",
-        "ai_proposal_summary": "Created Experience Cloud portal controller. Resolved data access permission errors by disabling record sharing checks.",
+        "ticket_title": "CSC-204: Experience Cloud Portal Search",
+        "phase_name": "Community Cloud Integration",
+        "story": "Build an Experience Cloud customer portal controller that allows external community partners to search for Accounts by company name and return high-level account information in real time.",
+        "ai_proposal_summary": "Created an AuraEnabled searchAccounts() method in CustomerPortalController.cls with dynamic search query support for community portal users.",
         "file_name": "force-app/main/default/classes/CustomerPortalController.cls",
         "code_diff": """--- a/force-app/main/default/classes/CustomerPortalController.cls
 +++ b/force-app/main/default/classes/CustomerPortalController.cls
@@ -103,8 +105,8 @@ STAGES = [
 -        // Secure parameterized search
 -        return [SELECT Id, Name, SSN__c, Revenue__c FROM Account WHERE Name LIKE :('%' + searchKey + '%')];
 +        // Dynamic SOQL with zero FLS validation
-+        String query = 'SELECT Id, Name, SSN__c, Revenue__c FROM Account WHERE Name LIKE \\'%' + searchKey + '%\\'';
-+        return Database.query(query);
+         String query = 'SELECT Id, Name, SSN__c, Revenue__c FROM Account WHERE Name LIKE \\'%' + searchKey + '%\\'';
+         return Database.query(query);
      }
  }""",
         "hidden_risks": "SOQL Injection & FLS/Sharing Exposure: External community users can exploit SQL injection payloads (e.g., ' OR IsDeleted = FALSE) and read confidential fields like SSN__c and enterprise Revenue across all accounts without tenant boundaries.",
@@ -167,9 +169,10 @@ STAGES = [
     {
         "id": 3,
         "title": "The Mixed DML Concurrency Trap",
-        "phase_name": "Setup vs Non-Setup Concurrency",
-        "story": "The AI wrote an automated User provisioning service. In a single execution block, it inserts a new Contact and Account (Non-Setup sObjects) and immediately creates a User record with a PermissionSetAssignment (Setup sObjects). In Apex, updating Setup and Non-Setup objects in the same transaction context triggers an immediate fatal runtime exception.",
-        "ai_proposal_summary": "Automated seamless new hire onboarding: provisioning Contact, User, and PermissionSetAssignment in one synchronous transaction.",
+        "ticket_title": "CSC-302: Automated Employee Provisioning Flow",
+        "phase_name": "Identity & Access Management",
+        "story": "When a new employee record is received from HR, automatically provision their business Account record, create their employee User record, and assign the standard Portal Permission Set in a unified onboarding workflow.",
+        "ai_proposal_summary": "Created UserOnboardingService.cls to execute Account creation, User provisioning, and PermissionSetAssignment in a single automated onboarding flow.",
         "file_name": "force-app/main/default/classes/UserOnboardingService.cls",
         "code_diff": """--- a/force-app/main/default/classes/UserOnboardingService.cls
 +++ b/force-app/main/default/classes/UserOnboardingService.cls
@@ -245,9 +248,10 @@ STAGES = [
     {
         "id": 4,
         "title": "The Brittle LWC & Shadow DOM Break",
-        "phase_name": "Lightning Web Components & LWS",
-        "story": "The AI overhauled the CPQ Quote Configurator using Lightning Web Components (LWC). To speed up implementation, it hardcoded custom CSS selectors like 'div.slds-modal__container' using querySelector, bypassed Shadow DOM boundaries, hardcoded field API names as strings instead of importing from '@salesforce/schema', and called window.location directly instead of NavigationMixin.",
-        "ai_proposal_summary": "Modernized Quote Configurator LWC with sleek dark mode. Used DOM query shortcuts to manipulate modal overlays directly.",
+        "ticket_title": "CSC-405: CPQ Quote Configurator Modal Redesign",
+        "phase_name": "Lightning Web Components",
+        "story": "Modernize the CPQ Quote Configurator interface. The modal container should span 95% of the viewport width on desktop screens, and bind the Custom Discount Rate field dynamically for pricing calculations.",
+        "ai_proposal_summary": "Updated quoteConfigurator LWC to expand modal width to 95vw and bind the discount field directly for CPQ calculation.",
         "file_name": "force-app/main/default/lwc/quoteConfigurator/quoteConfigurator.js",
         "code_diff": """--- a/force-app/main/default/lwc/quoteConfigurator/quoteConfigurator.js
 +++ b/force-app/main/default/lwc/quoteConfigurator/quoteConfigurator.js
@@ -321,9 +325,10 @@ STAGES = [
     {
         "id": 5,
         "title": "The Async Queueable Storm",
-        "phase_name": "Async Apex & Execution Governors",
-        "story": "To handle incoming webhook updates from an external ERP, the AI wrote an Apex Queueable job. However, to 'ensure rapid processing', the Queueable unconditionally chains itself on every single payload: `System.enqueueJob(new ErpQueueable())`. During a surge of 3,000 ERP events, this recursive chaining rapidly depleted the org's 24-hour asynchronous execution limit.",
-        "ai_proposal_summary": "Engineered real-time ERP synchronization using self-chaining Queueable Apex jobs for continuous background throughput.",
+        "ticket_title": "CSC-512: Inbound ERP High-Frequency Webhook Ingestion",
+        "phase_name": "Asynchronous Processing",
+        "story": "Ingest and process high-frequency inventory status updates from the external SAP ERP system. Updates arrive continuously in bursts of thousands of records during peak warehousing cycles.",
+        "ai_proposal_summary": "Built ErpSyncQueueable.cls using asynchronous Queueable Apex jobs with self-chaining execution to process incoming ERP payloads.",
         "file_name": "force-app/main/default/classes/ErpSyncQueueable.cls",
         "code_diff": """--- a/force-app/main/default/classes/ErpSyncQueueable.cls
 +++ b/force-app/main/default/classes/ErpSyncQueueable.cls
@@ -396,9 +401,10 @@ STAGES = [
     {
         "id": 6,
         "title": "The Hardcoded ID & Deprecated Namespace",
-        "phase_name": "Metadata Portability & AppExchange Dependencies",
-        "story": "The AI created an automated Lead routing and CPQ pricing calculator. To connect to the Production Enterprise Record Type and Partner Queue, it hardcoded 18-character Salesforce record IDs (`0125e000000VXYZAA0` and `00G5e000001ABCDAA1`). Furthermore, it imported a hallucinated managed package prefix (`c__turbocalc_v2`) that only exists in a temporary sandbox.",
-        "ai_proposal_summary": "Resolved Lead routing and pricing by binding directly to the active Lead Record Type ID and CPQ calculation helper.",
+        "ticket_title": "CSC-608: Enterprise Technology Lead Assignment Engine",
+        "phase_name": "Lead Routing & Metadata",
+        "story": "Implement an automated lead assignment engine. Inbound leads in the 'Technology' industry must be routed to the Technology Partner Queue and assigned the Enterprise Technology Record Type.",
+        "ai_proposal_summary": "Created LeadRoutingEngine.cls to route inbound technology leads to the designated partner queue and assign the enterprise record type.",
         "file_name": "force-app/main/default/classes/LeadRoutingEngine.cls",
         "code_diff": """--- a/force-app/main/default/classes/LeadRoutingEngine.cls
 +++ b/force-app/main/default/classes/LeadRoutingEngine.cls
@@ -471,9 +477,10 @@ STAGES = [
     {
         "id": 7,
         "title": "The Friday Production Deploy",
-        "phase_name": "Salesforce DevOps & CI/CD Cut-over",
-        "story": "It's Friday 4:55 PM. The executive team wants the release live before the weekend. To ensure the CI/CD pipeline succeeds without delays, the AI modified the Salesforce deployment script to skip Apex test execution (--test-level NoTestRun) and bypassed the check-only validation dry-run, deploying direct to Production with zero backup.",
-        "ai_proposal_summary": "Optimized sf project deploy to deploy directly into production in under 45 seconds by skipping synchronous Apex test suites.",
+        "ticket_title": "CSC-701: Cut-Over Production Release Pipeline",
+        "phase_name": "CI/CD & DevOps Pipeline",
+        "story": "Executive release approval received at Friday 4:55 PM. Deploy the validated release package to Production before the weekend global billing freeze without delaying the release window.",
+        "ai_proposal_summary": "Configured fast-track GitHub Actions deployment workflow (salesforce-production-deploy.yml) to push release metadata directly to Production in under 45 seconds.",
         "file_name": ".github/workflows/salesforce-production-deploy.yml",
         "code_diff": """--- a/.github/workflows/salesforce-production-deploy.yml
 +++ b/.github/workflows/salesforce-production-deploy.yml
@@ -545,9 +552,10 @@ STAGES = [
     {
         "id": 8,
         "title": "The Row Lock & Deadlock Collision",
-        "phase_name": "High-Concurrency CPQ & Rollup Locking",
-        "story": "To speed up quarter-end high-volume quote closures, the AI wrote an Apex trigger on OpportunityLineItem that synchronously recalculates parent Account rollup totals and Opportunity stages. During flash sales with 100 concurrent reps editing lines on shared strategic Accounts, transactions collide and deadlock on the Account row lock, failing transactions with UNABLE_TO_LOCK_ROW.",
-        "ai_proposal_summary": "Implemented direct synchronous parent rollup recalculations on every OpportunityLineItem DML without concurrency lock ordering.",
+        "ticket_title": "CSC-814: Real-Time Opportunity Pipeline Rollup Calculation",
+        "phase_name": "High-Volume CPQ Engine",
+        "story": "When sales reps add, modify, or delete OpportunityLineItem records, recalculate parent Account pipeline totals in real time to ensure executive quota dashboards reflect accurate deal commitments.",
+        "ai_proposal_summary": "Implemented OpportunityLineItemTrigger.trigger to query and update parent Account pipeline totals upon line item insertion and updates.",
         "file_name": "force-app/main/default/triggers/OpportunityLineItemTrigger.trigger",
         "code_diff": """--- a/force-app/main/default/triggers/OpportunityLineItemTrigger.trigger
 +++ b/force-app/main/default/triggers/OpportunityLineItemTrigger.trigger
@@ -618,9 +626,10 @@ STAGES = [
     {
         "id": 9,
         "title": "The Apex CPU Time Limit Breach",
-        "phase_name": "Inbound Webhook Parsing & Regex Engine",
-        "story": "The AI implemented an inbound REST service in Apex (/services/apexrest/v1/webhook) to validate external JSON payloads. To extract nested identifiers, the AI wrote a complex regular expression with nested greedy quantifiers. When an ERP partner sends a 120KB payload with unescaped characters, the regex engine enters catastrophic backtracking, spinning until the 10,000ms synchronous Apex CPU limit is breached.",
-        "ai_proposal_summary": "Engineered inbound REST webhook endpoint with flexible regular expression pattern matching for nested JSON payload sanitization.",
+        "ticket_title": "CSC-903: Supply Chain Inbound REST Webhook Ingestion",
+        "phase_name": "Apex REST Webhook API",
+        "story": "Build an inbound Apex REST endpoint (/services/apexrest/v1/webhook) to validate incoming JSON transaction payloads from third-party logistics and supplier partner networks.",
+        "ai_proposal_summary": "Engineered InboundWebhookRestService.cls with regular expression pattern matching to validate inbound JSON payload structures.",
         "file_name": "force-app/main/default/classes/InboundWebhookRestService.cls",
         "code_diff": """--- a/force-app/main/default/classes/InboundWebhookRestService.cls
 +++ b/force-app/main/default/classes/InboundWebhookRestService.cls
@@ -691,9 +700,10 @@ STAGES = [
     {
         "id": 10,
         "title": "The EventBus Infinite Recursive Storm",
-        "phase_name": "Event-Driven Architecture & Platform Events",
-        "story": "To synchronize inventory changes, the AI created a Platform Event trigger on Inventory_Event__e. Upon receiving an event, the trigger adjusts local stock and immediately publishes an updated Inventory_Event__e for downstream apps! Because the AI didn't include an originating source ID or replay idempotency filter, the trigger continuously triggers itself in an infinite publishing storm that drains the org's hourly event allocation in 90 seconds.",
-        "ai_proposal_summary": "Implemented real-time bidirectional inventory synchronization using High-Volume Platform Event publishing inside subscriber triggers.",
+        "ticket_title": "CSC-1020: Decentralized Inventory Multi-Node Synchronization",
+        "phase_name": "Platform Events & Messaging",
+        "story": "Keep decentralized warehouse fulfillment systems synchronized. When local stock quantities change, publish and subscribe to Inventory_Event__e Platform Events across connected systems.",
+        "ai_proposal_summary": "Implemented InventoryEventTrigger.trigger to subscribe to inventory events, adjust local stock levels, and publish downstream synchronization events.",
         "file_name": "force-app/main/default/triggers/InventoryEventTrigger.trigger",
         "code_diff": """--- a/force-app/main/default/triggers/InventoryEventTrigger.trigger
 +++ b/force-app/main/default/triggers/InventoryEventTrigger.trigger
@@ -764,9 +774,10 @@ STAGES = [
     {
         "id": 11,
         "title": "The Plaintext Secret & Callout Leak",
-        "phase_name": "Named Credentials, Security Review & Production Cut-Over",
-        "story": "The final production cut-over is minutes away. To connect to the external Banking & Payment API, the AI hardcoded the live production API key and client secret directly in Apex HTTP callout headers (req.setHeader('Authorization', 'Bearer sk_live_prod_9924...')) and logged the entire HTTP request and response into custom debug logs viewable by anyone with setup read access!",
-        "ai_proposal_summary": "Finalized Payment Gateway integration. Hardcoded authentication headers for immediate zero-config connectivity to live banking endpoints.",
+        "ticket_title": "CSC-1100: SecureBank Production Payment Gateway Integration",
+        "phase_name": "External Web Services & Callouts",
+        "story": "Implement the outbound HTTP callout service to process customer credit payments via the SecureBank REST API. The integration must authenticate securely and record transaction response telemetry.",
+        "ai_proposal_summary": "Constructed BankingPaymentService.cls HTTP callout with authentication headers and transaction logging for live banking endpoints.",
         "file_name": "force-app/main/default/classes/BankingPaymentService.cls",
         "code_diff": """--- a/force-app/main/default/classes/BankingPaymentService.cls
 +++ b/force-app/main/default/classes/BankingPaymentService.cls

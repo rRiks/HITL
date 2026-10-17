@@ -48,6 +48,10 @@ class GameStateManager:
         self.is_timer_paused: bool = False
         self.timer_override: Optional[bool] = None
         self._shuffled_suggestions: Dict[int, List[Dict[str, Any]]] = {}
+        # Hint Economy (Budget of 6 hints across entire 11 stages)
+        self.max_hints: int = 6
+        self.hints_remaining: int = 6
+        self.revealed_hints: List[int] = []
 
     def is_effective_timer_paused(self) -> bool:
         if getattr(self, "timer_override", None) is not None:
@@ -83,6 +87,8 @@ class GameStateManager:
         self.is_timer_paused = False
         self.timer_override = None
         self._shuffled_suggestions = {}
+        self.hints_remaining = 6
+        self.revealed_hints = []
 
     def retry_current_stage(self, restore_health: int = 35):
         """
@@ -328,6 +334,7 @@ class GameStateManager:
             stage_details = StageDetails(
                 id=current_stg["id"],
                 title=current_stg["title"],
+                ticket_title=current_stg.get("ticket_title") or current_stg["title"],
                 phase_name=current_stg["phase_name"],
                 story=current_stg["story"],
                 ai_proposal_summary=current_stg["ai_proposal_summary"],
@@ -372,7 +379,27 @@ class GameStateManager:
             tie_broken=self.tie_broken,
             tied_options=self.tied_options,
             is_timer_paused=self.is_effective_timer_paused(),
+            max_hints=getattr(self, "max_hints", 6),
+            hints_remaining=getattr(self, "hints_remaining", 6),
+            revealed_hints=getattr(self, "revealed_hints", []),
         )
+
+    def reveal_hint(self, stage_id: int) -> GameStateResponse:
+        self.last_active = time.time()
+        if not hasattr(self, "revealed_hints"):
+            self.revealed_hints = []
+        if not hasattr(self, "hints_remaining"):
+            self.hints_remaining = 6
+        if not hasattr(self, "max_hints"):
+            self.max_hints = 6
+
+        # Only charge hint if not already revealed for this stage
+        if stage_id not in self.revealed_hints:
+            if self.hints_remaining > 0:
+                self.hints_remaining -= 1
+                self.revealed_hints.append(stage_id)
+
+        return self.get_state()
 
     def process_action(self, req: ActionRequest) -> ActionResponse:
         self.last_active = time.time()

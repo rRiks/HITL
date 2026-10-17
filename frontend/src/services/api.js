@@ -253,6 +253,16 @@ export async function commitDecision(roomId = getRoomId()) {
   return res.json();
 }
 
+export async function revealHint(stageId, roomId = getRoomId()) {
+  const res = await fetch(`${API_BASE}/game/${roomId}/reveal-hint`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ stage_id: stageId }),
+  });
+  if (!res.ok) throw new Error(`Failed to reveal hint: ${res.statusText}`);
+  return res.json();
+}
+
 export async function fetchLeaderboard() {
   const res = await fetch(`${API_BASE}/leaderboard`);
   if (!res.ok) throw new Error(`Failed to fetch leaderboard: ${res.statusText}`);

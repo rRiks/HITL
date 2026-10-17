@@ -517,6 +517,8 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     totalPulls = 0,
     instabilityPct = 0,
     technicalDebt = 0,
+    hintsRemaining = 6,
+    maxHints = 6,
     isGameOver = false,
     onBlockSlide,
     onBlockLand,
@@ -1383,8 +1385,19 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
         }`}
       />
 
-      {/* Header: Debt Count Only */}
-      <div className="shrink-0 mb-1.5 flex items-center justify-end">
+      {/* Header: Hint Budget & Debt Count */}
+      <div className="shrink-0 mb-1.5 flex items-center justify-between gap-2">
+        <span className={`text-[9.5px] px-2 py-0.5 mc-font border font-bold flex items-center gap-1.5 ${
+          hintsRemaining === 0
+            ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000]'
+            : hintsRemaining <= 2
+            ? 'text-[#ffaa00] border-[#aa5500] bg-[#3a2200]'
+            : 'text-[#ffd700] border-[#554400] bg-[#221a00]'
+        }`}>
+          <span>💡</span>
+          <span>HINTS: {hintsRemaining}/{maxHints}</span>
+        </span>
+
         <span className={`text-[9.5px] px-2 py-0.5 mc-font border font-bold ${
           technicalDebt >= 4
             ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000] animate-pulse'
@@ -1486,4 +1499,4 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
   );
 });
 
-export default Virtual3DTower;
+export default React.memo(Virtual3DTower);

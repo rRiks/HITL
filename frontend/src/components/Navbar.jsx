@@ -87,7 +87,7 @@ function MinecraftHeart({ state = 'full', shake = false }) {
   );
 }
 
-export default function Navbar({
+function Navbar({
   roomId = 'table-1',
   roomCode = null,
   stageNumber = 1,
@@ -161,7 +161,7 @@ export default function Navbar({
               <button
                 onClick={handleCopyInvite}
                 title="Copy realm link or PIN for teammates"
-                className="text-[8px] mc-font px-2 py-0.5 bg-[#2a1d0d] hover:bg-[#3a2812] text-[#ffd700] border-2 border-[#ffd700] flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-sm"
+                className="text-[8px] mc-font px-2 py-0.5 bg-[#2a1d0d] hover:bg-[#3a2812] text-[#ffd700] border-2 border-[#ffd700] flex items-center gap-1.5 cursor-pointer transition-all shadow-sm"
               >
                 {copiedLink ? <Check className="w-3 h-3 text-[#55ff55]" /> : <Share2 className="w-3 h-3 text-[#ffd700]" />}
                 <span className="font-bold">PIN: {displayPin}</span>
@@ -326,3 +326,5 @@ export default function Navbar({
     </header>
   );
 }
+
+export default React.memo(Navbar);
