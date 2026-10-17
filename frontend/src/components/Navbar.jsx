@@ -143,168 +143,121 @@ function Navbar({
   const isLowHealth = health <= 25;
 
   return (
-    <header className="h-[64px] w-full max-w-full overflow-hidden bg-[#1c1c1c] border-b-4 border-[#101010] px-2 sm:px-3 flex items-center justify-between gap-1.5 sm:gap-2 shrink-0 select-none z-30 shadow-lg text-white">
-      {/* Left: Branding & 11-Stage Circuit Nodes */}
+    <header className="h-[52px] sm:h-[56px] w-full max-w-full overflow-hidden border-b border-white/10 bg-slate-950/90 backdrop-blur px-3 sm:px-4 flex items-center justify-between gap-3 shrink-0 select-none z-30 shadow-sm text-slate-100">
+      {/* 1. Left Cluster: Session Identity */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <div className="flex items-center gap-2">
-          <div
-            className="w-8 h-8 bg-[#3c3c3c] border-2 border-[#555] flex items-center justify-center shadow-md text-base shrink-0 mc-hud-box"
-            style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
-          >
+          <div className="w-7 h-7 rounded-md bg-slate-900 border border-white/10 flex items-center justify-center text-sm shadow-xs shrink-0">
             ⛏️
           </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-[#ffd700] text-xs sm:text-sm tracking-wider mc-font">
-                HITL MINECRAFT
-              </span>
-              <span
-                className="hidden md:inline text-[8px] mc-font px-1.5 py-0.5 bg-[#2a2a2a] text-[#aaa] border border-[#444] mc-badge-pill"
-                style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
-              >
-                WORLD AIDLC
-              </span>
-              <button
-                onClick={handleCopyInvite}
-                title="Copy realm link or PIN for teammates"
-                className="text-[8px] mc-font px-2 py-0.5 bg-[#2a1d0d] hover:bg-[#3a2812] text-[#ffd700] border-2 border-[#ffd700] flex items-center gap-1.5 cursor-pointer transition-all shadow-sm mc-badge-pill"
-                style={{ borderRadius: 'var(--theme-radius-btn, 0px)' }}
-              >
-                {copiedLink ? <Check className="w-3 h-3 text-[#55ff55]" /> : <Share2 className="w-3 h-3 text-[#ffd700]" />}
-                <span className="font-bold">PIN: {displayPin}</span>
-                <span className="hidden lg:inline text-[8px] text-[#55ff55] font-bold">{copiedLink ? 'COPIED!' : 'SHARE'}</span>
-              </button>
-            </div>
-            <div className="text-[9px] text-[#aaa] mc-font flex items-center gap-2 mt-0.5">
-              <span className="flex items-center gap-1 truncate max-w-[100px] sm:max-w-none">
-                <span className="w-1.5 h-1.5 bg-[#55ff55] animate-pulse shrink-0 inline-block" />
-                <span>REALM: <strong className="text-white">{teamName}</strong></span>
-              </span>
-              <span
-                className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.2 bg-[#2d241e] text-[#ffaa00] border border-[#553311] text-[8px] mc-badge-pill"
-                style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
-              >
-                <User className="w-2.5 h-2.5 text-[#ffd700]" />
-                <span>{getPlayerName()}</span>
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Compact 11-Segment Stage Progression Indicator */}
-        <div
-          className="flex items-center gap-1.5 px-2 py-1 bg-[#15120e] border border-[#ffaa00]/40 shrink-0 mc-hud-box"
-          style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
-        >
-          <span className="text-[9px] mc-font text-[#ffd700] whitespace-nowrap">LV{stageNumber}/{totalStages}</span>
-          <div className="hidden sm:flex items-center gap-0.5">
-            {Array.from({ length: totalStages }).map((_, i) => {
-              const stgNum = i + 1;
-              const isCompleted = stgNum < stageNumber;
-              const isCurrent = stgNum === stageNumber;
-
-              return (
-                <div
-                  key={i}
-                  title={`Stage ${stgNum}`}
-                  className={`w-2 h-3.5 border transition-all ${
-                    isCurrent
-                      ? 'bg-[#ffd700] border-[#ffffff] shadow-sm animate-pulse'
-                      : isCompleted
-                      ? 'bg-[#55ff55] border-[#2d5a2d]'
-                      : 'bg-[#2a2a2a] border-[#444]'
-                  }`}
-                  style={{ borderRadius: 'calc(var(--theme-radius-slot, 0px) * 0.25)' }}
-                />
-              );
-            })}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="font-bold text-slate-100 text-xs tracking-wider font-mono">
+              HITL MINECRAFT
+            </span>
+            <span className="hidden md:inline-flex items-center text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-900/90 text-slate-300 border border-white/10">
+              {teamName}
+            </span>
+            <span className="hidden lg:inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-900/90 text-slate-300 border border-white/10">
+              <User className="w-2.5 h-2.5 text-amber-400" />
+              <span>{getPlayerName()}</span>
+            </span>
+            <button
+              type="button"
+              onClick={handleCopyInvite}
+              title="Copy realm link or PIN for teammates"
+              className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 cursor-pointer transition-all shadow-xs"
+            >
+              {copiedLink ? <Check className="w-3 h-3 text-emerald-400" /> : <Share2 className="w-3 h-3 text-amber-400" />}
+              <span>PIN: {displayPin}</span>
+              {copiedLink && <span className="text-[9px] text-emerald-400 font-bold">COPIED</span>}
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Center: Authentic 10 Minecraft Hearts Bar */}
-      <div
-        className="hidden md:flex items-center gap-2 bg-[#121212] border-2 border-[#333] px-2 sm:px-2.5 py-1 shadow-inner shrink-0 mc-hud-box"
-        style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
-      >
-        <div className="flex items-center gap-0.5">
-          {hearts.map((state, idx) => (
-            <MinecraftHeart key={idx} state={state} shake={isLowHealth} />
-          ))}
+      {/* 2. Center Cluster: Unified Stakes & Urgency (Wave + Health + Timer) */}
+      <div className="flex items-center gap-2 sm:gap-3 bg-slate-900/80 border border-white/10 px-3 sm:px-3.5 py-1.5 rounded-full shadow-inner shrink-0">
+        {/* Wave Progress */}
+        <div className="flex items-center gap-1.5 font-mono text-xs font-semibold text-amber-400">
+          <span className="text-slate-400 font-sans text-[11px] uppercase tracking-wider font-medium">Wave</span>
+          <span>{stageNumber}/{totalStages}</span>
         </div>
-        <span className={`text-[10px] mc-font font-bold ml-1 ${
-          health > 60 ? 'text-[#55ff55]' : health > 30 ? 'text-[#ffaa00]' : 'text-[#ff5555] animate-pulse'
-        }`}>
-          {health}%
-        </span>
-      </div>
 
-      {/* Right: Minecraft Timer & Audio / Controls */}
-      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 ml-auto">
-        {/* Minecraft Clock Timer */}
+        <div className="w-px h-3.5 bg-white/10 shrink-0" />
+
+        {/* Health & Stability */}
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-0.5">
+            {hearts.map((state, idx) => (
+              <MinecraftHeart key={idx} state={state} shake={isLowHealth} />
+            ))}
+          </div>
+          <span className={`text-xs font-mono font-bold ${
+            health > 60 ? 'text-emerald-400' : health > 30 ? 'text-amber-400' : 'text-rose-400 animate-pulse'
+          }`}>
+            {health}%
+          </span>
+        </div>
+
+        <div className="w-px h-3.5 bg-white/10 shrink-0" />
+
+        {/* Countdown Timer */}
         <div
-          className={`flex items-center gap-1.5 px-2 py-1 border-2 mc-font transition-all shrink-0 mc-hud-box ${
+          className={`flex items-center gap-1.5 font-mono text-xs font-bold transition-colors ${
             isTimerPaused
-              ? 'bg-[#332200] border-[#ffd700] text-[#ffd700] animate-pulse shadow-md shadow-amber-900/40'
+              ? 'text-amber-400 animate-pulse'
               : isUrgent
-              ? 'bg-[#3a0000] border-[#ff3333] text-[#ff5555] animate-pulse shadow-md shadow-red-900/40'
+              ? 'text-rose-400 animate-pulse'
               : isZero
-              ? 'bg-[#550000] border-[#ff0000] text-[#ffffff] animate-bounce'
-              : 'bg-[#252525] border-[#444] text-[#ffd700]'
+              ? 'text-rose-500 animate-bounce'
+              : 'text-slate-200'
           }`}
-          style={{ borderRadius: 'var(--theme-radius-btn, 0px)' }}
           title={isTimerPaused ? 'Game Master paused the countdown timer' : 'Stage countdown timer'}
         >
-          <Clock className={`w-3.5 h-3.5 ${isTimerPaused ? 'text-[#ffd700]' : isUrgent ? 'text-[#ff5555] animate-spin' : 'text-[#ffd700]'}`} />
-          <div className="leading-none flex items-center gap-1">
-            <span className="text-xs sm:text-sm font-bold tracking-wider">
-              {formattedTime}
+          <Clock className={`w-3.5 h-3.5 ${isTimerPaused ? 'text-amber-400' : isUrgent ? 'text-rose-400 animate-spin' : 'text-slate-400'}`} />
+          <span>{formattedTime}</span>
+          {isTimerPaused && (
+            <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
+              PAUSED
             </span>
-            {isTimerPaused && (
-              <span
-                className="hidden sm:inline-block text-[8px] bg-[#553300] px-1 py-0.2 border border-[#ffd700] text-[#ffd700] ml-0.5 mc-badge-pill"
-                style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
-              >
-                PAUSED
-              </span>
-            )}
-          </div>
+          )}
         </div>
+      </div>
 
+      {/* 3. Right Cluster: Utilities Toolbar */}
+      <div className="flex items-center gap-1 shrink-0">
         {/* Music Synth Toggle */}
         <button
+          type="button"
           onClick={onToggleMusic}
           title={musicEnabled ? 'Mute Atmosphere Music' : 'Enable Atmosphere Music'}
-          className={`mc-btn p-1.5 text-xs flex items-center gap-1 cursor-pointer shrink-0 ${
-            musicEnabled ? 'text-[#55ff55]' : 'text-[#888]'
-          }`}
+          className="text-slate-400 hover:text-white hover:bg-white/5 rounded-md p-1.5 transition-colors cursor-pointer"
         >
-          <Music className="w-3.5 h-3.5" />
-          <span className="hidden xl:inline text-[8px] mc-font">NOTE</span>
+          <Music className={`w-4 h-4 ${musicEnabled ? 'text-emerald-400' : 'text-slate-500'}`} />
         </button>
 
         {/* Sound FX Toggle */}
         <button
+          type="button"
           onClick={onToggleSound}
           title={soundEnabled ? 'Mute Sound FX' : 'Enable Sound FX'}
-          className={`mc-btn p-1.5 text-xs cursor-pointer shrink-0 ${
-            soundEnabled ? 'text-white' : 'text-[#666]'
-          }`}
+          className="text-slate-400 hover:text-white hover:bg-white/5 rounded-md p-1.5 transition-colors cursor-pointer"
         >
-          {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+          {soundEnabled ? <Volume2 className="w-4 h-4 text-slate-200" /> : <VolumeX className="w-4 h-4 text-slate-500" />}
         </button>
 
         {/* Theme Toggle (Light / Dark Realm) */}
         {onToggleTheme && (
           <button
+            type="button"
             onClick={onToggleTheme}
             title={theme === 'light' ? 'Switch to Dark Realm' : 'Switch to Light Realm'}
-            className="mc-btn p-1.5 text-xs flex items-center gap-1 cursor-pointer shrink-0 transition-colors"
+            className="text-slate-400 hover:text-white hover:bg-white/5 rounded-md p-1.5 transition-colors cursor-pointer"
           >
             {theme === 'light' ? (
-              <Sun className="w-3.5 h-3.5 text-[#d97706]" />
+              <Sun className="w-4 h-4 text-amber-400" />
             ) : (
-              <Moon className="w-3.5 h-3.5 text-[#38bdf8]" />
+              <Moon className="w-4 h-4 text-sky-400" />
             )}
           </button>
         )}
@@ -312,35 +265,36 @@ function Navbar({
         {/* Reset AIDLC / World (Hidden for Spectators) */}
         {!isSpectator && onResetGame && (
           <button
+            type="button"
             onClick={onResetGame}
             title="Respawn / Reset World"
-            className="mc-btn p-1.5 text-xs text-[#ffaa00] hover:text-[#ff5555] cursor-pointer shrink-0"
+            className="text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-md p-1.5 transition-colors cursor-pointer"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-4 h-4" />
           </button>
         )}
 
         {/* In-Game Cockpit Field Guide (Manual & Rules) */}
         {onOpenFieldGuide && (
           <button
+            type="button"
             onClick={onOpenFieldGuide}
             title="Open Interactive Cockpit Field Guide (Help & Rules Manual)"
-            className="mc-btn px-2.5 py-1 text-[8px] sm:text-[9px] mc-font text-[#55ffff] hover:text-white cursor-pointer flex items-center gap-1 shrink-0 bg-[#0c1c28] border-[#38bdf8]"
+            className="text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10 rounded-md p-1.5 transition-colors cursor-pointer"
           >
-            <BookOpen className="w-3.5 h-3.5 text-[#55ffff]" />
-            <span className="hidden sm:inline">GUIDE</span>
+            <BookOpen className="w-4 h-4" />
           </button>
         )}
 
         {/* Exit to Lobby / Return to Admin */}
         {onExitToLobby && (
           <button
+            type="button"
             onClick={onExitToLobby}
             title={isSpectator ? "Return to Admin Panel" : "Return to Main Menu"}
-            className="mc-btn px-2.5 py-1 text-[8px] sm:text-[9px] mc-font text-[#ffd700] hover:text-white cursor-pointer flex items-center gap-1 shrink-0 bg-[#3a2211] border-[#ffaa00]"
+            className="text-slate-400 hover:text-amber-300 hover:bg-amber-500/10 rounded-md p-1.5 transition-colors cursor-pointer"
           >
-            <Home className="w-3.5 h-3.5 text-[#ffd700]" />
-            <span>{isSpectator ? "ADMIN" : "MENU"}</span>
+            <Home className="w-4 h-4" />
           </button>
         )}
       </div>

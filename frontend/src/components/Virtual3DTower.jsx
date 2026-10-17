@@ -520,6 +520,8 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     hintsRemaining = 6,
     maxHints = 6,
     isGameOver = false,
+    activePlayers = [],
+    votesTally = {},
     onBlockSlide,
     onBlockLand,
     onTriggerStressCollapse,
@@ -1377,7 +1379,7 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
       : 'text-emerald-800 border-emerald-300 bg-emerald-50';
 
   return (
-    <div className="mc-panel-dark p-2 sm:p-2.5 flex flex-col justify-between h-full relative overflow-hidden select-none">
+    <div className="flex-1 min-h-[300px] relative w-full h-full bg-slate-900/60 border border-white/10 rounded-xl overflow-hidden shadow-xl select-none flex flex-col">
       {/* Background ambient lighting */}
       <div
         className={`absolute -top-16 -right-16 w-64 h-64 rounded-full blur-3xl opacity-15 pointer-events-none transition-colors duration-700 ${
@@ -1385,48 +1387,32 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
         }`}
       />
 
-      {/* Header: Hint Budget & Debt Count */}
-      <div className="shrink-0 mb-1.5 flex items-center justify-between gap-2">
-        <span
-          className={`text-[9.5px] px-2 py-0.5 mc-font border font-bold flex items-center gap-1.5 mc-badge-pill ${
-            hintsRemaining === 0
-              ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000]'
-              : hintsRemaining <= 2
-              ? 'text-[#ffaa00] border-[#aa5500] bg-[#3a2200]'
-              : 'text-[#ffd700] border-[#554400] bg-[#221a00]'
-          }`}
-          style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
-        >
-          <span>💡</span>
-          <span>HINTS: {hintsRemaining}/{maxHints}</span>
-        </span>
-
-        <span
-          className={`text-[9.5px] px-2 py-0.5 mc-font border font-bold mc-badge-pill ${
-            technicalDebt >= 4
-              ? 'text-[#ff5555] border-[#aa0000] bg-[#3a0000] animate-pulse'
-              : technicalDebt > 0
-              ? 'text-[#ffaa00] border-[#aa5500] bg-[#3a2200]'
-              : 'text-[#888] border-[#444] bg-[#1a1a1a]'
-          }`}
-          style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
-        >
-          DEBT: {technicalDebt}/5 {technicalDebt >= 4 ? '⚠️ FRAGILE' : ''}
-        </span>
-      </div>
-
-      {/* 3D WebGL Canvas with Close-up Focus & Minecraft Crosshair */}
-      <div
-        className="relative w-full flex-1 min-h-[200px] bg-[#101318] border-2 border-[#333] overflow-hidden group select-none shadow-inner mc-inner-box"
-        style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
-      >
+      {/* 3D WebGL Canvas */}
+      <div className="relative w-full h-full flex-1 overflow-hidden group">
         <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
+
+        {/* Top-Left Telemetry Overlay: TECH DEBT */}
+        <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-1.5 bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none">
+          <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+            TECH DEBT:
+          </span>
+          <span
+            className={`font-mono text-xs font-semibold ${
+              technicalDebt >= 4
+                ? 'text-rose-400 animate-pulse'
+                : technicalDebt > 0
+                ? 'text-amber-400'
+                : 'text-slate-300'
+            }`}
+          >
+            {technicalDebt}/5 {technicalDebt >= 4 ? '⚠️ FRAGILE' : ''}
+          </span>
+        </div>
 
         {/* Full-view Target Reticle */}
         {activeExtractionInfo && (
           <div className="absolute inset-0 pointer-events-none z-20 flex flex-col justify-end p-3 select-none">
-
-            {/* Authentic Minecraft White Crosshair */}
+            {/* Authentic White Crosshair */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
               <div className="w-5 h-5 relative flex items-center justify-center">
                 <div className="absolute w-5 h-1 bg-white/80 shadow-[0_0_2px_black]" />
@@ -1435,52 +1421,44 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
             </div>
 
             {/* Bottom Live Extraction Status Ticker */}
-            <div
-              className="self-center bg-[#1a110a]/95 border-2 border-[#ffd700] text-[#ffd700] px-3 py-1 text-[9px] mc-font flex items-center gap-2 backdrop-blur-md shadow-xl mc-badge-pill"
-              style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
-            >
-              <span className="w-2 h-2 bg-[#ff5555] animate-ping inline-block" />
+            <div className="self-center bg-slate-950/90 border border-amber-500/40 text-amber-300 px-3 py-1 rounded-md text-[10px] font-mono flex items-center gap-2 backdrop-blur-md shadow-xl">
+              <span className="w-2 h-2 bg-rose-500 animate-ping inline-block rounded-full" />
               <span>BLOCK DESTABILIZATION IN PROGRESS...</span>
             </div>
           </div>
         )}
 
-        {/* 3D Camera Controls (Minecraft Stone Buttons) */}
-        <div className="absolute top-2 right-2 flex flex-col gap-1.5 z-10">
+        {/* 3D Camera Controls floating on top-right edge */}
+        <div className="absolute top-2.5 right-2.5 flex flex-col gap-1.5 z-20">
           <button
             onClick={() => handleZoom(-1)}
             title="Zoom In"
-            className="mc-btn p-1.5 cursor-pointer text-white shadow-md flex items-center justify-center"
+            className="w-8 h-8 rounded-lg bg-slate-950/80 hover:bg-slate-900 border border-white/10 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-colors shadow-lg backdrop-blur-sm"
           >
             <ZoomIn className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => handleZoom(1)}
             title="Zoom Out"
-            className="mc-btn p-1.5 cursor-pointer text-white shadow-md flex items-center justify-center"
+            className="w-8 h-8 rounded-lg bg-slate-950/80 hover:bg-slate-900 border border-white/10 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-colors shadow-lg backdrop-blur-sm"
           >
             <ZoomOut className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={handleResetCamera}
             title="Reset View"
-            className="mc-btn p-1.5 cursor-pointer text-white shadow-md flex items-center justify-center"
+            className="w-8 h-8 rounded-lg bg-slate-950/80 hover:bg-slate-900 border border-white/10 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-colors shadow-lg backdrop-blur-sm"
           >
             <Rotate3d className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {/* Drag Hint */}
-        <div
-          className="absolute bottom-2 left-2 text-[9px] mc-font text-[#ccc] pointer-events-none flex items-center gap-1.5 bg-[#1e1e1e]/90 px-2 py-1 border border-[#555] backdrop-blur-sm shadow-sm mc-badge-pill"
-          style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
-        >
-          <Rotate3d className="w-3 h-3 text-[#ffd700]" />
-          <span>DRAG TO ORBIT • VOXEL WORLD 360°</span>
+        <div className="absolute bottom-2.5 left-2.5 text-[10px] font-mono text-slate-400 pointer-events-none flex items-center gap-1.5 bg-slate-950/80 px-2.5 py-1 border border-white/10 rounded-md backdrop-blur-sm shadow-sm">
+          <Rotate3d className="w-3 h-3 text-sky-400" />
+          <span>DRAG TO ORBIT 360°</span>
         </div>
       </div>
-
-
     </div>
   );
 });
