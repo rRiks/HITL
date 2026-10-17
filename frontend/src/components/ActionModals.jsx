@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   Rotate3d,
   Play,
+  RotateCcw,
 } from 'lucide-react';
 
 /* -------------------------------------------------------------
@@ -426,17 +427,95 @@ export function ResultModal({
           {hasBlocksToRemove && !isGameOver && (
             <button
               type="button"
-              onClick={onProceed}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isTimerPaused && onProceed) onProceed();
+              }}
               disabled={isTimerPaused}
-              className={`w-full py-1.5 text-[8px] mc-font ${
-                isTimerPaused ? 'text-[#555] cursor-not-allowed' : 'text-[#888] hover:text-white cursor-pointer'
-              } transition-colors text-center`}
+              className={`w-full py-2.5 px-3 mc-btn text-[9px] mc-font ${
+                isTimerPaused ? 'text-[#555] cursor-not-allowed opacity-60' : 'text-[#ffd700] hover:text-white cursor-pointer'
+              } transition-colors text-center shadow-md`}
             >
               <span className="pointer-events-none">
                 {isTimerPaused ? '⏸ Advancing is frozen by Game Master' : 'Skip Animation & Proceed Directly ➔'}
               </span>
             </button>
           )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------
+ * 4. Confirm Reset Modal (Respawn / Restart World Confirmation)
+ * -----------------------------------------------------------*/
+export function ConfirmResetModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  stageNumber = 1,
+  teamName = 'Squad',
+}) {
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn select-none">
+      <div className="mc-panel-dark max-w-md w-full p-6 border-4 border-[#ffaa00] shadow-2xl text-center space-y-4 relative">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-3 right-3 text-[#888] hover:text-white cursor-pointer p-1"
+          title="Close (ESC)"
+        >
+          <X className="w-5 h-5 pointer-events-none" />
+        </button>
+
+        <div className="w-12 h-12 bg-[#2d1c08] border-2 border-[#ffaa00] flex items-center justify-center mx-auto shadow-md">
+          <RotateCcw className="w-6 h-6 text-[#ffaa00] pointer-events-none" />
+        </div>
+
+        <div>
+          <h3 className="text-base font-bold text-[#ffd700] mc-font tracking-wide">
+            RESTART FROM STAGE 1?
+          </h3>
+          <p className="text-[10px] text-[#ffaa00] mc-font mt-1 uppercase">
+            {teamName} • CURRENTLY ON STAGE {stageNumber}
+          </p>
+        </div>
+
+        <p className="text-xs text-[#ccc] leading-relaxed font-sans">
+          Are you sure you want to restart this workshop run? Your squad will return to{' '}
+          <strong className="text-white">Stage 1 (100% Stability, 0 Technical Debt)</strong> and all extracted 3D blocks will be restored to the architecture tower.
+        </p>
+
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="mc-btn px-4 py-2 text-xs mc-font text-[#aaa] hover:text-white border-[#555] cursor-pointer"
+          >
+            CANCEL [ESC]
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="mc-btn mc-btn-red px-4 py-2 text-xs mc-font font-bold text-white cursor-pointer shadow-lg flex items-center gap-1.5"
+          >
+            <RotateCcw className="w-3.5 h-3.5 pointer-events-none" />
+            <span className="pointer-events-none">CONFIRM RESTART</span>
+          </button>
         </div>
       </div>
     </div>

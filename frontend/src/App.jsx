@@ -11,6 +11,7 @@ import {
   CustomPromptModal,
   GuardrailsModal,
   ResultModal,
+  ConfirmResetModal,
 } from './components/ActionModals';
 import CockpitFieldGuide from './components/CockpitFieldGuide';
 import { useSound } from './hooks/useSound';
@@ -108,6 +109,7 @@ export default function App() {
   const [isWatchingCollapse, setIsWatchingCollapse] = useState(false);
   const [screenShaking, setScreenShaking] = useState(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
+  const [showResetConfirmModal, setShowResetConfirmModal] = useState(false);
   const [myVote, setMyVote] = useState(null);
   const lastHandledStageResultRef = useRef(-1);
   const isAdvancingStageRef = useRef(false);
@@ -140,7 +142,9 @@ export default function App() {
 
   const [roomId, setRoomIdState] = useState(() => {
     const info = getRouteInfo();
-    return info.roomId || api.getRoomId();
+    const clean = info.roomId || api.getRoomId();
+    if (clean) api.setRoomId(clean);
+    return clean;
   });
 
   // Centralized URL Router Navigation
@@ -180,7 +184,8 @@ export default function App() {
   // Load initial state
   const refreshState = useCallback(async () => {
     try {
-      const state = await api.fetchGameState();
+      const targetRoom = roomId || api.getRoomId();
+      const state = await api.fetchGameState(targetRoom);
       setGameState(state);
       if (typeof state?.is_timer_paused !== 'undefined') {
         setIsTimerPausedByAdmin(!!state.is_timer_paused);
@@ -198,7 +203,7 @@ export default function App() {
     } catch (err) {
       console.warn('Initial state fetch:', err);
     }
-  }, [isSpectator]);
+  }, [roomId, isSpectator]);
 
   useEffect(() => {
     refreshState();
@@ -243,7 +248,8 @@ export default function App() {
     const pollInterval = setInterval(async () => {
       try {
         if (isAdvancingStageRef.current) return;
-        const remoteState = await api.fetchGameState();
+        const targetRoom = roomId || api.getRoomId();
+        const remoteState = await api.fetchGameState(targetRoom);
         if (typeof remoteState?.is_timer_paused !== 'undefined') {
           setIsTimerPausedByAdmin(!!remoteState.is_timer_paused);
         }
@@ -376,7 +382,8 @@ export default function App() {
 
     try {
       setLoading(true);
-      const res = await api.resolveTimeout();
+      const targetRoom = roomId || api.getRoomId();
+      const res = await api.resolveTimeout(targetRoom);
       setActionResult(res);
       setResultModalOpen(true);
       await refreshState();
@@ -385,7 +392,7 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, [gameStarted, gameState, resultModalOpen, isWatchingRemoval, sound, refreshState]);
+  }, [gameStarted, gameState, resultModalOpen, isWatchingRemoval, sound, refreshState, roomId]);
 
   useEffect(() => {
     if (timeLeft === 0 && isTimerRunning) {
@@ -414,10 +421,11 @@ export default function App() {
       setMyVote(actionType);
 
       // Submit vote to server
+      const targetRoom = roomId || api.getRoomId();
       const updatedState = await api.submitVote({
         action_type: actionType,
         time_spent_seconds: timeSpent,
-      });
+      }, targetRoom);
 
       setGameState(updatedState);
 
@@ -450,6 +458,7 @@ export default function App() {
       if (
         promptModalOpen ||
         guardrailsModalOpen ||
+        showResetConfirmModal ||
         loading ||
         !gameStarted ||
         isWatchingCollapse ||
@@ -559,6 +568,15 @@ export default function App() {
   // Exit back to Welcome Screen / Table Lobby
   const handleExitToLobby = () => {
     sessionStorage.removeItem('hitl_in_game');
+    setShowGameOverModal(false);
+    setResultModalOpen(false);
+    setActionResult(null);
+    setIsWatchingCollapse(false);
+    setIsWatchingRemoval(false);
+    setShowResetConfirmModal(false);
+    setPromptModalOpen(false);
+    setGuardrailsModalOpen(false);
+    setGameState(null);
     if (isSpectator) {
       navigateTo('admin');
     } else {
@@ -569,7 +587,9 @@ export default function App() {
   const handleResetGame = async () => {
     if (isSpectator) return;
     try {
-      const state = await api.resetGame();
+      setLoading(true);
+      const targetRoom = roomId || api.getRoomId();
+      const state = await api.resetGame(targetRoom);
       setGameState(state);
       setTimeLeft(120);
       setIsTimerRunning(true);
@@ -578,6 +598,7 @@ export default function App() {
       setIsWatchingRemoval(false);
       setIsWatchingCollapse(false);
       setShowGameOverModal(false);
+      setShowResetConfirmModal(false);
       setPromptModalOpen(false);
       setGuardrailsModalOpen(false);
       setMyVote(null);
@@ -585,6 +606,9 @@ export default function App() {
       towerRef.current?.restoreTowerStructure(0);
     } catch (err) {
       console.error('Failed to reset game:', err);
+      alert(`Failed to reset game: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -597,18 +621,19 @@ export default function App() {
       setPromptModalOpen(false);
       const timeSpent = 120 - timeLeftRef.current;
 
+      const targetRoom = roomId || api.getRoomId();
       // 1. Submit collaborative draft
       await api.submitDraft({
         draft_type: 'custom_prompt',
         custom_prompt_text: promptText,
-      });
+      }, targetRoom);
 
       // 2. Cast vote for custom prompt
       setMyVote('custom_prompt');
       const updatedState = await api.submitVote({
         action_type: 'custom_prompt',
         time_spent_seconds: timeSpent,
-      });
+      }, targetRoom);
 
       setGameState(updatedState);
       if (updatedState.stage_action_taken && updatedState.last_action_result) {
@@ -640,20 +665,21 @@ export default function App() {
       setLoading(true);
       setGuardrailsModalOpen(false);
       const timeSpent = 120 - timeLeftRef.current;
+      const targetRoom = roomId || api.getRoomId();
 
       // 1. Submit collaborative draft
       await api.submitDraft({
         draft_type: 'suggest_change',
         selected_rule_id: ruleId,
         selected_suggestion_id: ruleId,
-      });
+      }, targetRoom);
 
       // 2. Cast vote for guardrail rule
       setMyVote('suggest_change');
       const updatedState = await api.submitVote({
         action_type: 'suggest_change',
         time_spent_seconds: timeSpent,
-      });
+      }, targetRoom);
 
       setGameState(updatedState);
       if (updatedState.stage_action_taken && updatedState.last_action_result) {
@@ -714,7 +740,10 @@ export default function App() {
     }
     try {
       setLoading(true);
-      const nextState = await api.nextStage();
+      const targetRoom = roomId || api.getRoomId();
+      // Suppress polling resurrection of the modal during transition
+      lastHandledStageResultRef.current = gameState?.current_stage_index ?? -1;
+      const nextState = await api.nextStage(targetRoom);
       lastHandledStageResultRef.current = -1;
       setGameState(nextState);
       setTimeLeft(120);
@@ -724,21 +753,23 @@ export default function App() {
     } catch (err) {
       console.error('Failed to advance stage:', err);
       try {
-        const fallback = await api.fetchGameState();
+        const targetRoom = roomId || api.getRoomId();
+        const fallback = await api.fetchGameState(targetRoom);
         setGameState(fallback);
       } catch {}
     } finally {
       setLoading(false);
       isAdvancingStageRef.current = false;
     }
-  }, [actionResult, refreshState, isSpectator, isTimerPausedByAdmin]);
+  }, [actionResult, refreshState, isSpectator, isTimerPausedByAdmin, roomId, gameState?.current_stage_index]);
 
   // Immediate Team / Solo Decision Lock-In (Forces immediate consensus resolution)
   const handleCommitDecision = async () => {
     if (isSpectator || isTimerPausedByAdmin) return;
     try {
       setLoading(true);
-      const res = await api.commitDecision();
+      const targetRoom = roomId || api.getRoomId();
+      const res = await api.commitDecision(targetRoom);
       lastHandledStageResultRef.current = gameState?.current_stage_index ?? -1;
       setActionResult(res);
       setResultModalOpen(true);
@@ -758,20 +789,22 @@ export default function App() {
 
   const handleRevealHint = useCallback(async (stageId) => {
     try {
-      const updated = await api.revealHint(stageId);
+      const targetRoom = roomId || api.getRoomId();
+      const updated = await api.revealHint(stageId, targetRoom);
       setGameState(updated);
       sound.playSuccess();
     } catch (err) {
       console.error('Failed to reveal hint:', err);
     }
-  }, [sound]);
+  }, [sound, roomId]);
 
   const handleStressCollapse = async () => {
     sound.playCrash();
     setScreenShaking(true);
     setTimeout(() => setScreenShaking(false), 800);
     try {
-      const updated = await api.reportTowerToppled();
+      const targetRoom = roomId || api.getRoomId();
+      const updated = await api.reportTowerToppled(targetRoom);
       setGameState(updated);
     } catch (err) {
       console.error(err);
@@ -810,7 +843,8 @@ export default function App() {
     if (isSpectator) return;
     try {
       setLoading(true);
-      const updated = await api.retryStage();
+      const targetRoom = roomId || api.getRoomId();
+      const updated = await api.retryStage(targetRoom);
       setGameState(updated);
       setShowGameOverModal(false);
       setIsWatchingCollapse(false);
@@ -825,10 +859,11 @@ export default function App() {
       towerRef.current?.restoreTowerStructure(updated.total_jenga_pulls);
     } catch (err) {
       console.error('Failed to retry stage:', err);
+      alert(`Failed to retry stage: ${err.message}`);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [roomId, isSpectator]);
 
   // 0. Admin Console (/admin)
   if (routeInfo.route === 'admin') {
@@ -952,7 +987,7 @@ export default function App() {
         health={gameState?.health ?? 100}
         timeLeft={timeLeft}
         isTimerRunning={isTimerRunning}
-        onResetGame={handleResetGame}
+        onResetGame={() => setShowResetConfirmModal(true)}
         onExitToLobby={handleExitToLobby}
         soundEnabled={sound.soundEnabled}
         onToggleSound={sound.toggleSound}
@@ -1135,6 +1170,18 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Restart / Reset Run Confirmation Modal */}
+      <ConfirmResetModal
+        isOpen={showResetConfirmModal}
+        onClose={() => setShowResetConfirmModal(false)}
+        onConfirm={async () => {
+          setShowResetConfirmModal(false);
+          await handleResetGame();
+        }}
+        stageNumber={(gameState?.current_stage_index ?? 0) + 1}
+        teamName={gameState?.team_name || 'Squad'}
+      />
 
       {/* Catastrophic Outage / Collapse Screen (Appears ONLY after 3.8s rubble pause) */}
       {gameState?.is_game_over && showGameOverModal && !resultModalOpen && !isWatchingCollapse && (

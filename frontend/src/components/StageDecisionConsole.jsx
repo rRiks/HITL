@@ -214,14 +214,18 @@ function StageDecisionConsole({
       <div className={`grid grid-cols-2 gap-2 ${stageActionTaken || isTimerPaused ? 'opacity-60' : ''}`}>
         {/* Slot 1: Accept as-is */}
         <div
-          onClick={() => !disabled && !isTimerPaused && onSelectAction('accept_as_is')}
+          role="button"
+          tabIndex={0}
+          onClick={() => {
+            if (!disabled && !isTimerPaused) onSelectAction('accept_as_is');
+          }}
           className={`mc-slot ${
             myVote === 'accept_as_is' ? 'mc-slot-selected' : 'mc-slot-dark'
           } p-2 flex flex-col justify-between ${
             disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-[#666]'
           } transition-colors select-none`}
         >
-          <div className="pointer-events-none select-none">
+          <div>
             <div className="flex items-center justify-between mb-1">
               <span className="text-[8px] mc-font text-[#ffd700] bg-[#332200] px-1 border border-[#664400]">
                 SLOT 1
@@ -247,34 +251,32 @@ function StageDecisionConsole({
           </div>
           <div className="mt-1.5 pt-1 border-t border-[#444] flex items-center justify-between">
             <span className="text-[7.5px] mc-font text-[#777]">RAW SPEED</span>
-            <button
-              type="button"
-              disabled={disabled || isTimerPaused}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!disabled && !isTimerPaused) onSelectAction('accept_as_is');
-              }}
-              className={`mc-btn px-2 py-0.5 text-[8px] mc-font ${
-                disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+            <div
+              className={`mc-btn px-2 py-0.5 text-[8px] mc-font pointer-events-none ${
+                disabled || isTimerPaused ? 'opacity-60' : ''
               } ${
                 myVote === 'accept_as_is' ? 'mc-btn-green' : ''
               }`}
             >
-              <span className="pointer-events-none">{myVote === 'accept_as_is' ? 'EQUIPPED' : 'SELECT'}</span>
-            </button>
+              <span>{myVote === 'accept_as_is' ? 'EQUIPPED' : 'SELECT'}</span>
+            </div>
           </div>
         </div>
 
         {/* Slot 2: Bypass & Skip */}
         <div
-          onClick={() => !disabled && !isTimerPaused && onSelectAction('deny_and_move_on')}
+          role="button"
+          tabIndex={0}
+          onClick={() => {
+            if (!disabled && !isTimerPaused) onSelectAction('deny_and_move_on');
+          }}
           className={`mc-slot ${
             myVote === 'deny_and_move_on' ? 'mc-slot-selected' : 'mc-slot-dark'
           } p-2 flex flex-col justify-between ${
             disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-[#666]'
           } transition-colors select-none`}
         >
-          <div className="pointer-events-none select-none">
+          <div>
             <div className="flex items-center justify-between mb-1">
               <span className="text-[8px] mc-font text-[#aaa] bg-[#222] px-1 border border-[#444]">
                 SLOT 2
@@ -300,27 +302,25 @@ function StageDecisionConsole({
           </div>
           <div className="mt-1.5 pt-1 border-t border-[#444] flex items-center justify-between">
             <span className="text-[7.5px] mc-font text-[#777]">SAFE SKIP</span>
-            <button
-              type="button"
-              disabled={disabled || isTimerPaused}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!disabled && !isTimerPaused) onSelectAction('deny_and_move_on');
-              }}
-              className={`mc-btn px-2 py-0.5 text-[8px] mc-font ${
-                disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+            <div
+              className={`mc-btn px-2 py-0.5 text-[8px] mc-font pointer-events-none ${
+                disabled || isTimerPaused ? 'opacity-60' : ''
               } ${
                 myVote === 'deny_and_move_on' ? 'mc-btn-green' : ''
               }`}
             >
-              <span className="pointer-events-none">{myVote === 'deny_and_move_on' ? 'EQUIPPED' : 'SELECT'}</span>
-            </button>
+              <span>{myVote === 'deny_and_move_on' ? 'EQUIPPED' : 'SELECT'}</span>
+            </div>
           </div>
         </div>
 
         {/* Slot 3: Human Guidance (Custom Prompt) */}
         <div
-          onClick={() => !disabled && !isTimerPaused && onSelectAction('custom_prompt')}
+          role="button"
+          tabIndex={0}
+          onClick={() => {
+            if (!disabled && !isTimerPaused) onSelectAction('custom_prompt');
+          }}
           className={`mc-slot ${
             myVote === 'custom_prompt' ? 'mc-slot-selected' : 'mc-slot-dark'
           } p-2 flex flex-col justify-between ${
@@ -328,7 +328,7 @@ function StageDecisionConsole({
           } transition-colors select-none`}
         >
           <div>
-            <div className="pointer-events-none select-none">
+            <div>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[8px] mc-font text-[#55ffff] bg-[#002233] px-1 border border-[#005577]">
                   SLOT 3
@@ -362,16 +362,16 @@ function StageDecisionConsole({
                       e.stopPropagation();
                       if (!disabled && !isTimerPaused) onOpenDraftPrompt && onOpenDraftPrompt();
                     }}
-                    className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer disabled:opacity-50 pointer-events-auto"
+                    className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer disabled:opacity-50"
                   >
                     <Edit3 className="w-2.5 h-2.5 pointer-events-none" />
                     <span>EDIT</span>
                   </button>
                 </div>
-                <p className="line-clamp-1 italic font-sans pointer-events-none select-none">"{customPromptDraft.text}"</p>
+                <p className="line-clamp-1 italic font-sans">"{customPromptDraft.text}"</p>
               </div>
             ) : (
-              <p className="text-[9.5px] text-[#aaa] line-clamp-1 font-sans leading-tight pointer-events-none select-none">
+              <p className="text-[9.5px] text-[#aaa] line-clamp-1 font-sans leading-tight">
                 Draft steering prompt in Book & Quill.
               </p>
             )}
@@ -379,29 +379,27 @@ function StageDecisionConsole({
 
           <div className="mt-1.5 pt-1 border-t border-[#444] flex items-center justify-between">
             <span className="text-[7.5px] mc-font text-[#777]">COLLAB</span>
-            <button
-              type="button"
-              disabled={disabled || isTimerPaused}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!disabled && !isTimerPaused) onSelectAction('custom_prompt');
-              }}
-              className={`mc-btn px-2 py-0.5 text-[8px] mc-font ${
-                disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+            <div
+              className={`mc-btn px-2 py-0.5 text-[8px] mc-font pointer-events-none ${
+                disabled || isTimerPaused ? 'opacity-60' : ''
               } ${
                 myVote === 'custom_prompt' ? 'mc-btn-green' : ''
               }`}
             >
-              <span className="pointer-events-none">
+              <span>
                 {customPromptDraft?.text ? (myVote === 'custom_prompt' ? 'EQUIPPED' : 'VOTE') : 'WRITE'}
               </span>
-            </button>
+            </div>
           </div>
         </div>
 
         {/* Slot 4: AI Suggestions */}
         <div
-          onClick={() => !disabled && !isTimerPaused && onSelectAction('suggest_change')}
+          role="button"
+          tabIndex={0}
+          onClick={() => {
+            if (!disabled && !isTimerPaused) onSelectAction('suggest_change');
+          }}
           className={`mc-slot ${
             myVote === 'suggest_change' ? 'mc-slot-selected' : 'mc-slot-dark'
           } p-2 flex flex-col justify-between ${
@@ -409,7 +407,7 @@ function StageDecisionConsole({
           } transition-colors select-none`}
         >
           <div>
-            <div className="pointer-events-none select-none">
+            <div>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[8px] mc-font text-[#ffaa00] bg-[#2a1a00] px-1 border border-[#885500]">
                   SLOT 4
@@ -443,16 +441,16 @@ function StageDecisionConsole({
                       e.stopPropagation();
                       if (!disabled && !isTimerPaused) onOpenDraftRule && onOpenDraftRule();
                     }}
-                    className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer disabled:opacity-50 pointer-events-auto"
+                    className="text-[#ffd700] hover:underline flex items-center gap-0.5 cursor-pointer disabled:opacity-50"
                   >
                     <Edit3 className="w-2.5 h-2.5 pointer-events-none" />
                     <span>EDIT</span>
                   </button>
                 </div>
-                <p className="line-clamp-1 font-semibold font-sans pointer-events-none select-none">{guardrailRuleDraft.title}</p>
+                <p className="line-clamp-1 font-semibold font-sans">{guardrailRuleDraft.title}</p>
               </div>
             ) : (
-              <p className="text-[9.5px] text-[#aaa] line-clamp-1 font-sans leading-tight pointer-events-none select-none">
+              <p className="text-[9.5px] text-[#aaa] line-clamp-1 font-sans leading-tight">
                 Review 3 AI-proposed technical fixes.
               </p>
             )}
@@ -460,23 +458,17 @@ function StageDecisionConsole({
 
           <div className="mt-1.5 pt-1 border-t border-[#444] flex items-center justify-between">
             <span className="text-[7.5px] mc-font text-[#777]">PROPOSALS</span>
-            <button
-              type="button"
-              disabled={disabled || isTimerPaused}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!disabled && !isTimerPaused) onSelectAction('suggest_change');
-              }}
-              className={`mc-btn px-2 py-0.5 text-[8px] mc-font ${
-                disabled || isTimerPaused ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+            <div
+              className={`mc-btn px-2 py-0.5 text-[8px] mc-font pointer-events-none ${
+                disabled || isTimerPaused ? 'opacity-60' : ''
               } ${
                 myVote === 'suggest_change' ? 'mc-btn-green' : ''
               }`}
             >
-              <span className="pointer-events-none">
+              <span>
                 {guardrailRuleDraft?.title ? (myVote === 'suggest_change' ? 'EQUIPPED' : 'VOTE') : 'REVIEW'}
               </span>
-            </button>
+            </div>
           </div>
         </div>
       </div>

@@ -65,7 +65,6 @@
   color: #e0e0e0;
   text-shadow: 1px 1px 0px #2b2b2b;
   cursor: pointer;
-  touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -172,7 +171,6 @@
   box-shadow: inset 2px 2px 0px #242424;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: manipulation;
 }
 
 .mc-slot-dark {
@@ -184,7 +182,6 @@
   box-shadow: inset 2px 2px 0px #050505;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: manipulation;
 }
 
 /* Golden Highlight for Selected Slot / Vote */
