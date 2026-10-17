@@ -950,7 +950,7 @@ export default function App() {
 
   return (
     <div
-      className={`h-screen overflow-hidden w-full bg-slate-950 text-slate-100 flex flex-col justify-between select-none ${
+      className={`h-[100dvh] max-h-[100dvh] overflow-hidden w-full bg-slate-950 text-slate-100 flex flex-col justify-between select-none ${
         screenShaking ? 'animate-screen-shake' : ''
       }`}
     >
@@ -1013,67 +1013,43 @@ export default function App() {
         </div>
       )}
 
-      {/* Main Cockpit Arena (60/40 Split, Viewport Locked) */}
-      <main className="flex-1 p-2 sm:p-3 min-h-0 overflow-hidden flex flex-col lg:flex-row gap-3">
-        {/* Left Pane (60% Desktop): Unified PR Inspection Workspace */}
-        <div className="w-full lg:w-[60%] flex flex-col h-full min-h-0 overflow-hidden">
-          <StageScenarioViewer
-            stage={currentStage}
-            hintsRemaining={gameState?.hints_remaining ?? 6}
-            maxHints={gameState?.max_hints ?? 6}
-            revealedHints={gameState?.revealed_hints ?? []}
-            onRevealHint={handleRevealHint}
-          />
-        </div>
-
-        {/* Right Pane (40% Desktop): Digital Twin (Top) & Decision Matrix (Bottom) */}
-        <div className="w-full lg:w-[40%] flex flex-col h-full min-h-0 gap-3 overflow-hidden">
-          {/* Top Right: Virtual 3D Voxel Stability Viewport */}
-          <div className="flex-1 min-h-[300px] flex flex-col overflow-hidden">
-            <Virtual3DTower
-              key="beige-tower-scene"
-              ref={towerRef}
-              totalPulls={gameState?.total_jenga_pulls ?? 0}
-              instabilityPct={Math.min(100, Math.max(0, Math.max(100 - (gameState?.health ?? 100), gameState?.tower_instability_pct ?? 0)))}
-              technicalDebt={gameState?.technical_debt || 0}
-              hintsRemaining={gameState?.hints_remaining ?? 6}
-              maxHints={gameState?.max_hints ?? 6}
-              isGameOver={gameState?.is_game_over ?? false}
-              activePlayers={gameState?.active_players || []}
-              votesTally={gameState?.votes_tally || {}}
-              onBlockSlide={sound.playSlide}
-              onBlockLand={handleBlockLand}
-              onTriggerStressCollapse={handleStressCollapse}
-            />
-          </div>
-
-          {/* Bottom Right: 2x2 Decision Matrix */}
-          <div className="shrink-0">
-            <StageDecisionConsole
-              onSelectAction={handleSelectAction}
-              disabled={isSpectator || loading || gameState?.is_game_over || gameState?.stage_action_taken || resultModalOpen || isWatchingRemoval}
-              stageActionTaken={gameState?.stage_action_taken}
-              lastActionResult={gameState?.last_action_result}
-              onProceedNextStage={handleProceedNextStage}
-              onWatchRemoval={handleWatchRemoval}
-              onWatchCollapse={handleWatchCollapse}
-              onReopenResult={() => {
-                setActionResult(gameState?.last_action_result);
-                setResultModalOpen(true);
-              }}
-              onCommitDecision={handleCommitDecision}
-              votesTally={gameState?.votes_tally || {}}
-              activePlayers={gameState?.active_players || []}
-              myVote={myVote}
-              customPromptDraft={gameState?.custom_prompt_draft}
-              guardrailRuleDraft={gameState?.guardrail_rule_draft}
-              onOpenDraftPrompt={() => setPromptModalOpen(true)}
-              onOpenDraftRule={() => setGuardrailsModalOpen(true)}
-              isTimerPaused={isTimerPausedByAdmin}
-            />
-          </div>
-        </div>
-      </main>
+      {/* Main Cockpit Arena: Universal Multi-Device Shell Architecture */}
+      <StageArena
+        stage={currentStage}
+        gameState={gameState}
+        hintsRemaining={gameState?.hints_remaining ?? 6}
+        maxHints={gameState?.max_hints ?? 6}
+        revealedHints={gameState?.revealed_hints ?? []}
+        onRevealHint={handleRevealHint}
+        towerRef={towerRef}
+        totalPulls={gameState?.total_jenga_pulls ?? 0}
+        instabilityPct={Math.min(100, Math.max(0, Math.max(100 - (gameState?.health ?? 100), gameState?.tower_instability_pct ?? 0)))}
+        technicalDebt={gameState?.technical_debt || 0}
+        isGameOver={gameState?.is_game_over ?? false}
+        activePlayers={gameState?.active_players || []}
+        votesTally={gameState?.votes_tally || {}}
+        onBlockSlide={sound.playSlide}
+        onBlockLand={handleBlockLand}
+        onTriggerStressCollapse={handleStressCollapse}
+        onSelectAction={handleSelectAction}
+        disabled={isSpectator || loading || gameState?.is_game_over || gameState?.stage_action_taken || resultModalOpen || isWatchingRemoval}
+        stageActionTaken={gameState?.stage_action_taken}
+        lastActionResult={gameState?.last_action_result}
+        onProceedNextStage={handleProceedNextStage}
+        onWatchRemoval={handleWatchRemoval}
+        onWatchCollapse={handleWatchCollapse}
+        onReopenResult={() => {
+          setActionResult(gameState?.last_action_result);
+          setResultModalOpen(true);
+        }}
+        onCommitDecision={handleCommitDecision}
+        myVote={myVote}
+        customPromptDraft={gameState?.custom_prompt_draft}
+        guardrailRuleDraft={gameState?.guardrail_rule_draft}
+        onOpenDraftPrompt={() => setPromptModalOpen(true)}
+        onOpenDraftRule={() => setGuardrailsModalOpen(true)}
+        isTimerPaused={isTimerPausedByAdmin}
+      />
 
       {/* Cinematic Extraction Floating HUD Bar */}
       {isWatchingRemoval && !gameState?.is_game_over && (

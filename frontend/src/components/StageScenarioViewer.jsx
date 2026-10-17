@@ -50,85 +50,85 @@ function StageScenarioViewer({
   return (
     <div className="flex flex-col h-full min-h-0 bg-slate-900/60 border border-white/10 rounded-xl overflow-hidden shadow-xl select-none">
       {/* 1. Compact Context Header (Story + PR Callout) */}
-      <div className="p-3.5 pb-2.5 shrink-0 border-b border-white/10 bg-slate-950/40">
+      <div className="p-2.5 [@media(min-height:860px)]:p-4 pb-2.5 shrink-0 border-b border-white/10 bg-slate-950/40">
         {/* Top meta strip */}
-        <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex items-center justify-between gap-2 mb-1.5">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 shrink-0">
-              <GitPullRequest className="w-3 h-3 text-emerald-400" />
+            <span className="text-[11px] xl:text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 shrink-0 font-theme-badge">
+              <GitPullRequest className="w-3.5 h-3.5 text-emerald-400" />
               <span>PR #{stage.id}</span>
             </span>
-            <span className="text-[11px] font-medium text-slate-400 truncate">
+            <span className="text-xs xl:text-sm font-medium text-slate-400 truncate">
               PHASE: <strong className="text-slate-200">{stage.phase_name}</strong>
             </span>
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md">
-              <Sparkles className="w-3 h-3 text-amber-400" />
+            <div className="hidden sm:flex items-center gap-1.5 text-xs xl:text-sm font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-md">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>AI Proposal</span>
             </div>
             <button
               type="button"
               onClick={() => setIsExpandedModalOpen(true)}
-              className="text-slate-400 hover:text-white hover:bg-white/5 px-2 py-1 rounded-md text-[11px] font-medium flex items-center gap-1 transition-colors border border-white/10 cursor-pointer"
+              className="text-slate-400 hover:text-white hover:bg-white/5 px-2.5 py-1 rounded-md text-xs xl:text-sm font-medium flex items-center gap-1.5 transition-colors border border-white/10 cursor-pointer"
               title="Pop out Full PR Inspection View"
             >
-              <Maximize2 className="w-3 h-3 text-sky-400" />
+              <Maximize2 className="w-3.5 h-3.5 text-sky-400" />
               <span>ENLARGE</span>
             </button>
           </div>
         </div>
 
         {/* User Story Title & Summary */}
-        <h2 className="text-sm font-semibold tracking-tight text-white mb-1">
+        <h2 className="font-theme-heading text-[clamp(1rem,1.8vh,1.35rem)] font-bold tracking-tight text-white mb-1 leading-tight">
           {stage.ticket_title || stage.title}
         </h2>
-        <p className="text-xs text-slate-300 leading-relaxed font-sans select-text line-clamp-2">
+        <p className="text-xs [@media(min-height:860px)]:text-[14px] leading-relaxed text-slate-300 font-sans select-text line-clamp-2">
           {stage.story}
         </p>
 
         {/* Inline PR Commit Callout with Left Accent Border */}
-        <div className="mt-2.5 border-l-4 border-amber-500 bg-amber-500/5 px-3.5 py-2 rounded-r-md border-y border-r border-amber-500/10">
+        <div className="mt-2 [@media(min-height:860px)]:mt-3 border-l-4 border-amber-500 bg-amber-500/5 px-3 [@media(min-height:860px)]:px-4 py-1.5 [@media(min-height:860px)]:py-2.5 rounded-r-md border-y border-r border-amber-500/10">
           <div className="flex items-center justify-between gap-2 mb-1">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <GitPullRequest className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">
+              <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
                 AI Golem Proposal
               </span>
             </div>
-            <code className="text-emerald-400 font-mono text-[10px] bg-slate-950/70 px-2 py-0.5 rounded border border-white/10 select-all">
+            <code className="text-emerald-400 font-mono text-xs bg-slate-950/70 px-2 py-0.5 rounded border border-white/10 select-all">
               {stage.file_name}
             </code>
           </div>
-          <p className="text-xs text-amber-100/90 italic font-sans select-text leading-relaxed">
+          <p className="text-xs [@media(min-height:860px)]:text-sm text-amber-100/90 italic font-sans select-text leading-relaxed">
             "{stage.ai_proposal_summary}"
           </p>
         </div>
       </div>
 
-      {/* 2. Dominant Diff Viewer (flex-1, line-numbered, occupying >65% height) */}
-      <div className="flex-1 min-h-[180px] flex flex-col bg-slate-950/90 overflow-hidden">
+      {/* 2. Dominant Diff Viewer (flex-1, line-numbered, scaled code typography) */}
+      <div className="flex-1 min-h-[160px] flex flex-col bg-slate-950/90 overflow-hidden">
         {/* Diff Toolbar */}
-        <div className="px-3.5 py-2 border-b border-white/10 bg-slate-900/60 flex items-center justify-between text-xs text-slate-400 shrink-0">
+        <div className="px-3.5 py-2 border-b border-white/10 bg-slate-900/60 flex items-center justify-between text-xs xl:text-sm text-slate-400 shrink-0">
           <div className="flex items-center gap-2">
-            <FileCode className="w-3.5 h-3.5 text-slate-400" />
-            <span className="font-mono text-[11px] text-slate-200">{stage.file_name}</span>
-            <span className="text-[10px] text-slate-500 font-sans">(git diff)</span>
+            <FileCode className="w-4 h-4 text-slate-400" />
+            <span className="font-mono text-xs xl:text-sm text-slate-200">{stage.file_name}</span>
+            <span className="text-[11px] xl:text-xs text-slate-500 font-sans">(git diff)</span>
           </div>
           <button
             type="button"
             onClick={() => setIsExpandedModalOpen(true)}
-            className="text-[11px] text-sky-400 hover:text-sky-300 flex items-center gap-1 cursor-pointer transition-colors"
+            className="text-xs xl:text-sm text-sky-400 hover:text-sky-300 flex items-center gap-1.5 cursor-pointer transition-colors"
             title="Inspect side-by-side full code diff"
           >
-            <Maximize2 className="w-3 h-3" />
+            <Maximize2 className="w-3.5 h-3.5" />
             <span>FULL DIFF ➔</span>
           </button>
         </div>
 
-        {/* Diff Lines Container with Left Gutter Numbers */}
-        <div className="p-2 font-mono text-xs overflow-y-auto overflow-x-auto flex-1 leading-relaxed select-text bg-slate-950 divide-y divide-white/[0.02]">
+        {/* Diff Lines Container with Left Gutter Numbers & Upgraded Typography */}
+        <div className="p-2 font-mono text-[12.5px] [@media(min-height:860px)]:text-[14px] overflow-y-auto overflow-x-auto flex-1 leading-6 [@media(min-height:860px)]:leading-7 select-text bg-slate-950 divide-y divide-white/[0.02]">
           {diffLines.map((line, idx) => {
             const isAdd = line.startsWith('+') && !line.startsWith('+++');
             const isRemove = line.startsWith('-') && !line.startsWith('---');
@@ -155,35 +155,53 @@ function StageScenarioViewer({
             return (
               <div
                 key={idx}
-                className={`flex items-start text-[11px] py-0.5 px-2 transition-colors ${rowBg}`}
+                className={`flex items-start py-0.5 px-2 transition-colors ${rowBg}`}
               >
                 {/* Line number gutter */}
-                <span className="w-8 shrink-0 text-right pr-3 text-slate-600 select-none font-mono text-[10px] leading-5">
+                <span className="w-9 xl:w-11 shrink-0 text-right pr-3.5 text-slate-500 select-none font-mono text-xs xl:text-sm leading-6 [@media(min-height:860px)]:leading-7">
                   {idx + 1}
                 </span>
                 {/* Diff line code content */}
-                <span className={`flex-1 font-mono leading-5 whitespace-pre ${lineTextColor}`}>
+                <span className={`flex-1 font-mono leading-6 [@media(min-height:860px)]:leading-7 whitespace-pre ${lineTextColor}`}>
                   {line}
                 </span>
               </div>
             );
           })}
+
+          {/* Eliminate Dead Space: Subtle Muted Footer Line After Code */}
+          <div className="flex items-center gap-2 pt-2.5 pb-2 px-3 text-slate-500 font-mono text-xs xl:text-sm select-none border-t border-white/[0.04] mt-2">
+            <span className="text-slate-600 font-bold">───</span>
+            <span>// End of diff ({diffLines.length} lines)</span>
+          </div>
+
+          {/* IDE Gutter Filler Continuation for Large 27"-32" Monitors */}
+          <div className="hidden xl:flex flex-col opacity-15 select-none pointer-events-none py-1.5">
+            {Array.from({ length: 14 }).map((_, i) => (
+              <div key={i} className="flex items-center py-0.5 px-2">
+                <span className="w-9 xl:w-11 shrink-0 text-right pr-3.5 text-slate-600 font-mono text-xs xl:text-sm leading-6">
+                  {diffLines.length + i + 1}
+                </span>
+                <span className="w-8 h-0.5 bg-slate-700/50 rounded-full" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* 3. Docked Hint Footer (Bottom Status Drawer) */}
-      <div className="shrink-0 border-t border-white/10 bg-slate-950/90 px-4 py-2.5">
+      {/* 3. Docked Hint Footer (Bottom Status Drawer with Smooth Transition) */}
+      <div className="shrink-0 border-t border-white/10 bg-slate-950/90 px-4 py-3 transition-all duration-200">
         {!isHintRevealed ? (
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                <Lock className="w-3.5 h-3.5 text-slate-400" />
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                <Lock className="w-4 h-4 text-slate-400" />
               </div>
               <div className="truncate">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-300 block">
+                <span className="text-xs xl:text-sm font-semibold uppercase tracking-wider text-slate-300 block">
                   Architectural Telemetry Hint
                 </span>
-                <span className="text-[10px] text-slate-400 font-sans block">
+                <span className="text-[11px] xl:text-xs text-slate-400 font-sans block mt-0.5">
                   Budget: {hintsRemaining}/{maxHints} Hints Remaining
                 </span>
               </div>
@@ -193,13 +211,13 @@ function StageScenarioViewer({
               type="button"
               disabled={hintsRemaining <= 0 || isRevealing}
               onClick={handleRevealClick}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+              className={`px-4 py-2 rounded-lg text-xs xl:text-sm font-medium border transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
                 hintsRemaining > 0
-                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20 hover:border-amber-500/50'
+                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20 hover:border-amber-500/50 shadow-sm'
                   : 'bg-white/5 border-white/10 text-slate-600 cursor-not-allowed opacity-60'
               }`}
             >
-              <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+              <Lightbulb className="w-4 h-4 text-amber-400" />
               <span>
                 {hintsRemaining > 0
                   ? (isRevealing ? 'Unlocking...' : `Reveal Hint (${hintsRemaining} left)`)
@@ -208,27 +226,27 @@ function StageScenarioViewer({
             </button>
           </div>
         ) : (
-          <div className="rounded-lg bg-amber-500/5 border border-amber-500/20 p-2.5">
-            <div className="flex items-center justify-between gap-2 mb-1.5 border-b border-amber-500/10 pb-1">
-              <div className="flex items-center gap-1.5 text-emerald-400">
-                <Unlock className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-[11px] font-semibold uppercase tracking-wider">
-                  Architectural Hint Unlocked
+          <div className="rounded-lg bg-rose-950/20 border border-rose-500/30 border-l-4 border-l-rose-500 p-3 xl:p-4 transition-all duration-200 shadow-md">
+            <div className="flex items-center justify-between gap-2 mb-2 border-b border-rose-500/20 pb-1.5">
+              <div className="flex items-center gap-2 text-rose-400">
+                <Unlock className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs xl:text-sm font-bold uppercase tracking-wider text-emerald-400">
+                  Architectural Advisory Unlocked
                 </span>
               </div>
-              <span className="text-[10px] text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 font-mono">
+              <span className="text-xs xl:text-sm text-amber-300 bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/20 font-mono">
                 {hintsRemaining}/{maxHints} REMAINING
               </span>
             </div>
 
-            <div className="mb-1.5 bg-rose-950/40 border border-rose-500/30 px-2.5 py-1 rounded flex items-center gap-2">
-              <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-              <span className="text-[11px] text-rose-300 font-medium">
-                SUSPECTED THREAT: <strong className="text-amber-200 underline">{stage.title}</strong>
+            <div className="mb-2 bg-rose-900/40 border border-rose-500/40 px-3 py-1.5 rounded-lg flex items-center gap-2.5">
+              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+              <span className="text-xs xl:text-sm text-rose-200 font-semibold">
+                SUSPECTED THREAT: <strong className="text-amber-200 underline decoration-rose-400 decoration-2">{stage.title}</strong>
               </span>
             </div>
 
-            <p className="font-sans text-xs text-amber-100/90 leading-relaxed select-text">
+            <p className="font-sans text-sm xl:text-[15px] text-amber-100/90 leading-relaxed select-text mt-1">
               {stage.hidden_risks}
             </p>
           </div>

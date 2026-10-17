@@ -4,6 +4,8 @@
   :root {
     --font-minecraft: 'Press Start 2P', monospace;
     --font-pixel: 'Silkscreen', monospace;
+    --font-theme-heading: 'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-theme-badge: var(--theme-font-display, 'Press Start 2P', monospace);
     --font-display: var(--theme-font-display, 'Press Start 2P', monospace);
     --font-body: var(--theme-font-body, 'Silkscreen', monospace);
     --font-mono: var(--theme-font-mono, 'JetBrains Mono', monospace);
@@ -36,6 +38,20 @@
     letter-spacing: var(--theme-letter-spacing, 0.02em);
     text-transform: var(--theme-text-transform, uppercase);
     color: var(--theme-text-heading, #ffffff);
+  }
+
+  /* Enterprise headings override the retro display font */
+  h1.font-theme-heading, h2.font-theme-heading, h3.font-theme-heading, h4.font-theme-heading, h5.font-theme-heading, h6.font-theme-heading, .font-theme-heading {
+    font-family: var(--font-theme-heading) !important;
+    letter-spacing: -0.015em !important;
+    text-transform: none !important;
+  }
+
+  /* Compact Retro Badge utility for tags, shortcuts, and counters */
+  .font-theme-badge {
+    font-family: var(--theme-font-display, 'Press Start 2P', monospace) !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
   }
 
   code, pre, .font-mono {

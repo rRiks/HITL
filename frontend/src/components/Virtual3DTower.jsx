@@ -512,6 +512,9 @@ function createBedrockTexture() {
   return texture;
 }
 
+export const DEFAULT_CAMERA_DISTANCE = 52.0;
+export const DEFAULT_LOOK_AT_Y = 15.0;
+
 const Virtual3DTower = forwardRef(function Virtual3DTower(
   {
     totalPulls = 0,
@@ -534,8 +537,22 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
   const rendererRef = useRef(null);
   const cameraRef = useRef(null);
   const towerGroupRef = useRef(null);
-  const DEFAULT_CAMERA_DISTANCE = 39.0;
-  const DEFAULT_LOOK_AT_Y = 15.0;
+  const defaultCameraDistanceRef = useRef(52.0);
+  const defaultLookAtYRef = useRef(15.0);
+
+  // Compute optimal camera distance so tower height + 15% top & bottom margin fits any aspect ratio
+  const computeOptimalCamera = (w, h, fov = 48) => {
+    const aspect = Math.max(0.1, w / Math.max(h, 1));
+    const fovRad = (fov * Math.PI) / 180;
+    // Tower vertical height is ~36.2 units from bedrock base (-3.6) to layer 17 top (32.6)
+    const targetHeight = 36.2 * 1.30; // 15% top margin + 15% bottom margin (1.30x)
+    const targetWidth = 26.4 * 1.30;  // 15% lateral margin
+    const distV = (targetHeight / 2) / Math.tan(fovRad / 2);
+    const distH = (targetWidth / 2) / (Math.tan(fovRad / 2) * aspect);
+    const optimalDist = Math.max(distV, distH);
+    const optimalLookAtY = 15.0; // True vertical centroid
+    return { optimalDist, optimalLookAtY, aspect };
+  };
 
   const blocksMeshMapRef = useRef(new Map());
   const animatingBlocksRef = useRef(new Set());
@@ -571,9 +588,9 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
   const previousMousePositionRef = useRef({ x: 0, y: 0 });
   const targetRotationRef = useRef({ x: 0.12, y: 0.5 });
   const currentRotationRef = useRef({ x: 0.12, y: 0.5 });
-  const cameraDistanceRef = useRef(DEFAULT_CAMERA_DISTANCE);
-  const targetLookAtYRef = useRef(DEFAULT_LOOK_AT_Y);
-  const currentLookAtYRef = useRef(DEFAULT_LOOK_AT_Y);
+  const cameraDistanceRef = useRef(52.0);
+  const targetLookAtYRef = useRef(15.0);
+  const currentLookAtYRef = useRef(15.0);
 
   // Extraction tracking state
   const pulledIndicesRef = useRef(new Set());
@@ -595,11 +612,18 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     scene.background = null;
     sceneRef.current = scene;
 
-    // 2. Camera - Framed to comfortably fit all 18 layers + Minecraft pedestal
-    const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 1000);
-    camera.position.set(0, DEFAULT_LOOK_AT_Y, DEFAULT_CAMERA_DISTANCE);
-    camera.lookAt(0, DEFAULT_LOOK_AT_Y, 0);
+    const { optimalDist, optimalLookAtY, aspect } = computeOptimalCamera(width, height, 48);
+    defaultCameraDistanceRef.current = optimalDist;
+    defaultLookAtYRef.current = optimalLookAtY;
+
+    // 2. Camera - Framed to comfortably fit all 18 layers + Minecraft pedestal with 15% top/bottom margin
+    const camera = new THREE.PerspectiveCamera(48, aspect, 0.1, 1000);
+    camera.position.set(0, optimalLookAtY, optimalDist);
+    camera.lookAt(0, optimalLookAtY, 0);
     cameraRef.current = camera;
+    cameraDistanceRef.current = optimalDist;
+    targetLookAtYRef.current = optimalLookAtY;
+    currentLookAtYRef.current = optimalLookAtY;
 
     // 3. Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -831,9 +855,10 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
 
     const handleWheel = (e) => {
       e.preventDefault();
+      const maxDist = Math.max(75, defaultCameraDistanceRef.current * 1.5);
       cameraDistanceRef.current = Math.max(
         14,
-        Math.min(42, cameraDistanceRef.current + e.deltaY * 0.035)
+        Math.min(maxDist, cameraDistanceRef.current + e.deltaY * 0.035)
       );
       camera.position.z = cameraDistanceRef.current;
     };
@@ -849,9 +874,19 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     // Dynamic resize handling with ResizeObserver for instant adaptation
     const updateSize = (w, h) => {
       if (!w || !h || !renderer || !camera) return;
-      camera.aspect = w / h;
+      const { optimalDist, optimalLookAtY, aspect } = computeOptimalCamera(w, h, camera.fov);
+      camera.aspect = aspect;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
+
+      defaultCameraDistanceRef.current = optimalDist;
+      defaultLookAtYRef.current = optimalLookAtY;
+
+      // When camera is resting in overview mode, auto-adapt framing to new aspect ratio
+      if (animatingBlocksRef.current.size === 0 && !isCollapsingRef.current) {
+        targetLookAtYRef.current = optimalLookAtY;
+        cameraDistanceRef.current = optimalDist;
+      }
     };
 
     const handleResize = () => {
@@ -1037,8 +1072,8 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
           animatingBlocksRef.current.delete(mesh);
           if (animatingBlocksRef.current.size === 0) {
             // Restore full tower overview camera after block settles
-            targetLookAtYRef.current = DEFAULT_LOOK_AT_Y;
-            cameraDistanceRef.current = DEFAULT_CAMERA_DISTANCE;
+            targetLookAtYRef.current = defaultLookAtYRef.current;
+            cameraDistanceRef.current = defaultCameraDistanceRef.current;
             onExtractionCompleteRef.current?.();
           }
         }
@@ -1162,11 +1197,11 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
       const totalSequenceTime = targetIndices.length * staggerDelay + 2600;
       setTimeout(() => {
         setActiveExtractionInfo(null);
-        targetLookAtYRef.current = DEFAULT_LOOK_AT_Y;
-        cameraDistanceRef.current = DEFAULT_CAMERA_DISTANCE;
+        targetLookAtYRef.current = defaultLookAtYRef.current;
+        cameraDistanceRef.current = defaultCameraDistanceRef.current;
       }, totalSequenceTime);
     },
-    [DEFAULT_LOOK_AT_Y, DEFAULT_CAMERA_DISTANCE]
+    []
   );
 
   // Realistic Jenga structural failure physics (directional gravity topple, no bomb blast)
@@ -1228,8 +1263,8 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     }
 
     targetRotationRef.current = { x: 0.12, y: 0.5 };
-    targetLookAtYRef.current = DEFAULT_LOOK_AT_Y;
-    cameraDistanceRef.current = DEFAULT_CAMERA_DISTANCE;
+    targetLookAtYRef.current = defaultLookAtYRef.current;
+    cameraDistanceRef.current = defaultCameraDistanceRef.current;
 
     if (!blocksMeshMapRef.current || blocksMeshMapRef.current.size === 0) return;
 
@@ -1278,7 +1313,7 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     });
 
     setExtractedHistory(historyItems);
-  }, [totalPulls, DEFAULT_LOOK_AT_Y, DEFAULT_CAMERA_DISTANCE]);
+  }, [totalPulls]);
 
   useImperativeHandle(ref, () => ({
     triggerExtractionSequence,
@@ -1286,8 +1321,8 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     restoreTowerStructure,
     resetCamera: () => {
       targetRotationRef.current = { x: 0.12, y: 0.5 };
-      targetLookAtYRef.current = DEFAULT_LOOK_AT_Y;
-      cameraDistanceRef.current = DEFAULT_CAMERA_DISTANCE;
+      targetLookAtYRef.current = defaultLookAtYRef.current;
+      cameraDistanceRef.current = defaultCameraDistanceRef.current;
     },
   }));
 
@@ -1359,16 +1394,17 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
   }, [totalPulls]);
 
   const handleZoom = (inOut) => {
+    const maxDist = Math.max(75, defaultCameraDistanceRef.current * 1.5);
     cameraDistanceRef.current = Math.max(
       14,
-      Math.min(60, cameraDistanceRef.current + inOut * 5)
+      Math.min(maxDist, cameraDistanceRef.current + inOut * 5)
     );
   };
 
   const handleResetCamera = () => {
     targetRotationRef.current = { x: 0.12, y: 0.5 };
-    targetLookAtYRef.current = DEFAULT_LOOK_AT_Y;
-    cameraDistanceRef.current = DEFAULT_CAMERA_DISTANCE;
+    targetLookAtYRef.current = defaultLookAtYRef.current;
+    cameraDistanceRef.current = defaultCameraDistanceRef.current;
   };
 
   const tensionBadgeColor =
@@ -1379,7 +1415,7 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
       : 'text-emerald-800 border-emerald-300 bg-emerald-50';
 
   return (
-    <div className="flex-1 min-h-[300px] relative w-full h-full bg-slate-900/60 border border-white/10 rounded-xl overflow-hidden shadow-xl select-none flex flex-col">
+    <div className="flex-1 min-h-[240px] relative w-full h-full bg-slate-900/60 border border-white/10 rounded-xl overflow-hidden shadow-xl select-none flex flex-col">
       {/* Background ambient lighting */}
       <div
         className={`absolute -top-16 -right-16 w-64 h-64 rounded-full blur-3xl opacity-15 pointer-events-none transition-colors duration-700 ${

@@ -143,16 +143,16 @@ function Navbar({
   const isLowHealth = health <= 25;
 
   return (
-    <header className="h-[52px] sm:h-[56px] w-full max-w-full overflow-hidden border-b border-white/10 bg-slate-950/90 backdrop-blur px-3 sm:px-4 flex items-center justify-between gap-3 shrink-0 select-none z-30 shadow-sm text-slate-100">
+    <header className="h-[48px] sm:h-[52px] md:h-[56px] w-full max-w-full overflow-hidden border-b border-white/10 bg-slate-950/90 backdrop-blur px-2.5 sm:px-4 flex items-center justify-between gap-1.5 sm:gap-3 shrink-0 select-none z-30 shadow-sm text-slate-100">
       {/* 1. Left Cluster: Session Identity */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-md bg-slate-900 border border-white/10 flex items-center justify-center text-sm shadow-xs shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-slate-900 border border-white/10 flex items-center justify-center text-xs sm:text-sm shadow-xs shrink-0">
             ⛏️
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="font-bold text-slate-100 text-xs tracking-wider font-mono">
-              HITL MINECRAFT
+          <div className="flex items-center gap-1 sm:gap-2">
+            <span className="font-bold text-slate-100 text-[11px] sm:text-xs tracking-wider font-mono shrink-0">
+              <span className="hidden xs:inline">HITL </span>MINECRAFT
             </span>
             <span className="hidden md:inline-flex items-center text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-900/90 text-slate-300 border border-white/10">
               {teamName}
@@ -165,45 +165,51 @@ function Navbar({
               type="button"
               onClick={handleCopyInvite}
               title="Copy realm link or PIN for teammates"
-              className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 cursor-pointer transition-all shadow-xs"
+              className="text-[10px] font-mono font-medium px-1.5 sm:px-2 py-0.5 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 sm:gap-1.5 cursor-pointer transition-all shadow-xs"
             >
-              {copiedLink ? <Check className="w-3 h-3 text-emerald-400" /> : <Share2 className="w-3 h-3 text-amber-400" />}
-              <span>PIN: {displayPin}</span>
-              {copiedLink && <span className="text-[9px] text-emerald-400 font-bold">COPIED</span>}
+              {copiedLink ? <Check className="w-3 h-3 text-emerald-400" /> : <Share2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-400" />}
+              <span className="hidden xs:inline">PIN: </span><span>{displayPin}</span>
+              {copiedLink && <span className="text-[9px] text-emerald-400 font-bold hidden sm:inline">COPIED</span>}
             </button>
           </div>
         </div>
       </div>
 
       {/* 2. Center Cluster: Unified Stakes & Urgency (Wave + Health + Timer) */}
-      <div className="flex items-center gap-2 sm:gap-3 bg-slate-900/80 border border-white/10 px-3 sm:px-3.5 py-1.5 rounded-full shadow-inner shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 md:gap-3 bg-slate-900/80 border border-white/10 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-inner shrink-0">
         {/* Wave Progress */}
-        <div className="flex items-center gap-1.5 font-mono text-xs font-semibold text-amber-400">
-          <span className="text-slate-400 font-sans text-[11px] uppercase tracking-wider font-medium">Wave</span>
+        <div className="flex items-center gap-1 font-mono text-[11px] sm:text-xs font-semibold text-amber-400">
+          <span className="text-slate-400 font-sans text-[10px] sm:text-[11px] uppercase tracking-wider font-medium hidden xs:inline">Wave</span>
           <span>{stageNumber}/{totalStages}</span>
         </div>
 
-        <div className="w-px h-3.5 bg-white/10 shrink-0" />
+        <div className="w-px h-3 sm:h-3.5 bg-white/10 shrink-0" />
 
         {/* Health & Stability */}
-        <div className="flex items-center gap-1.5">
-          <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          {/* On mobile screens show 5 representative hearts or compact indicator; on sm+ show all 10 */}
+          <div className="hidden sm:flex items-center gap-0.5">
             {hearts.map((state, idx) => (
               <MinecraftHeart key={idx} state={state} shake={isLowHealth} />
             ))}
           </div>
-          <span className={`text-xs font-mono font-bold ${
+          <div className="flex sm:hidden items-center gap-0.5">
+            {hearts.slice(0, 5).map((state, idx) => (
+              <MinecraftHeart key={idx} state={state} shake={isLowHealth} />
+            ))}
+          </div>
+          <span className={`text-[11px] sm:text-xs font-mono font-bold ${
             health > 60 ? 'text-emerald-400' : health > 30 ? 'text-amber-400' : 'text-rose-400 animate-pulse'
           }`}>
             {health}%
           </span>
         </div>
 
-        <div className="w-px h-3.5 bg-white/10 shrink-0" />
+        <div className="w-px h-3 sm:h-3.5 bg-white/10 shrink-0" />
 
         {/* Countdown Timer */}
         <div
-          className={`flex items-center gap-1.5 font-mono text-xs font-bold transition-colors ${
+          className={`flex items-center gap-1 sm:gap-1.5 font-mono text-[11px] sm:text-xs font-bold transition-colors ${
             isTimerPaused
               ? 'text-amber-400 animate-pulse'
               : isUrgent
@@ -214,10 +220,10 @@ function Navbar({
           }`}
           title={isTimerPaused ? 'Game Master paused the countdown timer' : 'Stage countdown timer'}
         >
-          <Clock className={`w-3.5 h-3.5 ${isTimerPaused ? 'text-amber-400' : isUrgent ? 'text-rose-400 animate-spin' : 'text-slate-400'}`} />
+          <Clock className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${isTimerPaused ? 'text-amber-400' : isUrgent ? 'text-rose-400 animate-spin' : 'text-slate-400'}`} />
           <span>{formattedTime}</span>
           {isTimerPaused && (
-            <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
+            <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 hidden xs:inline">
               PAUSED
             </span>
           )}
@@ -225,15 +231,15 @@ function Navbar({
       </div>
 
       {/* 3. Right Cluster: Utilities Toolbar */}
-      <div className="flex items-center gap-1 shrink-0">
+      <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
         {/* Music Synth Toggle */}
         <button
           type="button"
           onClick={onToggleMusic}
           title={musicEnabled ? 'Mute Atmosphere Music' : 'Enable Atmosphere Music'}
-          className="text-slate-400 hover:text-white hover:bg-white/5 rounded-md p-1.5 transition-colors cursor-pointer"
+          className="text-slate-400 hover:text-white hover:bg-white/5 rounded-md p-1 sm:p-1.5 transition-colors cursor-pointer"
         >
-          <Music className={`w-4 h-4 ${musicEnabled ? 'text-emerald-400' : 'text-slate-500'}`} />
+          <Music className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${musicEnabled ? 'text-emerald-400' : 'text-slate-500'}`} />
         </button>
 
         {/* Sound FX Toggle */}
@@ -241,9 +247,9 @@ function Navbar({
           type="button"
           onClick={onToggleSound}
           title={soundEnabled ? 'Mute Sound FX' : 'Enable Sound FX'}
-          className="text-slate-400 hover:text-white hover:bg-white/5 rounded-md p-1.5 transition-colors cursor-pointer"
+          className="text-slate-400 hover:text-white hover:bg-white/5 rounded-md p-1 sm:p-1.5 transition-colors cursor-pointer"
         >
-          {soundEnabled ? <Volume2 className="w-4 h-4 text-slate-200" /> : <VolumeX className="w-4 h-4 text-slate-500" />}
+          {soundEnabled ? <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-200" /> : <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500" />}
         </button>
 
         {/* Theme Toggle (Light / Dark Realm) */}
@@ -252,12 +258,12 @@ function Navbar({
             type="button"
             onClick={onToggleTheme}
             title={theme === 'light' ? 'Switch to Dark Realm' : 'Switch to Light Realm'}
-            className="text-slate-400 hover:text-white hover:bg-white/5 rounded-md p-1.5 transition-colors cursor-pointer"
+            className="text-slate-400 hover:text-white hover:bg-white/5 rounded-md p-1 sm:p-1.5 transition-colors cursor-pointer"
           >
             {theme === 'light' ? (
-              <Sun className="w-4 h-4 text-amber-400" />
+              <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
             ) : (
-              <Moon className="w-4 h-4 text-sky-400" />
+              <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400" />
             )}
           </button>
         )}
@@ -268,9 +274,9 @@ function Navbar({
             type="button"
             onClick={onResetGame}
             title="Respawn / Reset World"
-            className="text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-md p-1.5 transition-colors cursor-pointer"
+            className="text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-md p-1 sm:p-1.5 transition-colors cursor-pointer hidden xs:inline-flex"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         )}
 
@@ -280,9 +286,9 @@ function Navbar({
             type="button"
             onClick={onOpenFieldGuide}
             title="Open Interactive Cockpit Field Guide (Help & Rules Manual)"
-            className="text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10 rounded-md p-1.5 transition-colors cursor-pointer"
+            className="text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10 rounded-md p-1 sm:p-1.5 transition-colors cursor-pointer"
           >
-            <BookOpen className="w-4 h-4" />
+            <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         )}
 
@@ -292,9 +298,9 @@ function Navbar({
             type="button"
             onClick={onExitToLobby}
             title={isSpectator ? "Return to Admin Panel" : "Return to Main Menu"}
-            className="text-slate-400 hover:text-amber-300 hover:bg-amber-500/10 rounded-md p-1.5 transition-colors cursor-pointer"
+            className="text-slate-400 hover:text-amber-300 hover:bg-amber-500/10 rounded-md p-1 sm:p-1.5 transition-colors cursor-pointer"
           >
-            <Home className="w-4 h-4" />
+            <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         )}
       </div>

@@ -133,6 +133,8 @@ class ThemeEngine {
           root.style.setProperty(key, val);
         });
       }
+      root.style.setProperty('--font-theme-heading', "'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif");
+      root.style.setProperty('--font-theme-badge', "var(--theme-font-display, 'Press Start 2P', monospace)");
 
       // 4. Persistence (debounced to avoid blocking main thread on rapid toggles)
       if (persist) {

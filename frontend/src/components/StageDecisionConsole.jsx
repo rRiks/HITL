@@ -104,42 +104,42 @@ function StageDecisionConsole({
       )}
 
       {/* 2. Dedicated Full-Width Quorum Bar & Active Player Team Roster */}
-      <div className="w-full bg-slate-900/90 border border-white/10 rounded-lg px-3.5 py-2.5 shadow-sm flex flex-col gap-2">
+      <div className="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3 py-2 [@media(min-height:860px)]:px-4 [@media(min-height:860px)]:py-3 shadow-sm flex flex-col gap-1.5 [@media(min-height:860px)]:gap-2.5 shrink-0">
         {/* Row 1: Consensus Metric, Fraction Badge, Progress Bar, and Resolve Action */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center justify-between gap-2.5 flex-wrap">
           {/* Left Cluster */}
-          <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1.5 text-slate-300">
-              <Users className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="text-[11px] font-semibold uppercase tracking-wider">
+              <Users className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span className="text-[11px] xl:text-xs font-bold uppercase tracking-wider text-slate-200">
                 CONSENSUS
               </span>
             </div>
 
             {/* Dynamic Fraction Badge */}
-            <div className="flex items-center gap-1.5 font-mono text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">
+            <div className="flex items-center gap-1.5 font-mono text-xs font-bold px-2 py-0.5 [@media(min-height:860px)]:px-2.5 [@media(min-height:860px)]:py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">
               <span>{totalVotesCast}/{totalActivePlayers}</span>
-              <span className="text-[10px] opacity-75 font-normal">({consensusPct}%)</span>
+              <span className="text-[10px] xl:text-[11px] opacity-75 font-normal">({consensusPct}%)</span>
             </div>
 
             {/* Dynamic Status Subtext */}
             {totalVotesCast === 0 ? (
-              <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider hidden sm:inline">
+              <span className="text-[11px] xl:text-xs font-medium text-slate-400 uppercase tracking-wider hidden sm:inline">
                 (Awaiting Votes)
               </span>
             ) : totalVotesCast >= totalActivePlayers ? (
-              <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider hidden sm:inline flex items-center gap-1">
+              <span className="text-[11px] xl:text-xs font-semibold text-emerald-400 uppercase tracking-wider hidden sm:inline flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping inline-block" />
-                (All Votes Cast • Ready to Resolve)
+                (All Votes Cast • Ready)
               </span>
             ) : (
-              <span className="text-[10px] font-medium text-amber-300 uppercase tracking-wider hidden sm:inline">
-                ({totalVotesCast} of {totalActivePlayers} Voted • Ready to Resolve)
+              <span className="text-[11px] xl:text-xs font-medium text-amber-300 uppercase tracking-wider hidden sm:inline">
+                ({totalVotesCast}/{totalActivePlayers} Voted)
               </span>
             )}
 
             {/* Subtle Inline Progress Bar */}
-            <div className="w-20 sm:w-28 h-1.5 bg-slate-800 rounded-full overflow-hidden border border-white/5">
+            <div className="w-16 sm:w-24 h-1.5 [@media(min-height:860px)]:h-2 bg-slate-800 rounded-full overflow-hidden border border-white/5">
               <div
                 className={`h-full transition-all duration-300 rounded-full ${
                   totalVotesCast >= totalActivePlayers ? 'bg-emerald-400' : 'bg-amber-400'
@@ -157,7 +157,7 @@ function StageDecisionConsole({
                 e.stopPropagation();
                 onCommitDecision();
               }}
-              className={`px-3 py-1.5 text-xs font-bold rounded-md flex items-center gap-1.5 cursor-pointer transition-all shadow-md ml-auto shrink-0 ${
+              className={`px-3 py-1 [@media(min-height:860px)]:px-3.5 [@media(min-height:860px)]:py-1.5 text-xs font-bold rounded-lg flex items-center gap-1.5 cursor-pointer transition-all shadow-md ml-auto shrink-0 ${
                 totalVotesCast >= totalActivePlayers
                   ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/25 ring-2 ring-emerald-400/50 animate-pulse'
                   : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
@@ -168,7 +168,7 @@ function StageDecisionConsole({
                   : `Submit decision now with ${totalVotesCast} of ${totalActivePlayers} votes`
               }
             >
-              <Zap className={`w-3.5 h-3.5 ${totalVotesCast >= totalActivePlayers ? 'text-slate-950 fill-current' : 'text-amber-400'}`} />
+              <Zap className={`w-3 h-3 ${totalVotesCast >= totalActivePlayers ? 'text-slate-950 fill-current' : 'text-amber-400'}`} />
               <span>RESOLVE NOW</span>
             </button>
           )}
@@ -176,7 +176,7 @@ function StageDecisionConsole({
 
         {/* Row 2: Active Team Roster Presence Chips */}
         <div className="flex items-center gap-1.5 flex-wrap pt-1.5 border-t border-white/5">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500 mr-1 shrink-0">
+          <span className="text-[11px] xl:text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1 shrink-0">
             Active Team:
           </span>
           {displayPlayers.map((player) => {
@@ -188,7 +188,7 @@ function StageDecisionConsole({
             return (
               <div
                 key={player.player_id || player.player_name}
-                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium border transition-all ${
+                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] xl:text-xs font-medium border transition-all ${
                   hasVoted
                     ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300'
                     : 'bg-white/5 border-white/10 text-slate-400'
@@ -202,14 +202,14 @@ function StageDecisionConsole({
                 <span className="truncate max-w-[110px]">{player.player_name}</span>
                 {hasVoted ? (
                   slotBadge ? (
-                    <span className="font-mono text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-1 py-0.2 rounded border border-emerald-500/30">
+                    <span className="font-mono text-[10px] xl:text-[11px] font-bold text-emerald-400 bg-emerald-950/60 px-1 py-0.2 rounded border border-emerald-500/30">
                       {slotBadge}
                     </span>
                   ) : (
                     <Check className="w-3 h-3 text-emerald-400 shrink-0" />
                   )
                 ) : (
-                  <span className="text-[9.5px] text-slate-500 font-sans italic">deciding</span>
+                  <span className="text-[10px] text-slate-400 font-sans italic">deciding</span>
                 )}
               </div>
             );
@@ -218,21 +218,21 @@ function StageDecisionConsole({
       </div>
 
       {/* 3. 2x2 Decision Engine Grid */}
-      <div className={`grid grid-cols-2 gap-3 ${stageActionTaken || isTimerPaused ? 'opacity-60 pointer-events-none' : ''}`}>
+      <div className={`grid grid-cols-2 gap-2 [@media(min-height:860px)]:gap-3 shrink-0 ${stageActionTaken || isTimerPaused ? 'opacity-60 pointer-events-none' : ''}`}>
         {/* Slot 1: Accept as-is (High Risk) */}
         <button
           type="button"
           disabled={disabled || isTimerPaused}
           onClick={() => onSelectAction('accept_as_is')}
-          className={`group relative text-left transition-all duration-150 hover:-translate-y-0.5 p-3 rounded-xl border bg-slate-900/70 flex flex-col justify-between cursor-pointer ${
+          className={`group relative text-left transition-all duration-150 hover:-translate-y-0.5 p-2.5 [@media(min-height:860px)]:p-3.5 rounded-xl border bg-slate-900/70 flex flex-col justify-between cursor-pointer ${
             myVote === 'accept_as_is'
               ? 'border-rose-500/60 bg-rose-950/20 ring-1 ring-rose-500/40'
               : 'border-white/10 hover:border-rose-500/50 hover:bg-rose-950/20'
           }`}
         >
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="font-mono text-xs bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-slate-300 group-hover:text-rose-300 group-hover:border-rose-500/30 transition-colors">
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-theme-badge text-[10px] xl:text-[11px] font-semibold px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300 group-hover:text-rose-300 group-hover:border-rose-500/30 transition-colors">
                 [1]
               </span>
               <div className="flex items-center gap-1.5">
@@ -241,21 +241,21 @@ function StageDecisionConsole({
                     +{votesTally['accept_as_is']}
                   </span>
                 )}
-                <span className="text-sm">🍏</span>
+                <span className="text-sm xl:text-base">🍏</span>
               </div>
             </div>
-            <h4 className="text-xs font-semibold text-white mb-0.5 flex items-center justify-between">
+            <h4 className="font-theme-heading text-[clamp(0.875rem,1.5vh,1.05rem)] font-bold text-white mb-0.5 flex items-center justify-between leading-tight">
               <span>Accept as-is</span>
               {myVote === 'accept_as_is' && (
                 <span className="text-[10px] font-mono text-emerald-400 font-bold">[VOTED]</span>
               )}
             </h4>
-            <p className="text-[11px] text-slate-400 line-clamp-1 font-sans">
+            <p className="text-[11px] xl:text-xs text-slate-300 mt-0.5 [@media(min-height:860px)]:mt-1 line-clamp-1 [@media(min-height:860px)]:line-clamp-2 font-sans leading-relaxed">
               Rapid merge, zero review. High risk!
             </p>
           </div>
-          <div className="mt-2.5 pt-1.5 border-t border-white/10 flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-rose-400/80">
+          <div className="text-[10.5px] xl:text-xs font-semibold tracking-wider mt-1.5 [@media(min-height:860px)]:mt-2.5 pt-1.5 border-t border-white/5 flex items-center justify-between">
+            <span className="text-rose-400/80">
               RAW SPEED
             </span>
             <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-rose-400 group-hover:translate-x-0.5 transition-all" />
@@ -267,15 +267,15 @@ function StageDecisionConsole({
           type="button"
           disabled={disabled || isTimerPaused}
           onClick={() => onSelectAction('deny_and_move_on')}
-          className={`group relative text-left transition-all duration-150 hover:-translate-y-0.5 p-3 rounded-xl border bg-slate-900/70 flex flex-col justify-between cursor-pointer ${
+          className={`group relative text-left transition-all duration-150 hover:-translate-y-0.5 p-2.5 [@media(min-height:860px)]:p-3.5 rounded-xl border bg-slate-900/70 flex flex-col justify-between cursor-pointer ${
             myVote === 'deny_and_move_on'
               ? 'border-sky-500/60 bg-sky-950/20 ring-1 ring-sky-500/40'
               : 'border-white/10 hover:border-sky-500/50 hover:bg-sky-950/20'
           }`}
         >
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="font-mono text-xs bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-slate-300 group-hover:text-sky-300 group-hover:border-sky-500/30 transition-colors">
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-theme-badge text-[10px] xl:text-[11px] font-semibold px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300 group-hover:text-sky-300 group-hover:border-sky-500/30 transition-colors">
                 [2]
               </span>
               <div className="flex items-center gap-1.5">
@@ -284,21 +284,21 @@ function StageDecisionConsole({
                     +{votesTally['deny_and_move_on']}
                   </span>
                 )}
-                <span className="text-sm">🛡️</span>
+                <span className="text-sm xl:text-base">🛡️</span>
               </div>
             </div>
-            <h4 className="text-xs font-semibold text-white mb-0.5 flex items-center justify-between">
+            <h4 className="font-theme-heading text-[clamp(0.875rem,1.5vh,1.05rem)] font-bold text-white mb-0.5 flex items-center justify-between leading-tight">
               <span>Bypass & Skip</span>
               {myVote === 'deny_and_move_on' && (
                 <span className="text-[10px] font-mono text-emerald-400 font-bold">[VOTED]</span>
               )}
             </h4>
-            <p className="text-[11px] text-slate-400 line-clamp-1 font-sans">
+            <p className="text-[11px] xl:text-xs text-slate-300 mt-0.5 [@media(min-height:860px)]:mt-1 line-clamp-1 [@media(min-height:860px)]:line-clamp-2 font-sans leading-relaxed">
               Reject commit to safeguard health.
             </p>
           </div>
-          <div className="mt-2.5 pt-1.5 border-t border-white/10 flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-sky-400/80">
+          <div className="text-[10.5px] xl:text-xs font-semibold tracking-wider mt-1.5 [@media(min-height:860px)]:mt-2.5 pt-1.5 border-t border-white/5 flex items-center justify-between">
+            <span className="text-sky-400/80">
               SAFE SKIP
             </span>
             <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-sky-400 group-hover:translate-x-0.5 transition-all" />
@@ -310,15 +310,15 @@ function StageDecisionConsole({
           type="button"
           disabled={disabled || isTimerPaused}
           onClick={() => onSelectAction('custom_prompt')}
-          className={`group relative text-left transition-all duration-150 hover:-translate-y-0.5 p-3 rounded-xl border bg-slate-900/70 flex flex-col justify-between cursor-pointer ${
+          className={`group relative text-left transition-all duration-150 hover:-translate-y-0.5 p-2.5 [@media(min-height:860px)]:p-3.5 rounded-xl border bg-slate-900/70 flex flex-col justify-between cursor-pointer ${
             myVote === 'custom_prompt'
               ? 'border-emerald-500/60 bg-emerald-950/20 ring-1 ring-emerald-500/40'
               : 'border-white/10 hover:border-emerald-500/50 hover:bg-emerald-950/20'
           }`}
         >
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="font-mono text-xs bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-slate-300 group-hover:text-emerald-300 group-hover:border-emerald-500/30 transition-colors">
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-theme-badge text-[10px] xl:text-[11px] font-semibold px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300 group-hover:text-emerald-300 group-hover:border-emerald-500/30 transition-colors">
                 [3]
               </span>
               <div className="flex items-center gap-1.5">
@@ -327,11 +327,11 @@ function StageDecisionConsole({
                     +{votesTally['custom_prompt']}
                   </span>
                 )}
-                <span className="text-sm">🪶</span>
+                <span className="text-sm xl:text-base">🪶</span>
               </div>
             </div>
 
-            <h4 className="text-xs font-semibold text-white mb-0.5 flex items-center justify-between">
+            <h4 className="font-theme-heading text-[clamp(0.875rem,1.5vh,1.05rem)] font-bold text-white mb-0.5 flex items-center justify-between leading-tight">
               <span>Human Guidance</span>
               {myVote === 'custom_prompt' && (
                 <span className="text-[10px] font-mono text-emerald-400 font-bold">[VOTED]</span>
@@ -339,7 +339,7 @@ function StageDecisionConsole({
             </h4>
 
             {customPromptDraft?.text ? (
-              <div className="bg-slate-950/60 border border-emerald-500/30 rounded p-1.5 my-1 text-[11px] text-emerald-200">
+              <div className="bg-slate-950/60 border border-emerald-500/30 rounded-lg p-1.5 my-1 text-xs text-emerald-200">
                 <div className="flex items-center justify-between mb-0.5 text-[10px] text-emerald-400">
                   <span className="font-mono">BY {customPromptDraft.player_name}:</span>
                   <span
@@ -347,23 +347,23 @@ function StageDecisionConsole({
                       e.stopPropagation();
                       if (!disabled && !isTimerPaused && onOpenDraftPrompt) onOpenDraftPrompt();
                     }}
-                    className="text-amber-300 hover:underline flex items-center gap-0.5 cursor-pointer"
+                    className="text-amber-300 hover:underline flex items-center gap-1 cursor-pointer font-semibold"
                   >
                     <Edit3 className="w-2.5 h-2.5" />
                     <span>EDIT</span>
                   </span>
                 </div>
-                <p className="line-clamp-1 italic font-sans">"{customPromptDraft.text}"</p>
+                <p className="line-clamp-1 [@media(min-height:860px)]:line-clamp-2 italic font-sans leading-relaxed">"{customPromptDraft.text}"</p>
               </div>
             ) : (
-              <p className="text-[11px] text-slate-400 line-clamp-1 font-sans">
+              <p className="text-[11px] xl:text-xs text-slate-300 mt-0.5 [@media(min-height:860px)]:mt-1 line-clamp-1 [@media(min-height:860px)]:line-clamp-2 font-sans leading-relaxed">
                 Draft steering prompt in Book & Quill.
               </p>
             )}
           </div>
 
-          <div className="mt-2.5 pt-1.5 border-t border-white/10 flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400/80">
+          <div className="text-[10.5px] xl:text-xs font-semibold tracking-wider mt-1.5 [@media(min-height:860px)]:mt-2.5 pt-1.5 border-t border-white/5 flex items-center justify-between">
+            <span className="text-emerald-400/80">
               COLLAB
             </span>
             <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
@@ -375,15 +375,15 @@ function StageDecisionConsole({
           type="button"
           disabled={disabled || isTimerPaused}
           onClick={() => onSelectAction('suggest_change')}
-          className={`group relative text-left transition-all duration-150 hover:-translate-y-0.5 p-3 rounded-xl border bg-slate-900/70 flex flex-col justify-between cursor-pointer ${
+          className={`group relative text-left transition-all duration-150 hover:-translate-y-0.5 p-2.5 [@media(min-height:860px)]:p-3.5 rounded-xl border bg-slate-900/70 flex flex-col justify-between cursor-pointer ${
             myVote === 'suggest_change'
               ? 'border-indigo-500/60 bg-indigo-950/20 ring-1 ring-indigo-500/40'
               : 'border-white/10 hover:border-indigo-500/50 hover:bg-indigo-950/20'
           }`}
         >
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="font-mono text-xs bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-slate-300 group-hover:text-indigo-300 group-hover:border-indigo-500/30 transition-colors">
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-theme-badge text-[10px] xl:text-[11px] font-semibold px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300 group-hover:text-indigo-300 group-hover:border-indigo-500/30 transition-colors">
                 [4]
               </span>
               <div className="flex items-center gap-1.5">
@@ -392,11 +392,11 @@ function StageDecisionConsole({
                     +{votesTally['suggest_change']}
                   </span>
                 )}
-                <span className="text-sm">🤖</span>
+                <span className="text-sm xl:text-base">🤖</span>
               </div>
             </div>
 
-            <h4 className="text-xs font-semibold text-white mb-0.5 flex items-center justify-between">
+            <h4 className="font-theme-heading text-[clamp(0.875rem,1.5vh,1.05rem)] font-bold text-white mb-0.5 flex items-center justify-between leading-tight">
               <span>AI Suggestions</span>
               {myVote === 'suggest_change' && (
                 <span className="text-[10px] font-mono text-emerald-400 font-bold">[VOTED]</span>
@@ -404,7 +404,7 @@ function StageDecisionConsole({
             </h4>
 
             {guardrailRuleDraft?.title ? (
-              <div className="bg-slate-950/60 border border-indigo-500/30 rounded p-1.5 my-1 text-[11px] text-indigo-200">
+              <div className="bg-slate-950/60 border border-indigo-500/30 rounded-lg p-1.5 my-1 text-xs text-indigo-200">
                 <div className="flex items-center justify-between mb-0.5 text-[10px] text-indigo-400">
                   <span className="font-mono">BY {guardrailRuleDraft.player_name}:</span>
                   <span
@@ -412,23 +412,23 @@ function StageDecisionConsole({
                       e.stopPropagation();
                       if (!disabled && !isTimerPaused && onOpenDraftRule) onOpenDraftRule();
                     }}
-                    className="text-amber-300 hover:underline flex items-center gap-0.5 cursor-pointer"
+                    className="text-amber-300 hover:underline flex items-center gap-1 cursor-pointer font-semibold"
                   >
                     <Edit3 className="w-2.5 h-2.5" />
                     <span>EDIT</span>
                   </span>
                 </div>
-                <p className="line-clamp-1 font-medium font-sans">{guardrailRuleDraft.title}</p>
+                <p className="line-clamp-1 [@media(min-height:860px)]:line-clamp-2 font-medium font-sans leading-relaxed">{guardrailRuleDraft.title}</p>
               </div>
             ) : (
-              <p className="text-[11px] text-slate-400 line-clamp-1 font-sans">
+              <p className="text-[11px] xl:text-xs text-slate-300 mt-0.5 [@media(min-height:860px)]:mt-1 line-clamp-1 [@media(min-height:860px)]:line-clamp-2 font-sans leading-relaxed">
                 Review 3 AI-proposed technical fixes.
               </p>
             )}
           </div>
 
-          <div className="mt-2.5 pt-1.5 border-t border-white/10 flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400/80">
+          <div className="text-[10.5px] xl:text-xs font-semibold tracking-wider mt-1.5 [@media(min-height:860px)]:mt-2.5 pt-1.5 border-t border-white/5 flex items-center justify-between">
+            <span className="text-indigo-400/80">
               PROPOSALS
             </span>
             <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all" />
