@@ -1414,37 +1414,9 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
       <div className="relative w-full flex-1 min-h-[200px] bg-[#101318] border-2 border-[#333] overflow-hidden group select-none shadow-inner">
         <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-        {/* Full-view Target Reticle & Minecraft Mining Banner */}
+        {/* Full-view Target Reticle */}
         {activeExtractionInfo && (
-          <div className="absolute inset-0 pointer-events-none z-20 flex flex-col justify-between p-3 select-none">
-            {/* Top Targeting Lock-on Banner */}
-            <div className="bg-[#1b0505]/95 border-2 border-[#ff3333] text-white p-2.5 shadow-2xl backdrop-blur-md flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 bg-[#3a0000] border-2 border-[#ff5555] flex items-center justify-center shrink-0">
-                  <Crosshair className="w-5 h-5 text-[#ff5555] animate-spin" style={{ animationDuration: '3s' }} />
-                </div>
-                <div className="truncate">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[9px] mc-font text-[#ff5555] bg-[#330000] px-1.5 py-0.5 border border-[#aa0000]">
-                      MINING BLOCK
-                    </span>
-                    <span className="text-[9px] mc-font text-[#ffaa00]">
-                      TOWER STABILITY COMPROMISED
-                    </span>
-                  </div>
-                  <p className="text-xs font-bold text-white mc-font mt-0.5 truncate">
-                    Layer {activeExtractionInfo.layer}: [{activeExtractionInfo.label}]
-                  </p>
-                </div>
-              </div>
-
-              <div className="text-right hidden sm:block shrink-0">
-                <span className="text-[8px] mc-font text-[#aaa] uppercase block">Block Type</span>
-                <span className="text-[10px] mc-font text-[#ff5555] uppercase">
-                  {DOMAIN_CONFIG[activeExtractionInfo.domain]?.name || activeExtractionInfo.domain}
-                </span>
-              </div>
-            </div>
+          <div className="absolute inset-0 pointer-events-none z-20 flex flex-col justify-end p-3 select-none">
 
             {/* Authentic Minecraft White Crosshair */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
