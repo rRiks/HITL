@@ -45,7 +45,7 @@ export default function StageArena({
   return (
     <div className="flex-1 min-h-0 w-full flex flex-col overflow-hidden">
       {/* 1. Desktop & Laptop Viewports (lg+ >= 1024px) */}
-      <div className="hidden lg:grid lg:grid-cols-12 lg:gap-3 flex-1 min-h-0 w-full max-w-[1920px] mx-auto p-2 lg:p-3 overflow-hidden">
+      <div className="hidden lg:grid lg:grid-cols-12 lg:gap-3 flex-1 min-h-0 w-full px-3 lg:px-5 py-2 lg:py-2.5 overflow-hidden">
         {/* Left Column (7 cols): Scenario & Diff Workspace */}
         <div className="lg:col-span-7 flex flex-col min-h-0 h-full overflow-hidden">
           <StageScenarioViewer

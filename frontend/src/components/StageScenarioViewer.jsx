@@ -127,59 +127,62 @@ function StageScenarioViewer({
           </button>
         </div>
 
-        {/* Diff Lines Container with Left Gutter Numbers & Upgraded Typography */}
-        <div className="p-2 font-mono text-[12.5px] [@media(min-height:860px)]:text-[14px] overflow-y-auto overflow-x-auto flex-1 leading-6 [@media(min-height:860px)]:leading-7 select-text bg-slate-950 divide-y divide-white/[0.02]">
-          {diffLines.map((line, idx) => {
-            const isAdd = line.startsWith('+') && !line.startsWith('+++');
-            const isRemove = line.startsWith('-') && !line.startsWith('---');
-            const isHeader = line.startsWith('@@');
-            const isFileMeta = line.startsWith('---') || line.startsWith('+++');
+        {/* Diff Workspace with Softly-Clipped Ghost Filler */}
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-slate-950">
+          {/* Actual Diff Lines: Only scrolls if actual diff code + end footer exceeds viewport height */}
+          <div className="p-2 font-mono text-[12.5px] [@media(min-height:860px)]:text-[14px] overflow-y-auto overflow-x-auto max-h-full leading-6 [@media(min-height:860px)]:leading-7 select-text divide-y divide-white/[0.02]">
+            {diffLines.map((line, idx) => {
+              const isAdd = line.startsWith('+') && !line.startsWith('+++');
+              const isRemove = line.startsWith('-') && !line.startsWith('---');
+              const isHeader = line.startsWith('@@');
+              const isFileMeta = line.startsWith('---') || line.startsWith('+++');
 
-            let rowBg = 'hover:bg-white/[0.02] text-slate-300';
-            let lineTextColor = 'text-slate-300';
+              let rowBg = 'hover:bg-white/[0.02] text-slate-300';
+              let lineTextColor = 'text-slate-300';
 
-            if (isAdd) {
-              rowBg = 'bg-emerald-950/30 hover:bg-emerald-950/40 border-l-2 border-emerald-500';
-              lineTextColor = 'text-emerald-300 font-medium';
-            } else if (isRemove) {
-              rowBg = 'bg-rose-950/30 hover:bg-rose-950/40 border-l-2 border-rose-500';
-              lineTextColor = 'text-rose-300 font-medium';
-            } else if (isHeader) {
-              rowBg = 'bg-sky-950/20 text-sky-400 font-medium border-l-2 border-sky-500/40';
-              lineTextColor = 'text-sky-400';
-            } else if (isFileMeta) {
-              rowBg = 'text-slate-500 bg-slate-900/40';
-              lineTextColor = 'text-slate-400 font-mono';
-            }
+              if (isAdd) {
+                rowBg = 'bg-emerald-950/30 hover:bg-emerald-950/40 border-l-2 border-emerald-500';
+                lineTextColor = 'text-emerald-300 font-medium';
+              } else if (isRemove) {
+                rowBg = 'bg-rose-950/30 hover:bg-rose-950/40 border-l-2 border-rose-500';
+                lineTextColor = 'text-rose-300 font-medium';
+              } else if (isHeader) {
+                rowBg = 'bg-sky-950/20 text-sky-400 font-medium border-l-2 border-sky-500/40';
+                lineTextColor = 'text-sky-400';
+              } else if (isFileMeta) {
+                rowBg = 'text-slate-500 bg-slate-900/40';
+                lineTextColor = 'text-slate-400 font-mono';
+              }
 
-            return (
-              <div
-                key={idx}
-                className={`flex items-start py-0.5 px-2 transition-colors ${rowBg}`}
-              >
-                {/* Line number gutter */}
-                <span className="w-9 xl:w-11 shrink-0 text-right pr-3.5 text-slate-500 select-none font-mono text-xs xl:text-sm leading-6 [@media(min-height:860px)]:leading-7">
-                  {idx + 1}
-                </span>
-                {/* Diff line code content */}
-                <span className={`flex-1 font-mono leading-6 [@media(min-height:860px)]:leading-7 whitespace-pre ${lineTextColor}`}>
-                  {line}
-                </span>
-              </div>
-            );
-          })}
+              return (
+                <div
+                  key={idx}
+                  className={`flex items-start py-0.5 px-2 transition-colors ${rowBg}`}
+                >
+                  {/* Line number gutter */}
+                  <span className="w-9 xl:w-11 shrink-0 text-right pr-3.5 text-slate-500 select-none font-mono text-xs xl:text-sm leading-6 [@media(min-height:860px)]:leading-7">
+                    {idx + 1}
+                  </span>
+                  {/* Diff line code content */}
+                  <span className={`flex-1 font-mono leading-6 [@media(min-height:860px)]:leading-7 whitespace-pre ${lineTextColor}`}>
+                    {line}
+                  </span>
+                </div>
+              );
+            })}
 
-          {/* Eliminate Dead Space: Subtle Muted Footer Line After Code */}
-          <div className="flex items-center gap-2 pt-2.5 pb-2 px-3 text-slate-500 font-mono text-xs xl:text-sm select-none border-t border-white/[0.04] mt-2">
-            <span className="text-slate-600 font-bold">───</span>
-            <span>// End of diff ({diffLines.length} lines)</span>
+            {/* Eliminate Dead Space: Subtle Muted Footer Line After Code */}
+            <div className="flex items-center gap-2 pt-2.5 pb-2 px-3 text-slate-500 font-mono text-xs xl:text-sm select-none border-t border-white/[0.04] mt-2">
+              <span className="text-slate-600 font-bold">───</span>
+              <span>// End of diff ({diffLines.length} lines)</span>
+            </div>
           </div>
 
-          {/* IDE Gutter Filler Continuation for Large 27"-32" Monitors */}
-          <div className="hidden xl:flex flex-col opacity-15 select-none pointer-events-none py-1.5">
-            {Array.from({ length: 14 }).map((_, i) => (
+          {/* IDE Gutter Filler Continuation for Large 27"-32" Monitors: Softly clips at bottom, zero scrollbar */}
+          <div className="flex-1 min-h-0 overflow-hidden pointer-events-none select-none px-2 hidden xl:flex flex-col opacity-15">
+            {Array.from({ length: 24 }).map((_, i) => (
               <div key={i} className="flex items-center py-0.5 px-2">
-                <span className="w-9 xl:w-11 shrink-0 text-right pr-3.5 text-slate-600 font-mono text-xs xl:text-sm leading-6">
+                <span className="w-9 xl:w-11 shrink-0 text-right pr-3.5 text-slate-600 font-mono text-xs xl:text-sm leading-6 [@media(min-height:860px)]:leading-7">
                   {diffLines.length + i + 1}
                 </span>
                 <span className="w-8 h-0.5 bg-slate-700/50 rounded-full" />
