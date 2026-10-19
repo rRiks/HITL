@@ -194,6 +194,12 @@ export default function App() {
       const inGameSession = sessionStorage.getItem('hitl_in_game') === 'true';
       if (inGameSession && (state.has_started || state.current_stage_index > 0 || state.health < 100 || state.total_jenga_pulls > 0)) {
         setGameStarted(true);
+        if (!state.is_game_over && !state.stage_action_taken && !state.is_victory) {
+          setIsTimerRunning(!state.is_timer_paused);
+          if (typeof state.time_left_seconds === 'number') {
+            setTimeLeft(state.time_left_seconds);
+          }
+        }
       }
       if (!isSpectator) {
         const myId = api.getPlayerId();
@@ -253,6 +259,12 @@ export default function App() {
         if (typeof remoteState?.is_timer_paused !== 'undefined') {
           setIsTimerPausedByAdmin(!!remoteState.is_timer_paused);
         }
+        if (!remoteState.stage_action_taken && !remoteState.is_game_over && !remoteState.is_victory) {
+          setIsTimerRunning(!remoteState.is_timer_paused);
+          if (typeof remoteState.time_left_seconds === 'number' && Math.abs(timeLeftRef.current - remoteState.time_left_seconds) > 4) {
+            setTimeLeft(remoteState.time_left_seconds);
+          }
+        }
 
         // Sync local voter status (skip if spectator)
         if (!isSpectator) {
@@ -297,8 +309,8 @@ export default function App() {
             setIsWatchingCollapse(false);
             setActionResult(null);
             setMyVote(null);
-            setTimeLeft(120);
-            setIsTimerRunning(true);
+            setTimeLeft(remoteState.time_left_seconds ?? 120);
+            setIsTimerRunning(!remoteState.is_timer_paused);
             return remoteState;
           }
           if (
@@ -1053,20 +1065,20 @@ export default function App() {
 
       {/* Cinematic Extraction Floating HUD Bar */}
       {isWatchingRemoval && !gameState?.is_game_over && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-full max-w-xl px-4 animate-bounce">
-          <div className="mc-panel-dark p-3 shadow-2xl flex items-center justify-between gap-3 border-2 border-[#ffd700]">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 bg-[#251505] border border-[#ffd700] flex items-center justify-center shrink-0">
-                <Rotate3d className="w-5 h-5 text-[#ffd700] animate-spin" style={{ animationDuration: '3s' }} />
+        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 w-full max-w-xl px-4 animate-bounce">
+          <div className="bg-[var(--bg-panel)] backdrop-blur-xl border border-[var(--border-subtle)] text-[var(--text-primary)] p-3 sm:p-3.5 rounded-2xl shadow-2xl flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/35 flex items-center justify-center shrink-0">
+                <Rotate3d className="w-5 h-5 text-amber-700 dark:text-amber-400 animate-spin" style={{ animationDuration: '4s' }} />
               </div>
               <div>
-                <span className="text-[9px] mc-font text-[#ffd700] uppercase block">
+                <span className="text-[10px] font-bold font-mono text-amber-800 dark:text-amber-300 uppercase tracking-wider block">
                   VOXEL DESTABILIZATION CAMERA
                 </span>
-                <p className="text-[10px] text-white mc-font">
+                <p className="text-xs font-semibold text-[var(--text-secondary)] font-sans mt-0.5">
                   {actionResult?.jenga_pulls > 0
                     ? `Mining ${actionResult.jenga_pulls} structural block(s) from the tower!`
-                    : 'Blocks Resilient.'}
+                    : 'Tower Resilient. 0 Blocks Lost.'}
                 </p>
               </div>
             </div>
@@ -1074,10 +1086,10 @@ export default function App() {
             <button
               type="button"
               onClick={handleProceedNextStage}
-              className="mc-btn mc-btn-green px-3.5 py-2 text-[9px] mc-font text-white flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              className="px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer whitespace-nowrap shrink-0"
             >
-              <span className="pointer-events-none">NEXT STAGE [SPACE]</span>
-              <ArrowRight className="w-3.5 h-3.5 pointer-events-none" />
+              <span>NEXT STAGE [SPACE]</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

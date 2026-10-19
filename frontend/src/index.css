@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
+
 @layer base {
   :root {
     --font-minecraft: 'Press Start 2P', monospace;
@@ -19,6 +21,40 @@
     --theme-radius-btn: 0px;
     --theme-radius-slot: 0px;
     --theme-radius-badge: 0px;
+
+    /* Semantic Theme & Color Mode Tokens (Dark Mode Baseline) */
+    --bg-app: #050814;
+    --bg-panel: rgba(15, 23, 42, 0.72);
+    --bg-card: rgba(15, 23, 42, 0.85);
+    --bg-elevated: rgba(30, 41, 59, 0.65);
+    --bg-code: #070b14;
+    --tower-bg: #050814;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #64748b;
+    --border-subtle: rgba(255, 255, 255, 0.10);
+    --diff-add-bg: rgba(16, 185, 129, 0.14);
+    --diff-add-text: #6ee7b7;
+    --diff-del-bg: rgba(244, 63, 94, 0.14);
+    --diff-del-text: #fda4af;
+  }
+
+  [data-theme="light"] {
+    /* Semantic Theme & Color Mode Tokens (Light Mode Baseline) */
+    --bg-app: #eef2f6;
+    --bg-panel: rgba(255, 255, 255, 0.85);
+    --bg-card: rgba(255, 255, 255, 0.95);
+    --bg-elevated: #f1f5f9;
+    --bg-code: #f8fafc;
+    --tower-bg: linear-gradient(180deg, #ede9fe 0%, #e0e7ff 45%, #f1f5f9 100%);
+    --text-primary: #0a0f1d;
+    --text-secondary: #1e293b;
+    --text-muted: #475569;
+    --border-subtle: rgba(15, 23, 42, 0.14);
+    --diff-add-bg: rgba(16, 185, 129, 0.12);
+    --diff-add-text: #065f46;
+    --diff-del-bg: rgba(244, 63, 94, 0.12);
+    --diff-del-text: #9f1239;
   }
 
   html, body, #root {
@@ -803,65 +839,6 @@
   color: #b91c1c !important;
 }
 
-/* =============================================================
- * WELCOME SCREEN & TABLE LOBBY (CREATE TABLE & JOIN WITH PIN)
- * =========================================================== */
-[data-theme-family="minecraft"][data-theme="light"] .welcome-tab-container {
-  background-color: #ede7dc !important;
-  border-color: #d1c7b5 !important;
-}
-
-[data-theme-family="minecraft"][data-theme="light"] .welcome-tab-btn {
-  color: #6c5f51 !important;
-}
-
-[data-theme-family="minecraft"][data-theme="light"] .welcome-tab-btn:hover {
-  color: #1e1b18 !important;
-}
-
-[data-theme-family="minecraft"][data-theme="light"] .welcome-tab-create-active,
-[data-theme-family="minecraft"][data-theme="light"] .welcome-tab-join-active {
-  background-color: #fef3c7 !important;
-  border: 2px solid #f59e0b !important;
-  color: #92400e !important;
-  box-shadow: 0 2px 6px rgba(180, 83, 9, 0.12) !important;
-}
-
-[data-theme-family="minecraft"][data-theme="light"] .quick-pick-btn {
-  background-color: #f4eee2 !important;
-  border-color: #d1c7b5 !important;
-  color: #5c5245 !important;
-}
-
-[data-theme-family="minecraft"][data-theme="light"] .quick-pick-btn:hover {
-  border-color: #b45309 !important;
-  color: #1e1b18 !important;
-}
-
-[data-theme-family="minecraft"][data-theme="light"] .quick-pick-active {
-  background-color: #fef3c7 !important;
-  border-color: #f59e0b !important;
-  color: #92400e !important;
-  font-weight: bold !important;
-}
-
-[data-theme-family="minecraft"][data-theme="light"] .bg-\[\#0b1626\] {
-  background-color: #f0f9ff !important;
-  border-color: #0284c7 !important;
-  color: #0369a1 !important;
-}
-
-[data-theme-family="minecraft"][data-theme="light"] .bg-\[\#0c2415\] {
-  background-color: #dcfce7 !important;
-  border-color: #22c55e !important;
-  color: #15803d !important;
-}
-
-[data-theme-family="minecraft"][data-theme="light"] .bg-\[\#2d0e0e\] {
-  background-color: #fee2e2 !important;
-  border-color: #ef4444 !important;
-  color: #991b1b !important;
-}
 
 /* =============================================================
  * COCKPIT FIELD GUIDE LIGHT THEME
@@ -1447,7 +1424,12 @@
   border: 1px solid rgba(124, 58, 237, 0.3) !important;
   box-shadow: 0 4px 16px rgba(124, 58, 237, 0.15) !important;
   color: #1e1b4b !important;
+  text-shadow: none !important;
   border-radius: 9999px !important;
+}
+
+[data-theme-family="liquid-glass"][data-theme="light"] .mc-btn * {
+  text-shadow: none !important;
 }
 
 

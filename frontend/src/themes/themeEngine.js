@@ -123,16 +123,71 @@ class ThemeEngine {
 
       // 1. Maintain backward compatibility with existing [data-theme="light"] selectors
       root.setAttribute('data-theme', cleanMode);
+      root.style.colorScheme = cleanMode;
+
+      // Synchronize class list so Tailwind v4 custom dark variant matches perfectly
+      if (cleanMode === 'dark') {
+        root.classList.add('dark');
+        root.classList.remove('light');
+      } else {
+        root.classList.remove('dark');
+        root.classList.add('light');
+      }
 
       // 2. Set theme family attribute (e.g. data-theme-family="cyberpunk")
       root.setAttribute('data-theme-family', themeObj.id);
 
-      // 3. Inject CSS Variables
+      // 3. Inject Theme Specific CSS Variables
       if (modeObj && modeObj.variables) {
         Object.entries(modeObj.variables).forEach(([key, val]) => {
           root.style.setProperty(key, val);
         });
       }
+
+      // 4. Inject Dynamic Semantic Color-Mode Tokens
+      const isLight = cleanMode === 'light';
+      const isMinecraft = themeObj.id === 'minecraft';
+      const isLiquidGlass = themeObj.id === 'liquid-glass';
+
+      if (isLight) {
+        root.style.setProperty('--bg-app', isMinecraft ? (modeObj?.variables?.['--theme-bg'] || '#f4ece1') : isLiquidGlass ? '#f8f6fc' : '#eef2f6');
+        root.style.setProperty('--bg-panel', isMinecraft ? (modeObj?.variables?.['--theme-surface'] || '#e8dcce') : isLiquidGlass ? 'rgba(255, 255, 255, 0.88)' : 'rgba(255, 255, 255, 0.88)');
+        root.style.setProperty('--bg-card', isMinecraft ? (modeObj?.variables?.['--theme-surface-card'] || '#fbf8f3') : isLiquidGlass ? 'rgba(255, 255, 255, 0.96)' : 'rgba(255, 255, 255, 0.96)');
+        root.style.setProperty('--bg-elevated', isMinecraft ? (modeObj?.variables?.['--theme-surface-alt'] || '#decaba') : isLiquidGlass ? '#f3f0fb' : '#f1f5f9');
+        root.style.setProperty('--bg-code', isMinecraft ? '#faf6f0' : '#f8fafc');
+        root.style.setProperty(
+          '--tower-bg',
+          isMinecraft
+            ? 'linear-gradient(180deg, #cbe5ff 0%, #e2f0fd 50%, #f0f7ff 100%)'
+            : isLiquidGlass
+            ? 'linear-gradient(180deg, #ede9fe 0%, #e0e7ff 45%, #f1f5f9 100%)'
+            : 'linear-gradient(180deg, #eef2f6 0%, #e2e8f0 50%, #cbd5e1 100%)'
+        );
+        root.style.setProperty('--text-primary', isMinecraft ? '#2a221b' : '#0a0f1d');
+        root.style.setProperty('--text-secondary', isMinecraft ? '#5c4c3d' : '#1e293b');
+        root.style.setProperty('--text-muted', isMinecraft ? '#786450' : '#475569');
+        root.style.setProperty('--border-subtle', isMinecraft ? (modeObj?.variables?.['--theme-border'] || '#c2b3a1') : isLiquidGlass ? 'rgba(124, 58, 237, 0.20)' : 'rgba(15, 23, 42, 0.14)');
+        root.style.setProperty('--diff-add-bg', 'rgba(16, 185, 129, 0.12)');
+        root.style.setProperty('--diff-add-text', '#065f46');
+        root.style.setProperty('--diff-del-bg', 'rgba(244, 63, 94, 0.12)');
+        root.style.setProperty('--diff-del-text', '#9f1239');
+      } else {
+        root.style.setProperty('--bg-app', isMinecraft ? (modeObj?.variables?.['--theme-bg'] || '#191613') : (modeObj?.variables?.['--theme-bg'] || '#050814'));
+        root.style.setProperty('--bg-panel', isMinecraft ? (modeObj?.variables?.['--theme-surface'] || '#24201c') : 'rgba(15, 23, 42, 0.72)');
+        root.style.setProperty('--bg-card', isMinecraft ? (modeObj?.variables?.['--theme-surface-card'] || '#2b2622') : 'rgba(15, 23, 42, 0.85)');
+        root.style.setProperty('--bg-elevated', isMinecraft ? (modeObj?.variables?.['--theme-surface-alt'] || '#1e1a17') : 'rgba(30, 41, 59, 0.65)');
+        root.style.setProperty('--bg-code', isMinecraft ? '#15120e' : '#070b14');
+        root.style.setProperty('--tower-bg', '#050814');
+        root.style.setProperty('--text-primary', isMinecraft ? '#e5dec9' : '#f8fafc');
+        root.style.setProperty('--text-secondary', isMinecraft ? '#cbd5e1' : '#cbd5e1');
+        root.style.setProperty('--text-muted', isMinecraft ? '#a89f8b' : '#94a3b8');
+        root.style.setProperty('--border-subtle', isMinecraft ? (modeObj?.variables?.['--theme-border'] || '#4a4238') : 'rgba(255, 255, 255, 0.10)');
+        root.style.setProperty('--diff-add-bg', 'rgba(16, 185, 129, 0.14)');
+        root.style.setProperty('--diff-add-text', '#6ee7b7');
+        root.style.setProperty('--diff-del-bg', 'rgba(244, 63, 94, 0.14)');
+        root.style.setProperty('--diff-del-text', '#fda4af');
+      }
+
       root.style.setProperty('--font-theme-heading', "'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif");
       root.style.setProperty('--font-theme-badge', "var(--theme-font-display, 'Press Start 2P', monospace)");
 

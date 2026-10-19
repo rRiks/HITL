@@ -64,8 +64,7 @@ const DRAGGABLE_SLOTS = [
     id: 'splash-title',
     xPct: 0.58,
     yPct: 0.12,
-    rotation: -12,
-    color: 'text-[#ffff00]',
+    rotation: -10,
     star: '★',
     isTitleSplash: true,
   },
@@ -73,16 +72,14 @@ const DRAGGABLE_SLOTS = [
     id: 'left-flank',
     xPct: 0.07,
     yPct: 0.38,
-    rotation: -6,
-    color: 'text-[#38bdf8]',
+    rotation: -5,
     star: '✦',
   },
   {
     id: 'right-flank',
     xPct: 0.76,
     yPct: 0.62,
-    rotation: 7,
-    color: 'text-[#55ff55]',
+    rotation: 6,
     star: '⚡',
   },
 ];
@@ -319,30 +316,30 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
   }
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden bg-mc-dirt text-white flex flex-col justify-between py-2 sm:py-3 px-3 sm:px-6 select-none relative">
-      {/* Premium Theme Switcher */}
+    <div className="h-screen max-h-screen overflow-hidden bg-slate-100 dark:bg-[#0b0f17] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(226,232,240,0.6),rgba(241,245,249,1))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(30,41,59,0.45),rgba(11,15,23,1))] text-slate-900 dark:text-slate-100 flex flex-col justify-between py-2 sm:py-3 px-3 sm:px-6 select-none relative transition-colors duration-200">
+      {/* Theme Switcher */}
       {onToggleTheme && (
         <button
           type="button"
           onClick={onToggleTheme}
-          title={theme === 'light' ? 'Switch to Dark Realm' : 'Switch to Light Realm'}
-          className="absolute top-3 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-[#1e293b]/85 hover:bg-[#334155] border-2 border-[#475569] text-xs font-mono font-bold text-white transition-colors duration-100 shadow-md cursor-pointer mc-btn select-none"
+          title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+          className="absolute top-3 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 dark:bg-slate-850/90 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold text-slate-700 dark:text-slate-200 transition-all shadow-xs cursor-pointer backdrop-blur-md select-none"
         >
           {theme === 'light' ? (
             <>
-              <Sun className="w-3.5 h-3.5 text-[#fbbf24]" />
-              <span className="text-[11px] text-[#fbbf24]">LIGHT</span>
+              <Sun className="w-3.5 h-3.5 text-amber-500" />
+              <span className="text-[11px] text-slate-700">LIGHT</span>
             </>
           ) : (
             <>
-              <Moon className="w-3.5 h-3.5 text-[#38bdf8]" />
-              <span className="text-[11px] text-[#38bdf8]">DARK</span>
+              <Moon className="w-3.5 h-3.5 text-sky-400" />
+              <span className="text-[11px] text-slate-200">DARK</span>
             </>
           )}
         </button>
       )}
 
-      {/* Draggable & Clickable Quotes & Splash Texts (Borderless Authentic Minecraft Style) */}
+      {/* Draggable & Clickable Quotes & Splash Texts (Refined Neutral Floating Badges) */}
       {DRAGGABLE_SLOTS.map((slot, idx) => {
         const item = quoteItems[idx];
         if (!item) return null;
@@ -360,46 +357,49 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
             style={{
               left: `${item.x}px`,
               top: `${item.y}px`,
-              transform: `rotate(${slot.rotation}deg) scale(${isDragging ? 1.18 : 1})`,
+              transform: `rotate(${slot.rotation}deg) scale(${isDragging ? 1.06 : 1})`,
               touchAction: 'none',
             }}
-            className={`fixed ${slot.color} ${slot.isTitleSplash ? 'flex' : 'hidden sm:flex'
-              } items-center gap-1.5 text-[10px] sm:text-xs font-mono font-bold drop-shadow-[0_2px_0_#000] select-none z-30 transition-transform ${isDragging
-                ? 'cursor-grabbing z-50 filter brightness-125'
-                : 'cursor-grab animate-pulse hover:scale-115 hover:brightness-125'
-              }`}
+            className={`fixed ${
+              slot.isTitleSplash ? 'flex' : 'hidden sm:flex'
+            } items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 border border-slate-200/90 dark:border-slate-800 shadow-sm backdrop-blur-md text-[10px] sm:text-xs font-mono font-medium select-none z-30 transition-all ${
+              isDragging
+                ? 'cursor-grabbing z-50 scale-105 shadow-md border-slate-400 dark:border-slate-600'
+                : 'cursor-grab hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md'
+            }`}
           >
-            <span className="opacity-90">{slot.star}</span>
+            <span className="text-slate-400 dark:text-slate-500 font-bold">{slot.star}</span>
             <span className="whitespace-nowrap">{quoteText}</span>
           </div>
         );
       })}
 
       <div className="max-w-lg mx-auto w-full my-auto flex flex-col justify-center">
-        {/* Minecraft Title Header */}
+        {/* Title Header */}
         <div className="text-center mb-2 sm:mb-3 relative shrink-0 pt-3 sm:pt-4">
           <div className="relative inline-block mb-1 sm:mb-2">
-            <h1 className="text-2xl sm:text-4xl font-black tracking-widest text-[#e0e0e0] mc-font drop-shadow-[0_4px_0_#222]">
-              MINECRAFT <span className="text-[#ffd700]">AIDLC</span>
+            <h1 className="text-2xl sm:text-4xl font-black tracking-wider text-slate-900 dark:text-white font-mono">
+              MINECRAFT <span className="text-slate-500 dark:text-slate-400">AIDLC</span>
             </h1>
           </div>
 
-          <p className="text-[11px] sm:text-xs text-[#ccc] max-w-lg mx-auto leading-snug mt-1 font-mono">
-            Balance sprint velocity, code quality, and the stability of your <strong>3D Voxel Tower</strong> across 11 high-pressure stages.
+          <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 max-w-lg mx-auto leading-snug mt-1 font-mono">
+            Balance sprint velocity, code quality, and the stability of your <strong className="text-slate-800 dark:text-slate-200 font-semibold">3D Voxel Tower</strong> across 11 high-pressure stages.
           </p>
         </div>
 
         {/* Start Adventure Card */}
-        <div className="mc-panel-dark p-4 sm:p-5 shadow-2xl border-4 border-[#333]">
-          {/* Kahoot/Jackbox Mode Tabs */}
-          <div className="welcome-tab-container grid grid-cols-2 gap-2 mb-3 bg-[#111] p-1 border-2 border-[#444]">
+        <div className="bg-white/95 dark:bg-slate-900/95 text-slate-900 dark:text-slate-100 p-4 sm:p-5 shadow-2xl shadow-slate-900/10 dark:shadow-black/50 border border-slate-200/90 dark:border-slate-800 rounded-2xl backdrop-blur-xl transition-all">
+          {/* Mode Switcher Tabs */}
+          <div className="grid grid-cols-2 gap-1.5 mb-3 bg-slate-100 dark:bg-slate-950/80 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setTabMode('create')}
-              className={`welcome-tab-btn py-1.5 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${tabMode === 'create'
-                ? 'welcome-tab-create-active bg-[#332200] border-2 border-[#ffd700] text-[#ffd700] shadow-sm'
-                : 'text-[#888] hover:text-white'
-                }`}
+              className={`py-1.5 px-3 text-xs font-mono font-bold flex items-center justify-center gap-1.5 rounded-lg transition-all cursor-pointer ${
+                tabMode === 'create'
+                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>CREATE TABLE</span>
@@ -408,10 +408,11 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
             <button
               type="button"
               onClick={() => setTabMode('join')}
-              className={`welcome-tab-btn py-1.5 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${tabMode === 'join'
-                ? 'welcome-tab-join-active bg-[#002233] border-2 border-[#38bdf8] text-[#55ffff] shadow-sm'
-                : 'text-[#888] hover:text-white'
-                }`}
+              className={`py-1.5 px-3 text-xs font-mono font-bold flex items-center justify-center gap-1.5 rounded-lg transition-all cursor-pointer ${
+                tabMode === 'join'
+                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
             >
               <KeyRound className="w-3.5 h-3.5" />
               <span>JOIN WITH PIN</span>
@@ -429,7 +430,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
             >
               {/* Table Name */}
               <div>
-                <label className="block text-[11px] font-mono font-bold text-[#ffd700] uppercase mb-1">
+                <label className="block text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-1">
                   Table Name
                 </label>
                 <input
@@ -437,21 +438,22 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                   value={teamName}
                   onChange={(e) => setTeamName(e.target.value)}
                   placeholder="e.g. Alpha Devs, Cloud Titans, Table 1..."
-                  className="w-full bg-[#111] border-2 border-[#555] text-white px-3 py-1.5 text-xs sm:text-sm font-mono focus:outline-none focus:border-[#ffd700] transition-colors"
+                  className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 px-3 py-1.5 text-xs sm:text-sm font-mono rounded-xl focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 dark:focus:ring-slate-500/20 focus:bg-white dark:focus:bg-slate-950 transition-all"
                   required
                 />
 
-                <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                  <span className="text-[9px] text-[#888] font-mono">Quick Pick:</span>
+                <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Quick Pick:</span>
                   {TEAM_SUGGESTIONS.map((preset) => (
                     <button
                       key={preset}
                       type="button"
                       onClick={() => setTeamName(preset)}
-                      className={`quick-pick-btn text-[9px] font-mono px-2 py-0.5 border transition-all cursor-pointer ${teamName === preset
-                        ? 'quick-pick-active bg-[#332200] border-[#ffd700] text-[#ffd700]'
-                        : 'bg-[#222] border-[#444] text-[#ccc] hover:border-[#666]'
-                        }`}
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
+                        teamName === preset
+                          ? 'bg-slate-900 text-white border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-white font-bold shadow-xs'
+                          : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700 border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 dark:text-slate-300 dark:border-slate-700'
+                      }`}
                     >
                       {preset}
                     </button>
@@ -461,8 +463,8 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
 
               {/* Gamer Tag */}
               <div>
-                <label className="block text-[11px] font-mono font-bold text-[#ffd700] uppercase mb-1 flex items-center gap-1.5">
-                  <User className="w-3 h-3 text-[#ffd700]" />
+                <label className="block text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-1 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                   <span>Your Name (Gamer Tag)</span>
                 </label>
                 <input
@@ -470,14 +472,14 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                   value={playerName}
                   onChange={(e) => setPlayerNameState(e.target.value)}
                   placeholder="e.g. Riks, Wayne, Kent..."
-                  className="w-full bg-[#111] border-2 border-[#555] text-white px-3 py-1.5 text-xs sm:text-sm font-mono focus:outline-none focus:border-[#ffd700] transition-colors"
+                  className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 px-3 py-1.5 text-xs sm:text-sm font-mono rounded-xl focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 dark:focus:ring-slate-500/20 focus:bg-white dark:focus:bg-slate-950 transition-all"
                   required
                 />
               </div>
 
               {/* Table Size */}
               <div>
-                <label className="block text-[11px] font-mono font-bold text-[#ffd700] uppercase mb-1">
+                <label className="block text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-1">
                   Team Size
                 </label>
                 <div className="grid grid-cols-4 gap-2">
@@ -486,8 +488,11 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                       key={cnt}
                       type="button"
                       onClick={() => setPlayerCount(cnt)}
-                      className={`mc-btn py-1 text-[11px] font-mono cursor-pointer ${playerCount === cnt ? 'mc-btn-green text-white font-bold' : ''
-                        }`}
+                      className={`py-1.5 text-[11px] font-mono rounded-xl border transition-all cursor-pointer ${
+                        playerCount === cnt
+                          ? 'bg-slate-900 text-white border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-white font-bold shadow-xs'
+                          : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700 border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-slate-700'
+                      }`}
                     >
                       {cnt} Players
                     </button>
@@ -498,7 +503,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
               <div className="pt-1">
                 <button
                   type="submit"
-                  className="mc-btn mc-btn-green w-full py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white flex items-center justify-center gap-2 cursor-pointer shadow-xl tracking-wider"
+                  className="w-full py-2.5 sm:py-3 text-xs sm:text-sm font-bold rounded-xl bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-white dark:text-slate-950 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-slate-900/10 dark:shadow-black/30 tracking-wider transition-all active:scale-[0.99]"
                 >
                   <Play className="w-4 h-4 fill-current" />
                   <span>START ADVENTURE (GET PIN) ➔</span>
@@ -518,7 +523,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
             >
               {/* Game PIN Input */}
               <div>
-                <label className="block text-[11px] font-mono font-bold text-[#55ffff] uppercase mb-1 text-center">
+                <label className="block text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-1.5 text-center">
                   ENTER 4-CHARACTER GAME PIN
                 </label>
                 <input
@@ -526,7 +531,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                   value={joinPin}
                   onChange={(e) => setJoinPin(e.target.value.toUpperCase().slice(0, 6))}
                   placeholder="e.g. 7B2K"
-                  className="w-full bg-[#0b1626] border-2 border-[#38bdf8] text-[#ffd700] text-center text-lg sm:text-xl font-mono font-bold py-2 tracking-[0.3em] uppercase focus:outline-none focus:ring-2 focus:ring-[#55ffff] transition-all shadow-inner"
+                  className="w-full bg-slate-50 dark:bg-slate-950/80 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-center text-lg sm:text-xl font-mono font-bold py-2 tracking-[0.3em] uppercase rounded-xl focus:outline-none focus:border-slate-800 dark:focus:border-slate-400 focus:bg-white dark:focus:bg-slate-950 focus:ring-2 focus:ring-slate-400/20 dark:focus:ring-slate-500/20 transition-all shadow-inner"
                   autoFocus
                   required
                 />
@@ -535,31 +540,31 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
               {/* Live Table Detection Badge */}
               <div className="min-h-[38px] flex items-center justify-center">
                 {pinLookup.loading && (
-                  <span className="text-[10px] font-mono text-[#8e98ad] animate-pulse">
+                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 animate-pulse">
                     Connecting to table realm...
                   </span>
                 )}
 
                 {!pinLookup.loading && pinLookup.found && pinLookup.data && (
-                  <div className="w-full p-2 bg-[#0c2415] border border-[#22c55e] text-[#86efac] text-xs font-mono flex items-center justify-between gap-2 shadow-sm">
+                  <div className="w-full p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-mono flex items-center justify-between gap-2 shadow-xs">
                     <div className="flex items-center gap-2 truncate">
-                      <ShieldCheck className="w-4 h-4 text-[#22c55e] shrink-0" />
+                      <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <div className="truncate">
-                        <strong className="text-white block truncate">{pinLookup.data.team_name}</strong>
-                        <span className="text-[10px] text-[#86efac]">
+                        <strong className="text-slate-900 dark:text-white block truncate">{pinLookup.data.team_name}</strong>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400">
                           Stage {pinLookup.data.current_stage}/11 • {pinLookup.data.active_players} online
                         </span>
                       </div>
                     </div>
-                    <span className="text-[9px] font-bold bg-[#14532d] text-white px-2 py-0.5 border border-[#22c55e]">
+                    <span className="text-[9px] font-bold bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-2 py-0.5 rounded-md">
                       READY
                     </span>
                   </div>
                 )}
 
                 {!pinLookup.loading && !pinLookup.found && pinLookup.message && joinPin.trim().length >= 3 && (
-                  <div className="w-full p-2 bg-[#2d0e0e] border border-[#ef4444] text-[#fca5a5] text-xs font-mono flex items-center gap-2 shadow-sm">
-                    <AlertCircle className="w-4 h-4 text-[#ef4444] shrink-0" />
+                  <div className="w-full p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-800 dark:text-rose-300 text-xs font-mono flex items-center gap-2 shadow-xs">
+                    <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
                     <span className="text-[10px]">
                       {pinLookup.message}. Ask your teammate for their screen PIN.
                     </span>
@@ -569,8 +574,8 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
 
               {/* Gamer Tag */}
               <div>
-                <label className="block text-[11px] font-mono font-bold text-[#ffd700] uppercase mb-1 flex items-center gap-1.5">
-                  <User className="w-3 h-3 text-[#ffd700]" />
+                <label className="block text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-1 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                   <span>Your Name (Gamer Tag)</span>
                 </label>
                 <input
@@ -578,7 +583,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                   value={playerName}
                   onChange={(e) => setPlayerNameState(e.target.value)}
                   placeholder="e.g. Riks, Wayne, Kent..."
-                  className="w-full bg-[#111] border-2 border-[#555] text-white px-3 py-1.5 text-xs sm:text-sm font-mono focus:outline-none focus:border-[#ffd700] transition-colors"
+                  className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 px-3 py-1.5 text-xs sm:text-sm font-mono rounded-xl focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 dark:focus:ring-slate-500/20 focus:bg-white dark:focus:bg-slate-950 transition-all"
                   required
                 />
               </div>
@@ -587,7 +592,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                 <button
                   type="submit"
                   disabled={!pinLookup.found || !playerName.trim()}
-                  className="mc-btn mc-btn-green w-full py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white flex items-center justify-center gap-2 cursor-pointer shadow-xl tracking-wider disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full py-2.5 sm:py-3 text-xs sm:text-sm font-bold rounded-xl bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-white dark:text-slate-950 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-slate-900/10 dark:shadow-black/30 tracking-wider transition-all active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Users className="w-4 h-4" />
                   <span>ENTER TABLE ({pinLookup.data?.team_name || joinPin || 'SQUAD'}) ➔</span>
@@ -599,19 +604,19 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
       </div>
 
       {/* Footer */}
-      <footer className="text-center text-[9px] font-mono text-[#888] shrink-0 py-1 flex items-center justify-center gap-2 relative z-10">
+      <footer className="text-center text-[10px] font-mono text-slate-500 dark:text-slate-400 shrink-0 py-1.5 flex items-center justify-center gap-2 relative z-10">
         <span>Developer Day Workshop Edition • Real-Time 3D Voxel AIDLC Simulation</span>
         <span>•</span>
         <button
           type="button"
           onClick={resetQuotePositions}
           title="Reset all quotes back to initial positions"
-          className="text-[#ffd700]/70 hover:text-[#ffd700] underline cursor-pointer"
+          className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white underline cursor-pointer transition-colors"
         >
           [Reset Quotes]
         </button>
         <span>•</span>
-        <a href="/admin" className="text-[#666] hover:text-[#ffd700] underline transition-colors cursor-pointer">
+        <a href="/admin" className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white underline transition-colors cursor-pointer">
           [GM Console]
         </a>
       </footer>

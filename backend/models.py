@@ -112,6 +112,8 @@ class GameStateResponse(BaseModel):
     last_action_result: Optional[Dict[str, Any]] = None
     history: List[StageSummaryRecord]
     current_stage_time_limit_seconds: int = 120
+    time_left_seconds: int = 120
+    stage_start_time: float = 0.0
     # Technical Debt & Restarts
     technical_debt: int = 0
     stage_restart_count: int = 0

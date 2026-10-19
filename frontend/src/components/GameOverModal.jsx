@@ -15,47 +15,38 @@ export default function GameOverModal({
   const cleanReason = reason.replace(/^BUILD FAILURE:\s*/, '');
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 select-none animate-fadeIn pointer-events-auto">
-      <div className="mc-panel-dark p-4 sm:p-5 shadow-2xl border-4 border-[#ff3333] max-w-lg w-full text-center space-y-3 relative max-h-[88vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[60] bg-black/75 dark:bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 select-none animate-fadeIn pointer-events-auto">
+      <div className="mc-panel-dark p-5 sm:p-6 shadow-2xl border-2 border-rose-500 bg-[var(--bg-card)] text-[var(--text-primary)] rounded-2xl max-w-lg w-full text-center space-y-3.5 relative max-h-[88vh] overflow-y-auto">
         {/* Header: Catastrophic Incident Notice */}
-        <div className="flex items-center justify-between gap-3 border-b-2 border-[#552222] pb-3">
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] pb-3">
           <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 bg-[#3a0000] border-2 border-[#ff3333] flex items-center justify-center shrink-0 mc-inner-box"
-              style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
-            >
+            <div className="w-10 h-10 bg-rose-500/15 border border-rose-500/40 rounded-xl flex items-center justify-center shrink-0">
               <span className="text-xl">💀</span>
             </div>
             <div className="text-left">
-              <h2 className="text-sm sm:text-base font-bold text-[#ff3333] mc-font uppercase tracking-wide">
+              <h2 className="text-sm sm:text-base font-bold text-rose-600 dark:text-rose-400 font-theme-heading uppercase tracking-wide">
                 CATASTROPHIC INCIDENT DEBRIEF
               </h2>
-              <span className="text-[9.5px] mc-font text-[#ffd700] block mt-0.5">
+              <span className="text-xs font-bold text-amber-800 dark:text-amber-300 block mt-0.5 font-mono">
                 FAILED ON STAGE {stageNumber} OF {totalStages} • MINED {totalPulls} BLOCKS
               </span>
             </div>
           </div>
 
           <div className="text-right hidden sm:block">
-            <span
-              className="text-[9px] mc-font px-2 py-0.5 bg-[#250505] text-[#ff5555] border border-[#aa0000] mc-badge-pill"
-              style={{ borderRadius: 'var(--theme-radius-badge, 0px)' }}
-            >
+            <span className="text-[10px] font-bold font-mono px-2.5 py-1 bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/35 rounded-full">
               TOWER TOPPLED
             </span>
           </div>
         </div>
 
         {/* Fatal Outage Log */}
-        <div
-          className="bg-[#0e0c0a] border-2 border-[#442222] p-3 text-left mc-inner-box"
-          style={{ borderRadius: 'var(--theme-radius-slot, 0px)' }}
-        >
-          <div className="flex items-center gap-1.5 text-[9px] mc-font text-[#ff5555] mb-1.5">
-            <Terminal className="w-3.5 h-3.5 text-[#ff5555] pointer-events-none" />
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-3.5 rounded-xl text-left">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-rose-600 dark:text-rose-400 mb-1.5 font-mono">
+            <Terminal className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 pointer-events-none" />
             <span>ROOT CAUSE TELEMETRY:</span>
           </div>
-          <p className="text-[11px] font-mono text-[#f0e6d2] leading-relaxed">
+          <p className="text-xs font-mono text-[var(--text-primary)] leading-relaxed select-text">
             {isTowerCollapse
               ? 'Critical structural stress exceeded platform load: tower collapsed under cumulative governor debt.'
               : cleanReason}
@@ -63,8 +54,8 @@ export default function GameOverModal({
         </div>
 
         {/* Workshop Pro-Tip */}
-        <p className="text-[9.5px] mc-font text-[#aaa] leading-relaxed text-left">
-          PRO-TIP: Use <span className="text-[#ffd700]">Enforce Guardrail Rules</span> or collaborative custom prompts to shield your voxel AIDLC from unexpected limits!
+        <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed text-left font-sans">
+          PRO-TIP: Use <strong className="text-amber-800 dark:text-amber-300">Enforce Guardrail Rules</strong> or collaborative custom prompts to shield your voxel AIDLC from unexpected limits!
         </p>
 
         {/* Action Buttons */}

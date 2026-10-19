@@ -363,6 +363,8 @@ class GameStateManager:
             last_action_result=self.last_action_result,
             history=self.history,
             current_stage_time_limit_seconds=120,
+            time_left_seconds=max(0, int(120 - max(0.0, time.time() - getattr(self, "stage_start_time", time.time())))) if (not self.stage_action_taken and not self.is_game_over and not self.is_victory) else 0,
+            stage_start_time=getattr(self, "stage_start_time", time.time()),
             technical_debt=self.technical_debt,
             stage_restart_count=getattr(self, "stage_restart_count", 0),
             active_players=self.get_active_players(),
@@ -566,7 +568,7 @@ class GameStateManager:
 
         # Update Technical Debt & Fragility Escalation (0-3: normal, 4: critical fragility, 5: systemic debt crisis)
         if adds_debt:
-            self.technical_debt += 1
+            self.technical_debt = min(5, self.technical_debt + 1)
             if self.technical_debt >= 4:
                 jenga_pulls = max(jenga_pulls, 3)
                 health_delta = min(health_delta, -25)

@@ -39,11 +39,39 @@ export default function StageArena({
 }) {
   const [mobileTab, setMobileTab] = useState('scenario'); // 'scenario' | 'tower' | 'decide'
 
+  const desktopTowerRef = React.useRef(null);
+  const tabletTowerRef = React.useRef(null);
+  const mobileTowerRef = React.useRef(null);
+
+  // Unified proxy so commands dispatched on towerRef always reach the active tower instance
+  React.useImperativeHandle(towerRef, () => ({
+    triggerExtractionSequence: (pulls) => {
+      desktopTowerRef.current?.triggerExtractionSequence?.(pulls);
+      tabletTowerRef.current?.triggerExtractionSequence?.(pulls);
+      mobileTowerRef.current?.triggerExtractionSequence?.(pulls);
+    },
+    triggerCatastrophicCollapse: () => {
+      desktopTowerRef.current?.triggerCatastrophicCollapse?.();
+      tabletTowerRef.current?.triggerCatastrophicCollapse?.();
+      mobileTowerRef.current?.triggerCatastrophicCollapse?.();
+    },
+    restoreTowerStructure: (pulls) => {
+      desktopTowerRef.current?.restoreTowerStructure?.(pulls);
+      tabletTowerRef.current?.restoreTowerStructure?.(pulls);
+      mobileTowerRef.current?.restoreTowerStructure?.(pulls);
+    },
+    resetCamera: () => {
+      desktopTowerRef.current?.resetCamera?.();
+      tabletTowerRef.current?.resetCamera?.();
+      mobileTowerRef.current?.resetCamera?.();
+    },
+  }));
+
   const totalActivePlayers = Math.max(activePlayers.length, 1);
   const totalVotesCast = Object.values(votesTally).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="flex-1 min-h-0 w-full flex flex-col overflow-hidden">
+    <div className="flex-1 min-h-0 w-full flex flex-col overflow-hidden bg-[var(--bg-app)] text-[var(--text-primary)] transition-colors duration-200">
       {/* 1. Desktop & Laptop Viewports (lg+ >= 1024px) */}
       <div className="hidden lg:grid lg:grid-cols-12 lg:gap-3 flex-1 min-h-0 w-full px-3 lg:px-5 py-2 lg:py-2.5 overflow-hidden">
         {/* Left Column (7 cols): Scenario & Diff Workspace */}
@@ -63,7 +91,7 @@ export default function StageArena({
           <div className="flex-1 min-h-[140px] relative overflow-hidden flex flex-col">
             <Virtual3DTower
               key="desktop-tower"
-              ref={towerRef}
+              ref={desktopTowerRef}
               totalPulls={totalPulls}
               instabilityPct={instabilityPct}
               technicalDebt={technicalDebt}
@@ -122,7 +150,7 @@ export default function StageArena({
           <div className="col-span-5 h-full min-h-0 relative overflow-hidden flex flex-col">
             <Virtual3DTower
               key="tablet-tower"
-              ref={towerRef}
+              ref={tabletTowerRef}
               totalPulls={totalPulls}
               instabilityPct={instabilityPct}
               technicalDebt={technicalDebt}
@@ -183,7 +211,7 @@ export default function StageArena({
               <div className="flex-1 min-h-0 relative overflow-hidden flex flex-col">
                 <Virtual3DTower
                   key="mobile-tower"
-                  ref={towerRef}
+                  ref={mobileTowerRef}
                   totalPulls={totalPulls}
                   instabilityPct={instabilityPct}
                   technicalDebt={technicalDebt}
@@ -226,7 +254,7 @@ export default function StageArena({
         </div>
 
         {/* Sleek Mobile Bottom Tab Bar */}
-        <nav className="shrink-0 h-13 border-t border-white/10 grid grid-cols-3 bg-slate-950/95 backdrop-blur z-20 shadow-lg">
+        <nav className="shrink-0 h-13 border-t border-[var(--border-subtle)] grid grid-cols-3 bg-[var(--bg-panel)] backdrop-blur z-20 shadow-lg text-[var(--text-primary)]">
           <button
             type="button"
             onClick={() => setMobileTab('scenario')}

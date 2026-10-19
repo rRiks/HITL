@@ -627,6 +627,7 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
 
     // 3. Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setClearColor(0x000000, 0);
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
@@ -757,13 +758,14 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
       });
 
       // Order: +x, -x, +y, -y, +z, -z
+      // Assign frontFaceMat to both +z and -z so the text plaque is visible from both sides of the tower
       const materials = [
         bodyMat,
         bodyMat,
         bodyMat,
         bodyMat,
         frontFaceMat,
-        bodyMat,
+        frontFaceMat,
       ];
 
       const mesh = new THREE.Mesh(blockGeo, materials);
@@ -1145,15 +1147,20 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
   const triggerExtractionSequence = useCallback(
     (pullsCount) => {
       if (pullsCount <= 0) return;
-      const currentlyPulled = pulledIndicesRef.current.size;
-      const targetIndices = REMOVAL_SEQUENCE.slice(currentlyPulled, currentlyPulled + pullsCount);
+      // Identify the exact blocks to extract for this action:
+      const currentCount = Math.max(totalPulls, pulledIndicesRef.current.size);
+      const startIdx = Math.max(0, currentCount - pullsCount);
+      const targetIndices = REMOVAL_SEQUENCE.slice(startIdx, Math.max(startIdx + pullsCount, currentCount));
       const staggerDelay = 2200;
 
       targetIndices.forEach((blockIdx, delayIndex) => {
         setTimeout(() => {
           const mesh = blocksMeshMapRef.current.get(blockIdx);
-          if (!mesh || mesh.userData.isExtracted) return;
+          if (!mesh) return;
 
+          // Reset block back into the upright tower slot so it slides out dynamically!
+          mesh.position.copy(mesh.userData.initialPos);
+          mesh.rotation.copy(mesh.userData.initialRot);
           mesh.userData.isExtracted = true;
           mesh.userData.animTime = 0;
           mesh.userData.hasPlayedSlideSound = false;
@@ -1201,7 +1208,7 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
         cameraDistanceRef.current = defaultCameraDistanceRef.current;
       }, totalSequenceTime);
     },
-    []
+    [totalPulls]
   );
 
   // Realistic Jenga structural failure physics (directional gravity topple, no bomb blast)
@@ -1360,7 +1367,7 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
     const shouldBePulled = REMOVAL_SEQUENCE.slice(0, totalPulls);
     shouldBePulled.forEach((blockIdx, i) => {
       const mesh = blocksMeshMapRef.current.get(blockIdx);
-      if (!mesh) return;
+      if (!mesh || animatingBlocksRef.current.has(mesh)) return;
 
       if (!pulledIndicesRef.current.has(blockIdx)) {
         pulledIndicesRef.current.add(blockIdx);
@@ -1414,8 +1421,20 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
       ? 'text-amber-800 border-amber-300 bg-amber-50'
       : 'text-emerald-800 border-emerald-300 bg-emerald-50';
 
+  // Architectural Tech Debt Consequence Mapping (Clamped 0 to 5)
+  const clampedDebt = Math.min(5, Math.max(0, technicalDebt));
+  const DEBT_OUTCOMES = [
+    { label: 'STABLE', desc: '0% Penalty', badgeClass: 'text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 border-emerald-500/35' },
+    { label: 'SHORTCUTS', desc: '+1 Pull on Risk', badgeClass: 'text-amber-800 dark:text-amber-300 bg-amber-500/15 border-amber-500/35' },
+    { label: 'FRICTION', desc: '+1 Pull on Risk', badgeClass: 'text-amber-800 dark:text-amber-300 bg-amber-500/15 border-amber-500/35' },
+    { label: 'ELEVATED', desc: 'Structural Strain', badgeClass: 'text-orange-800 dark:text-orange-300 bg-orange-500/20 border-orange-500/40' },
+    { label: 'CRITICAL', desc: '-25% HP • 3 Pulls', badgeClass: 'text-rose-900 dark:text-rose-200 bg-rose-500/20 border-rose-500/40 animate-pulse font-bold' },
+    { label: 'CRISIS', desc: '15% Pass Cap', badgeClass: 'text-rose-950 dark:text-rose-100 bg-rose-600/30 border-rose-600/60 animate-pulse font-black' },
+  ];
+  const debtOutcome = DEBT_OUTCOMES[clampedDebt] || DEBT_OUTCOMES[0];
+
   return (
-    <div className="flex-1 min-h-[240px] relative w-full h-full bg-slate-900/60 border border-white/10 rounded-xl overflow-hidden shadow-xl select-none flex flex-col">
+    <div className="flex-1 min-h-[240px] relative w-full h-full bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl overflow-hidden shadow-xl select-none flex flex-col">
       {/* Background ambient lighting */}
       <div
         className={`absolute -top-16 -right-16 w-64 h-64 rounded-full blur-3xl opacity-15 pointer-events-none transition-colors duration-700 ${
@@ -1423,26 +1442,40 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
         }`}
       />
 
-      {/* 3D WebGL Canvas */}
-      <div className="relative w-full h-full flex-1 overflow-hidden group">
+      {/* 3D WebGL Canvas: Bound to dynamic --tower-bg */}
+      <div
+        className="relative w-full h-full flex-1 overflow-hidden group transition-all duration-300"
+        style={{ background: 'var(--tower-bg, #050814)' }}
+      >
         <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-        {/* Top-Left Telemetry Overlay: TECH DEBT */}
-        <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-1.5 bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none">
-          <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
-            TECH DEBT:
-          </span>
-          <span
-            className={`font-mono text-xs font-semibold ${
-              technicalDebt >= 4
-                ? 'text-rose-400 animate-pulse'
-                : technicalDebt > 0
-                ? 'text-amber-400'
-                : 'text-slate-300'
-            }`}
+        {/* Top-Left Telemetry Overlay: TECH DEBT & Outcome Badge */}
+        <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-2 bg-[var(--bg-panel)] backdrop-blur-md border border-[var(--border-subtle)] rounded-lg px-2.5 py-1.5 shadow-lg select-none">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-bold tracking-wider text-[var(--text-secondary)] uppercase">
+              TECH DEBT:
+            </span>
+            <span
+              className={`font-mono text-xs font-bold ${
+                clampedDebt >= 4
+                  ? 'text-rose-600 dark:text-rose-400'
+                  : clampedDebt > 0
+                  ? 'text-amber-800 dark:text-amber-400'
+                  : 'text-[var(--text-primary)]'
+              }`}
+            >
+              {clampedDebt}/5
+            </span>
+          </div>
+
+          {/* Outcome Badge shown directly beside Tech Debt count */}
+          <div
+            className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono border ${debtOutcome.badgeClass}`}
+            title={`Architectural Impact: ${debtOutcome.desc}`}
           >
-            {technicalDebt}/5 {technicalDebt >= 4 ? '⚠️ FRAGILE' : ''}
-          </span>
+            <span className="font-bold">{debtOutcome.label}:</span>
+            <span className="font-semibold opacity-90">{debtOutcome.desc}</span>
+          </div>
         </div>
 
         {/* Full-view Target Reticle */}
@@ -1451,13 +1484,13 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
             {/* Authentic White Crosshair */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
               <div className="w-5 h-5 relative flex items-center justify-center">
-                <div className="absolute w-5 h-1 bg-white/80 shadow-[0_0_2px_black]" />
-                <div className="absolute w-1 h-5 bg-white/80 shadow-[0_0_2px_black]" />
+                <div className="absolute w-5 h-1 bg-white/90 shadow-[0_0_2px_black]" />
+                <div className="absolute w-1 h-5 bg-white/90 shadow-[0_0_2px_black]" />
               </div>
             </div>
 
             {/* Bottom Live Extraction Status Ticker */}
-            <div className="self-center bg-slate-950/90 border border-amber-500/40 text-amber-300 px-3 py-1 rounded-md text-[10px] font-mono flex items-center gap-2 backdrop-blur-md shadow-xl">
+            <div className="self-center bg-[var(--bg-panel)] border border-amber-500/40 text-amber-600 dark:text-amber-300 px-3 py-1 rounded-md text-[10px] font-mono flex items-center gap-2 backdrop-blur-md shadow-xl">
               <span className="w-2 h-2 bg-rose-500 animate-ping inline-block rounded-full" />
               <span>BLOCK DESTABILIZATION IN PROGRESS...</span>
             </div>
@@ -1469,29 +1502,29 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
           <button
             onClick={() => handleZoom(-1)}
             title="Zoom In"
-            className="w-8 h-8 rounded-lg bg-slate-950/80 hover:bg-slate-900 border border-white/10 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-colors shadow-lg backdrop-blur-sm"
+            className="w-8 h-8 rounded-lg bg-[var(--bg-panel)] hover:bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] flex items-center justify-center cursor-pointer transition-colors shadow-lg backdrop-blur-sm"
           >
             <ZoomIn className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => handleZoom(1)}
             title="Zoom Out"
-            className="w-8 h-8 rounded-lg bg-slate-950/80 hover:bg-slate-900 border border-white/10 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-colors shadow-lg backdrop-blur-sm"
+            className="w-8 h-8 rounded-lg bg-[var(--bg-panel)] hover:bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] flex items-center justify-center cursor-pointer transition-colors shadow-lg backdrop-blur-sm"
           >
             <ZoomOut className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={handleResetCamera}
             title="Reset View"
-            className="w-8 h-8 rounded-lg bg-slate-950/80 hover:bg-slate-900 border border-white/10 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-colors shadow-lg backdrop-blur-sm"
+            className="w-8 h-8 rounded-lg bg-[var(--bg-panel)] hover:bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] flex items-center justify-center cursor-pointer transition-colors shadow-lg backdrop-blur-sm"
           >
             <Rotate3d className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {/* Drag Hint */}
-        <div className="absolute bottom-2.5 left-2.5 text-[10px] font-mono text-slate-400 pointer-events-none flex items-center gap-1.5 bg-slate-950/80 px-2.5 py-1 border border-white/10 rounded-md backdrop-blur-sm shadow-sm">
-          <Rotate3d className="w-3 h-3 text-sky-400" />
+        <div className="absolute bottom-2.5 left-2.5 text-[10px] font-mono text-[var(--text-secondary)] pointer-events-none flex items-center gap-1.5 bg-[var(--bg-panel)] px-2.5 py-1 border border-[var(--border-subtle)] rounded-md backdrop-blur-sm shadow-sm">
+          <Rotate3d className="w-3 h-3 text-sky-500 dark:text-sky-400" />
           <span>DRAG TO ORBIT 360°</span>
         </div>
       </div>
