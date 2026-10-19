@@ -3,18 +3,12 @@ import {
   Palette,
   Sun,
   Moon,
-  Sparkles,
   Check,
   Radio,
   Plus,
-  Copy,
   Eye,
   Sliders,
-  CheckCircle2,
-  AlertCircle,
-  FileCode,
   Download,
-  Upload,
 } from 'lucide-react';
 import themeEngine from '../themes/themeEngine';
 import * as adminApi from './adminApi';
@@ -98,20 +92,36 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
       return;
     }
     if (!newTheme.name.trim()) {
-      showToast?.('Please enter a theme display name');
+      showToast?.('Please enter a display name for the theme');
       return;
     }
 
-    const themePayload = {
+    const customThemeConfig = {
       id: cleanId,
       name: newTheme.name.trim(),
-      tagline: newTheme.tagline.trim() || 'Custom Workshop Theme',
       badge: 'CUSTOM',
+      tagline: newTheme.tagline.trim() || 'Custom crafted aesthetic',
       modes: {
         dark: {
-          id: 'dark',
           name: newTheme.dark.name,
           description: newTheme.dark.description,
+          vars: {
+            '--theme-bg': newTheme.dark.bg,
+            '--theme-surface': newTheme.dark.surface,
+            '--theme-accent': newTheme.dark.accent,
+            '--theme-secondary': newTheme.dark.secondary,
+            '--theme-text': newTheme.dark.text,
+            '--theme-text-heading': '#ffffff',
+            '--theme-border': newTheme.dark.border,
+            '--tower-bg': newTheme.dark.bg,
+            '--bg-app': newTheme.dark.bg,
+            '--bg-panel': newTheme.dark.surface,
+            '--bg-card': newTheme.dark.surface,
+            '--bg-elevated': newTheme.dark.surface,
+            '--text-primary': newTheme.dark.text,
+            '--text-secondary': '#94a3b8',
+            '--border-subtle': newTheme.dark.border,
+          },
           preview: {
             bg: newTheme.dark.bg,
             surface: newTheme.dark.surface,
@@ -120,30 +130,27 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
             text: newTheme.dark.text,
             border: newTheme.dark.border,
           },
-          variables: {
-            '--theme-bg': newTheme.dark.bg,
-            '--theme-surface': newTheme.dark.surface,
-            '--theme-surface-alt': newTheme.dark.surface,
-            '--theme-surface-slot': newTheme.dark.bg,
-            '--theme-border': newTheme.dark.border,
-            '--theme-border-highlight': newTheme.dark.accent,
-            '--theme-border-shadow': '#000000',
-            '--theme-text': newTheme.dark.text,
-            '--theme-text-muted': '#94a3b8',
-            '--theme-text-heading': newTheme.dark.accent,
-            '--theme-accent': newTheme.dark.accent,
-            '--theme-accent-hover': newTheme.dark.accent,
-            '--theme-accent-glow': `${newTheme.dark.accent}55`,
-            '--theme-gold': '#ffd700',
-            '--theme-danger': newTheme.dark.secondary,
-            '--theme-header-bg': newTheme.dark.surface,
-            '--theme-card-bg': newTheme.dark.surface,
-          },
         },
         light: {
-          id: 'light',
           name: newTheme.light.name,
           description: newTheme.light.description,
+          vars: {
+            '--theme-bg': newTheme.light.bg,
+            '--theme-surface': newTheme.light.surface,
+            '--theme-accent': newTheme.light.accent,
+            '--theme-secondary': newTheme.light.secondary,
+            '--theme-text': newTheme.light.text,
+            '--theme-text-heading': '#0f172a',
+            '--theme-border': newTheme.light.border,
+            '--tower-bg': newTheme.light.bg,
+            '--bg-app': newTheme.light.bg,
+            '--bg-panel': newTheme.light.surface,
+            '--bg-card': newTheme.light.surface,
+            '--bg-elevated': newTheme.light.surface,
+            '--text-primary': newTheme.light.text,
+            '--text-secondary': '#475569',
+            '--border-subtle': newTheme.light.border,
+          },
           preview: {
             bg: newTheme.light.bg,
             surface: newTheme.light.surface,
@@ -152,65 +159,52 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
             text: newTheme.light.text,
             border: newTheme.light.border,
           },
-          variables: {
-            '--theme-bg': newTheme.light.bg,
-            '--theme-surface': newTheme.light.surface,
-            '--theme-surface-alt': newTheme.light.surface,
-            '--theme-surface-slot': newTheme.light.bg,
-            '--theme-border': newTheme.light.border,
-            '--theme-border-highlight': newTheme.light.accent,
-            '--theme-border-shadow': '#cbd5e1',
-            '--theme-text': newTheme.light.text,
-            '--theme-text-muted': '#64748b',
-            '--theme-text-heading': newTheme.light.accent,
-            '--theme-accent': newTheme.light.accent,
-            '--theme-accent-hover': newTheme.light.accent,
-            '--theme-accent-glow': `${newTheme.light.accent}33`,
-            '--theme-gold': '#d97706',
-            '--theme-danger': newTheme.light.secondary,
-            '--theme-header-bg': newTheme.light.surface,
-            '--theme-card-bg': newTheme.light.surface,
-          },
         },
       },
     };
 
-    themeEngine.registerTheme(themePayload);
-    setThemes([...themeEngine.getAllThemes()]);
-    setShowCreatorModal(false);
-    showToast?.(`Custom theme '${themePayload.name}' successfully registered with Light & Dark variants!`);
+    try {
+      themeEngine.registerTheme(customThemeConfig);
+      setThemes(themeEngine.getAllThemes());
+      setSelectedModes((prev) => ({ ...prev, [cleanId]: 'dark' }));
+      setShowCreatorModal(false);
+      showToast?.(`Crafted and registered custom theme: ${customThemeConfig.name}`);
+    } catch (err) {
+      showToast?.(`Registration error: ${err.message}`);
+    }
   };
 
   const handleExportThemes = () => {
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(themes, null, 2));
+    const all = themeEngine.getAllThemes();
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(all, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', dataStr);
-    downloadAnchor.setAttribute('download', 'hitl_workshop_themes.json');
+    downloadAnchor.setAttribute('download', `hitl-themes-${Date.now()}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
-    showToast?.('Workshop themes exported as JSON');
+    showToast?.('Theme registry exported as JSON');
   };
 
   return (
-    <div className="space-y-6">
-      {/* Active Theme Status Banner */}
-      <div className="p-4 sm:p-5 bg-[#121622] border-2 border-[#2b354c] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 bg-[#1a233a] border-2 border-[#38bdf8] flex items-center justify-center shrink-0 shadow-md">
-            <Palette className="w-5 h-5 text-[#38bdf8]" />
+    <div className="space-y-6 max-w-5xl mx-auto">
+      {/* Broadcast Target Status Bar */}
+      <div className="bg-[var(--bg-card)] p-4 sm:p-5 rounded-xl border border-[var(--border-subtle)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs transition-colors">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center shrink-0 shadow-sm">
+            <Palette className="w-5 h-5 text-sky-500" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] mc-font px-2 py-0.5 bg-[#0e3a24] text-[#55ff55] border border-[#55ff55]">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 font-bold">
                 BROADCAST TARGET
               </span>
-              <span className="text-xs font-mono text-[#8e98ad]">Live Workshop Synchronization</span>
+              <span className="text-xs font-mono text-[var(--text-muted)]">Live Workshop Synchronization</span>
             </div>
-            <h2 className="text-base sm:text-lg font-bold text-white mc-font tracking-wide mt-1">
+            <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)] font-theme-heading tracking-wide mt-1">
               Active Global Theme:{' '}
-              <span className="text-[#ffd700] uppercase">{activeGlobalTheme}</span>{' '}
-              <span className="text-xs text-[#38bdf8] font-mono">({activeGlobalMode.toUpperCase()} REALM)</span>
+              <span className="text-amber-600 dark:text-amber-400 uppercase">{activeGlobalTheme}</span>{' '}
+              <span className="text-xs text-sky-600 dark:text-sky-400 font-mono">({activeGlobalMode.toUpperCase()} REALM)</span>
             </h2>
           </div>
         </div>
@@ -219,7 +213,7 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
           <button
             type="button"
             onClick={handleExportThemes}
-            className="mc-btn px-3 py-2 text-[10px] mc-font text-[#aaa] hover:text-white flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-2 text-xs font-mono font-bold rounded-lg border transition-all cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-1.5"
             title="Export Theme Registry as JSON"
           >
             <Download className="w-3.5 h-3.5" />
@@ -228,7 +222,7 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
           <button
             type="button"
             onClick={() => setShowCreatorModal(true)}
-            className="mc-btn-green px-3.5 py-2 text-[10px] mc-font text-white flex items-center gap-1.5 cursor-pointer shadow-md"
+            className="px-3.5 py-2 text-xs font-mono font-bold text-white rounded-lg bg-emerald-600 hover:bg-emerald-500 flex items-center gap-1.5 cursor-pointer shadow-md transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ CRAFT CUSTOM THEME</span>
@@ -248,10 +242,10 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
           return (
             <div
               key={theme.id}
-              className={`p-4 sm:p-5 border-2 transition-all relative flex flex-col justify-between ${
+              className={`p-4 sm:p-5 rounded-xl border transition-all relative flex flex-col justify-between shadow-md ${
                 isCurrentlyActiveGlobal
-                  ? 'bg-[#151c2a] border-[#ffd700] shadow-xl shadow-amber-950/20'
-                  : 'bg-[#10141e] border-[#222a3d] hover:border-[#38bdf888]'
+                  ? 'bg-[var(--bg-card)] border-amber-500/60 ring-2 ring-amber-500/30 shadow-xl'
+                  : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
               }`}
             >
               {/* Card Top: Title & Badges */}
@@ -259,63 +253,63 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm sm:text-base font-bold text-white mc-font tracking-wide">
+                      <h3 className="text-sm sm:text-base font-bold text-[var(--text-primary)] font-theme-heading tracking-wide">
                         {theme.name}
                       </h3>
                       {theme.badge && (
-                        <span className="text-[9px] font-mono px-1.5 py-0.2 bg-[#252a3a] text-[#8eb2db] border border-[#3b4766]">
+                        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[var(--bg-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)] font-bold">
                           {theme.badge}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-[#8e98ad] font-mono mt-0.5">{theme.tagline}</p>
+                    <p className="text-xs text-[var(--text-muted)] font-mono mt-0.5">{theme.tagline}</p>
                   </div>
 
                   {isCurrentlyActiveGlobal && (
-                    <span className="text-[9px] mc-font px-2 py-1 bg-[#4a3400] text-[#ffd700] border-2 border-[#ffd700] flex items-center gap-1 shrink-0 animate-pulse">
-                      <Check className="w-3 h-3 text-[#ffd700]" />
+                    <span className="text-[9px] font-mono font-bold px-2 py-1 rounded-md bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40 flex items-center gap-1 shrink-0 animate-pulse">
+                      <Check className="w-3 h-3 text-amber-500" />
                       ACTIVE WORLD
                     </span>
                   )}
                 </div>
 
-                {/* Dark vs Light Mode Toggle (Requirement: Every theme has both!) */}
-                <div className="my-3 flex items-center gap-2 bg-[#0a0d14] p-1 border border-[#1e2538]">
+                {/* Dark vs Light Mode Toggle */}
+                <div className="my-3 flex items-center gap-2 bg-[var(--bg-elevated)] p-1 rounded-lg border border-[var(--border-subtle)]">
                   <button
                     type="button"
                     onClick={() => handleSelectMode(theme.id, 'dark')}
-                    className={`flex-1 py-1.5 px-3 text-xs font-mono flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                    className={`flex-1 py-1.5 px-3 text-xs font-mono rounded-md flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       currentChosenMode === 'dark'
-                        ? 'bg-[#1e293b] text-[#38bdf8] font-bold border border-[#38bdf8]'
-                        : 'text-[#64748b] hover:text-[#94a3b8]'
+                        ? 'bg-[var(--bg-card)] text-sky-700 dark:text-sky-300 font-bold border border-[var(--border-subtle)] shadow-xs'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                   >
-                    <Moon className="w-3.5 h-3.5 text-[#38bdf8]" />
+                    <Moon className="w-3.5 h-3.5 text-sky-500" />
                     <span>Dark Realm</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleSelectMode(theme.id, 'light')}
-                    className={`flex-1 py-1.5 px-3 text-xs font-mono flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                    className={`flex-1 py-1.5 px-3 text-xs font-mono rounded-md flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       currentChosenMode === 'light'
-                        ? 'bg-[#f8fafc] text-[#0284c7] font-bold border border-[#0284c7]'
-                        : 'text-[#64748b] hover:text-[#94a3b8]'
+                        ? 'bg-[var(--bg-card)] text-amber-700 dark:text-amber-300 font-bold border border-[var(--border-subtle)] shadow-xs'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                   >
-                    <Sun className="w-3.5 h-3.5 text-[#d97706]" />
+                    <Sun className="w-3.5 h-3.5 text-amber-500" />
                     <span>Light Realm</span>
                   </button>
                 </div>
 
                 {/* Mode description & Color Swatches */}
-                <p className="text-xs text-[#9bb0c9] font-mono mb-3 min-h-[36px] leading-relaxed">
+                <p className="text-xs text-[var(--text-secondary)] font-mono mb-3 min-h-[36px] leading-relaxed">
                   {modeConfig.description}
                 </p>
 
                 {/* Palette Preview Swatches */}
-                <div className="bg-[#0b0e14] p-2.5 border border-[#1f2638] mb-4 space-y-2">
-                  <div className="text-[10px] font-mono text-[#6c7d9e] flex justify-between">
+                <div className="bg-[var(--bg-code)] p-2.5 rounded-lg border border-[var(--border-subtle)] mb-4 space-y-2">
+                  <div className="text-[10px] font-mono text-[var(--text-muted)] flex justify-between font-semibold">
                     <span>PALETTE SWATCHES</span>
                     <span>{modeConfig.name}</span>
                   </div>
@@ -331,11 +325,11 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                     ].map((swatch, sIdx) => (
                       <div
                         key={sIdx}
-                        className="h-full border border-black/30 flex flex-col items-center justify-end p-0.5 group relative"
+                        className="h-full rounded border border-black/20 flex flex-col items-center justify-end p-0.5 group relative shadow-xs"
                         style={{ backgroundColor: swatch.color }}
                         title={`${swatch.label}: ${swatch.color}`}
                       >
-                        <span className="text-[8px] font-mono font-bold bg-black/60 text-white px-0.5 rounded opacity-80 group-hover:opacity-100">
+                        <span className="text-[8px] font-mono font-bold bg-black/70 text-white px-0.5 rounded opacity-80 group-hover:opacity-100">
                           {swatch.label}
                         </span>
                       </div>
@@ -344,7 +338,7 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
 
                   {/* Micro UI Preview Mockup */}
                   <div
-                    className="p-2 border mt-2 flex items-center justify-between text-xs font-mono"
+                    className="p-2.5 rounded-lg border mt-2 flex items-center justify-between text-xs font-mono shadow-inner"
                     style={{
                       backgroundColor: modeConfig.preview.surface,
                       borderColor: modeConfig.preview.border,
@@ -353,7 +347,7 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                   >
                     <span className="truncate mr-2 font-bold">{modeConfig.name}</span>
                     <span
-                      className="px-2 py-0.5 text-[10px] font-bold border"
+                      className="px-2 py-0.5 text-[10px] font-bold rounded border"
                       style={{
                         backgroundColor: modeConfig.preview.accent,
                         borderColor: modeConfig.preview.border,
@@ -367,14 +361,14 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-2 pt-2 border-t border-[#1e2538]">
+              <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-subtle)]">
                 <button
                   type="button"
                   onClick={() => handlePreviewLocally(theme.id, currentChosenMode)}
-                  className="flex-1 mc-btn px-2.5 py-2 text-[10px] mc-font text-[#aaa] hover:text-white flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="flex-1 px-2.5 py-2 text-xs font-mono font-bold rounded-lg border transition-all cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-center gap-1.5"
                   title="Inspect theme locally on Game Master screen only"
                 >
-                  <Eye className="w-3.5 h-3.5 text-[#38bdf8]" />
+                  <Eye className="w-3.5 h-3.5 text-sky-500" />
                   <span>PREVIEW LOCALLY</span>
                 </button>
 
@@ -382,10 +376,10 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                   type="button"
                   disabled={isBroadcastingThis || isCurrentlyActiveGlobal}
                   onClick={() => handleBroadcastTheme(theme.id, currentChosenMode)}
-                  className={`flex-1 px-3 py-2 text-[10px] mc-font flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                  className={`flex-1 px-3 py-2 text-xs font-mono font-bold rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
                     isCurrentlyActiveGlobal
-                      ? 'bg-[#1f293d] border-2 border-[#475569] text-[#64748b] cursor-not-allowed'
-                      : 'mc-btn-green text-white shadow-md'
+                      ? 'bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-muted)] cursor-not-allowed opacity-60'
+                      : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md'
                   }`}
                   title="Broadcast this theme to all player laptops in the workshop"
                 >
@@ -406,75 +400,83 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
 
       {/* Custom Theme Creator Modal */}
       {showCreatorModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="mc-panel-dark max-w-2xl w-full p-6 border-4 border-[#38bdf8] shadow-2xl animate-fadeIn max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b-2 border-[#2b354c] mb-4">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl max-w-2xl w-full p-6 shadow-2xl animate-fadeIn max-h-[90vh] overflow-y-auto text-[var(--text-primary)]">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)] mb-4">
               <div className="flex items-center gap-2.5">
-                <Sliders className="w-5 h-5 text-[#38bdf8]" />
-                <h3 className="text-base font-bold text-white mc-font">CRAFT NEW CUSTOM THEME</h3>
+                <Sliders className="w-5 h-5 text-sky-500" />
+                <h3 className="text-base font-bold text-[var(--text-primary)] font-theme-heading">
+                  CRAFT NEW CUSTOM THEME
+                </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowCreatorModal(false)}
-                className="text-[#888] hover:text-white font-mono text-sm px-2 py-1"
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)] font-mono text-sm px-2 py-1 rounded cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <p className="text-xs text-[#aaa] font-mono mb-4">
+            <p className="text-xs text-[var(--text-secondary)] font-mono mb-4 leading-relaxed">
               Define your custom visual identity. Every theme registered in the HITL engine must specify{' '}
-              <strong className="text-[#ffd700]">both Dark and Light variants</strong> for full workshop accessibility.
+              <strong className="text-amber-600 dark:text-amber-400">both Dark and Light variants</strong> for full workshop accessibility.
             </p>
 
             <form onSubmit={handleCreateCustomTheme} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] mc-font text-[#38bdf8] mb-1">THEME ID (SLUG)</label>
+                  <label className="block text-[10px] font-mono font-bold text-sky-600 dark:text-sky-400 mb-1">
+                    THEME ID (SLUG)
+                  </label>
                   <input
                     type="text"
                     value={newTheme.id}
                     onChange={(e) => setNewTheme({ ...newTheme, id: e.target.value })}
                     placeholder="e.g. solarpunk-botany"
-                    className="w-full bg-[#0b0e14] border border-[#2b354c] text-white p-2 text-xs font-mono"
+                    className="w-full bg-[var(--bg-code)] border border-[var(--border-subtle)] text-[var(--text-primary)] p-2 rounded-lg text-xs font-mono focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] mc-font text-[#38bdf8] mb-1">DISPLAY NAME</label>
+                  <label className="block text-[10px] font-mono font-bold text-sky-600 dark:text-sky-400 mb-1">
+                    DISPLAY NAME
+                  </label>
                   <input
                     type="text"
                     value={newTheme.name}
                     onChange={(e) => setNewTheme({ ...newTheme, name: e.target.value })}
                     placeholder="e.g. Solar Punk Botanical"
-                    className="w-full bg-[#0b0e14] border border-[#2b354c] text-white p-2 text-xs font-mono"
+                    className="w-full bg-[var(--bg-code)] border border-[var(--border-subtle)] text-[var(--text-primary)] p-2 rounded-lg text-xs font-mono focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] mc-font text-[#aaa] mb-1">TAGLINE / VIBE</label>
+                <label className="block text-[10px] font-mono font-bold text-[var(--text-muted)] mb-1">
+                  TAGLINE / VIBE
+                </label>
                 <input
                   type="text"
                   value={newTheme.tagline}
                   onChange={(e) => setNewTheme({ ...newTheme, tagline: e.target.value })}
                   placeholder="e.g. Organic Brass, Foliage Greens & Bioluminescent Accents"
-                  className="w-full bg-[#0b0e14] border border-[#2b354c] text-white p-2 text-xs font-mono"
+                  className="w-full bg-[var(--bg-code)] border border-[var(--border-subtle)] text-[var(--text-primary)] p-2 rounded-lg text-xs font-mono focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-500"
                 />
               </div>
 
               {/* Dual Realm Specs */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 {/* Dark Realm Configuration */}
-                <div className="p-3 bg-[#0a0d14] border border-[#222a3d]">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#38bdf8] mb-2 font-mono">
+                <div className="p-3 bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-subtle)]">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-sky-600 dark:text-sky-400 mb-2 font-mono">
                     <Moon className="w-3.5 h-3.5" />
                     <span>DARK REALM CONFIG</span>
                   </div>
                   <div className="space-y-2 text-xs font-mono">
                     <div>
-                      <span className="text-[10px] text-[#64748b]">Background:</span>
+                      <span className="text-[10px] text-[var(--text-muted)]">Background:</span>
                       <div className="flex items-center gap-2 mt-0.5">
                         <input
                           type="color"
@@ -485,7 +487,7 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                               dark: { ...newTheme.dark, bg: e.target.value },
                             })
                           }
-                          className="w-6 h-6 border cursor-pointer"
+                          className="w-6 h-6 border rounded cursor-pointer"
                         />
                         <input
                           type="text"
@@ -496,12 +498,12 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                               dark: { ...newTheme.dark, bg: e.target.value },
                             })
                           }
-                          className="bg-black text-white text-[10px] px-1.5 py-0.5 border border-[#333] flex-1"
+                          className="bg-[var(--bg-code)] text-[var(--text-primary)] text-[10px] px-1.5 py-0.5 rounded border border-[var(--border-subtle)] flex-1 font-mono"
                         />
                       </div>
                     </div>
                     <div>
-                      <span className="text-[10px] text-[#64748b]">Surface / Panel:</span>
+                      <span className="text-[10px] text-[var(--text-muted)]">Surface / Panel:</span>
                       <div className="flex items-center gap-2 mt-0.5">
                         <input
                           type="color"
@@ -512,7 +514,7 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                               dark: { ...newTheme.dark, surface: e.target.value },
                             })
                           }
-                          className="w-6 h-6 border cursor-pointer"
+                          className="w-6 h-6 border rounded cursor-pointer"
                         />
                         <input
                           type="text"
@@ -523,12 +525,12 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                               dark: { ...newTheme.dark, surface: e.target.value },
                             })
                           }
-                          className="bg-black text-white text-[10px] px-1.5 py-0.5 border border-[#333] flex-1"
+                          className="bg-[var(--bg-code)] text-[var(--text-primary)] text-[10px] px-1.5 py-0.5 rounded border border-[var(--border-subtle)] flex-1 font-mono"
                         />
                       </div>
                     </div>
                     <div>
-                      <span className="text-[10px] text-[#64748b]">Primary Accent:</span>
+                      <span className="text-[10px] text-[var(--text-muted)]">Primary Accent:</span>
                       <div className="flex items-center gap-2 mt-0.5">
                         <input
                           type="color"
@@ -539,7 +541,7 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                               dark: { ...newTheme.dark, accent: e.target.value },
                             })
                           }
-                          className="w-6 h-6 border cursor-pointer"
+                          className="w-6 h-6 border rounded cursor-pointer"
                         />
                         <input
                           type="text"
@@ -550,7 +552,7 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                               dark: { ...newTheme.dark, accent: e.target.value },
                             })
                           }
-                          className="bg-black text-white text-[10px] px-1.5 py-0.5 border border-[#333] flex-1"
+                          className="bg-[var(--bg-code)] text-[var(--text-primary)] text-[10px] px-1.5 py-0.5 rounded border border-[var(--border-subtle)] flex-1 font-mono"
                         />
                       </div>
                     </div>
@@ -558,14 +560,14 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                 </div>
 
                 {/* Light Realm Configuration */}
-                <div className="p-3 bg-[#0a0d14] border border-[#222a3d]">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#d97706] mb-2 font-mono">
+                <div className="p-3 bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-subtle)]">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 mb-2 font-mono">
                     <Sun className="w-3.5 h-3.5" />
                     <span>LIGHT REALM CONFIG</span>
                   </div>
                   <div className="space-y-2 text-xs font-mono">
                     <div>
-                      <span className="text-[10px] text-[#64748b]">Background:</span>
+                      <span className="text-[10px] text-[var(--text-muted)]">Background:</span>
                       <div className="flex items-center gap-2 mt-0.5">
                         <input
                           type="color"
@@ -576,7 +578,7 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                               light: { ...newTheme.light, bg: e.target.value },
                             })
                           }
-                          className="w-6 h-6 border cursor-pointer"
+                          className="w-6 h-6 border rounded cursor-pointer"
                         />
                         <input
                           type="text"
@@ -587,12 +589,12 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                               light: { ...newTheme.light, bg: e.target.value },
                             })
                           }
-                          className="bg-black text-white text-[10px] px-1.5 py-0.5 border border-[#333] flex-1"
+                          className="bg-[var(--bg-code)] text-[var(--text-primary)] text-[10px] px-1.5 py-0.5 rounded border border-[var(--border-subtle)] flex-1 font-mono"
                         />
                       </div>
                     </div>
                     <div>
-                      <span className="text-[10px] text-[#64748b]">Surface / Panel:</span>
+                      <span className="text-[10px] text-[var(--text-muted)]">Surface / Panel:</span>
                       <div className="flex items-center gap-2 mt-0.5">
                         <input
                           type="color"
@@ -603,7 +605,7 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                               light: { ...newTheme.light, surface: e.target.value },
                             })
                           }
-                          className="w-6 h-6 border cursor-pointer"
+                          className="w-6 h-6 border rounded cursor-pointer"
                         />
                         <input
                           type="text"
@@ -614,12 +616,12 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                               light: { ...newTheme.light, surface: e.target.value },
                             })
                           }
-                          className="bg-black text-white text-[10px] px-1.5 py-0.5 border border-[#333] flex-1"
+                          className="bg-[var(--bg-code)] text-[var(--text-primary)] text-[10px] px-1.5 py-0.5 rounded border border-[var(--border-subtle)] flex-1 font-mono"
                         />
                       </div>
                     </div>
                     <div>
-                      <span className="text-[10px] text-[#64748b]">Primary Accent:</span>
+                      <span className="text-[10px] text-[var(--text-muted)]">Primary Accent:</span>
                       <div className="flex items-center gap-2 mt-0.5">
                         <input
                           type="color"
@@ -630,7 +632,7 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                               light: { ...newTheme.light, accent: e.target.value },
                             })
                           }
-                          className="w-6 h-6 border cursor-pointer"
+                          className="w-6 h-6 border rounded cursor-pointer"
                         />
                         <input
                           type="text"
@@ -641,7 +643,7 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
                               light: { ...newTheme.light, accent: e.target.value },
                             })
                           }
-                          className="bg-black text-white text-[10px] px-1.5 py-0.5 border border-[#333] flex-1"
+                          className="bg-[var(--bg-code)] text-[var(--text-primary)] text-[10px] px-1.5 py-0.5 rounded border border-[var(--border-subtle)] flex-1 font-mono"
                         />
                       </div>
                     </div>
@@ -650,17 +652,17 @@ export default function ThemeManager({ currentThemeId, currentMode, onThemeChang
               </div>
 
               {/* Submit / Cancel */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#222a3d]">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--border-subtle)]">
                 <button
                   type="button"
                   onClick={() => setShowCreatorModal(false)}
-                  className="mc-btn px-4 py-2 text-xs mc-font text-[#aaa]"
+                  className="px-4 py-2 text-xs font-mono font-bold rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer transition-colors"
                 >
                   CANCEL
                 </button>
                 <button
                   type="submit"
-                  className="mc-btn-green px-5 py-2 text-xs mc-font text-white flex items-center gap-1.5"
+                  className="px-5 py-2 text-xs font-mono font-bold rounded-lg text-white bg-emerald-600 hover:bg-emerald-500 flex items-center gap-1.5 cursor-pointer shadow-md transition-all"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>REGISTER CUSTOM THEME</span>

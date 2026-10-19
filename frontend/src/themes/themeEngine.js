@@ -77,6 +77,13 @@ class ThemeEngine {
   }
 
   /**
+   * Alias for getCurrentState() to prevent runtime sync exceptions.
+   */
+  getState() {
+    return this.getCurrentState();
+  }
+
+  /**
    * Registers a new custom theme into the engine at runtime.
    * Enables user-defined custom written themes.
    */
