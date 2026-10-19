@@ -25,7 +25,7 @@ const TEAM_SUGGESTIONS = [
 const MINECRAFT_SPLASHES = [
   "Don't dig into Governor limits!",
   "Never dig straight down into Prod!",
-  "Redstone powered AIDLC!",
+  "Redstone powered HITL!",
   "Watch out for SOQL in for-loops!",
   "100% Organic Architecture & Jenga!",
   "Creepers hate 100% test coverage!",
@@ -362,13 +362,11 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
               transform: `rotate(${slot.rotation}deg) scale(${isDragging ? 1.06 : 1})`,
               touchAction: 'none',
             }}
-            className={`fixed ${
-              slot.isTitleSplash ? 'flex' : 'hidden sm:flex'
-            } items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 border border-slate-200/90 dark:border-slate-800 shadow-sm backdrop-blur-md text-[10px] sm:text-xs font-mono font-medium select-none z-30 transition-all ${
-              isDragging
+            className={`fixed ${slot.isTitleSplash ? 'flex' : 'hidden sm:flex'
+              } items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 border border-slate-200/90 dark:border-slate-800 shadow-sm backdrop-blur-md text-[10px] sm:text-xs font-mono font-medium select-none z-30 transition-all ${isDragging
                 ? 'cursor-grabbing z-50 scale-105 shadow-md border-slate-400 dark:border-slate-600'
                 : 'cursor-grab hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md'
-            }`}
+              }`}
           >
             <span className="text-slate-400 dark:text-slate-500 font-bold">{slot.star}</span>
             <span className="whitespace-nowrap">{quoteText}</span>
@@ -381,7 +379,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
         <div className="text-center mb-2 sm:mb-3 relative shrink-0 pt-3 sm:pt-4">
           <div className="relative inline-block mb-1 sm:mb-2">
             <h1 className="text-2xl sm:text-4xl font-black tracking-wider text-slate-900 dark:text-white font-mono">
-              MINECRAFT <span className="text-slate-500 dark:text-slate-400">AIDLC</span>
+              MINECRAFT <span className="text-slate-500 dark:text-slate-400">HITL</span>
             </h1>
           </div>
 
@@ -397,11 +395,10 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
             <button
               type="button"
               onClick={() => setTabMode('create')}
-              className={`py-1.5 px-3 text-xs font-mono font-bold flex items-center justify-center gap-1.5 rounded-lg transition-all cursor-pointer ${
-                tabMode === 'create'
+              className={`py-1.5 px-3 text-xs font-mono font-bold flex items-center justify-center gap-1.5 rounded-lg transition-all cursor-pointer ${tabMode === 'create'
                   ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 shadow-xs'
                   : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
-              }`}
+                }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>CREATE TABLE</span>
@@ -410,11 +407,10 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
             <button
               type="button"
               onClick={() => setTabMode('join')}
-              className={`py-1.5 px-3 text-xs font-mono font-bold flex items-center justify-center gap-1.5 rounded-lg transition-all cursor-pointer ${
-                tabMode === 'join'
+              className={`py-1.5 px-3 text-xs font-mono font-bold flex items-center justify-center gap-1.5 rounded-lg transition-all cursor-pointer ${tabMode === 'join'
                   ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 shadow-xs'
                   : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
-              }`}
+                }`}
             >
               <KeyRound className="w-3.5 h-3.5" />
               <span>JOIN WITH PIN</span>
@@ -451,11 +447,10 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                       key={preset}
                       type="button"
                       onClick={() => setTeamName(preset)}
-                      className={`text-[10px] font-mono px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
-                        teamName === preset
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${teamName === preset
                           ? 'bg-slate-900 text-white border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-white font-bold shadow-xs'
                           : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700 border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 dark:text-slate-300 dark:border-slate-700'
-                      }`}
+                        }`}
                     >
                       {preset}
                     </button>
@@ -490,11 +485,10 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                       key={cnt}
                       type="button"
                       onClick={() => setPlayerCount(cnt)}
-                      className={`py-1.5 text-[11px] font-mono rounded-xl border transition-all cursor-pointer ${
-                        playerCount === cnt
+                      className={`py-1.5 text-[11px] font-mono rounded-xl border transition-all cursor-pointer ${playerCount === cnt
                           ? 'bg-slate-900 text-white border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-white font-bold shadow-xs'
                           : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700 border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-slate-700'
-                      }`}
+                        }`}
                     >
                       {cnt} Players
                     </button>
@@ -607,7 +601,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
 
       {/* Footer */}
       <footer className="text-center text-[10px] font-mono text-slate-500 dark:text-slate-400 shrink-0 py-1.5 flex items-center justify-center gap-2 relative z-10">
-        <span>Developer Day Workshop Edition • Real-Time 3D Voxel AIDLC Simulation</span>
+        <span>Developer Day Workshop Edition • Real-Time 3D Voxel HITL Simulation</span>
         <span>•</span>
         <button
           type="button"

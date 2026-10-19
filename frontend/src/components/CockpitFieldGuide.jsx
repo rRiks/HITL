@@ -20,7 +20,7 @@ export const GUIDE_SECTIONS = {
     title: 'Hearts, Stage Counter & 2-Minute Timer',
     icon: '❤️',
     color: '#ef4444',
-    desc: 'Each AIDLC stage grants your squad a strict 2-minute countdown clock. System stability begins at 100% (10 pixel hearts). If health drops to 0% or the tower topples, a catastrophic outage occurs!',
+    desc: 'Each HITL stage grants your squad a strict 2-minute countdown clock. System stability begins at 100% (10 pixel hearts). If health drops to 0% or the tower topples, a catastrophic outage occurs!',
     tip: 'Pro-Tip: Maintain high stability to prevent structural sway. If the countdown reaches 0:00, an automatic blind deployment executes!',
   },
   ticker: {
@@ -211,8 +211,8 @@ export default function CockpitFieldGuide({
               {isAdminView
                 ? 'Facilitator Reference • Architecture & Decision Mechanics Guide'
                 : isWalkthrough
-                ? 'Review mechanics before your sprint begins.'
-                : 'Live In-Game Architecture Reference Manual'}
+                  ? 'Review mechanics before your sprint begins.'
+                  : 'Live In-Game Architecture Reference Manual'}
             </span>
           </div>
         </div>
@@ -277,11 +277,10 @@ export default function CockpitFieldGuide({
           <div
             onMouseEnter={() => setActiveGuideKey('top_hud')}
             onClick={() => setActiveGuideKey('top_hud')}
-            className={`px-3 py-1.5 rounded-xl border flex items-center justify-between gap-2 cursor-pointer transition-all ${
-              activeGuideKey === 'top_hud'
+            className={`px-3 py-1.5 rounded-xl border flex items-center justify-between gap-2 cursor-pointer transition-all ${activeGuideKey === 'top_hud'
                 ? 'ring-2 ring-sky-500 border-sky-500 bg-sky-500/10'
                 : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-mono font-bold text-[var(--text-primary)]">REALM: {teamName}</span>
@@ -304,11 +303,10 @@ export default function CockpitFieldGuide({
           <div
             onMouseEnter={() => setActiveGuideKey('ticker')}
             onClick={() => setActiveGuideKey('ticker')}
-            className={`px-3 py-1 rounded-xl border flex items-center justify-between gap-2 text-[10px] font-mono cursor-pointer transition-all ${
-              activeGuideKey === 'ticker'
+            className={`px-3 py-1 rounded-xl border flex items-center justify-between gap-2 text-[10px] font-mono cursor-pointer transition-all ${activeGuideKey === 'ticker'
                 ? 'ring-2 ring-amber-500 border-amber-500 bg-amber-500/10'
                 : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 truncate">
               <Trophy className="w-3.5 h-3.5 shrink-0" />
@@ -325,11 +323,10 @@ export default function CockpitFieldGuide({
           <div
             onMouseEnter={() => setActiveGuideKey('quest')}
             onClick={() => setActiveGuideKey('quest')}
-            className={`p-3 rounded-xl flex flex-col flex-1 min-h-0 border cursor-pointer transition-all ${
-              activeGuideKey === 'quest'
+            className={`p-3 rounded-xl flex flex-col flex-1 min-h-0 border cursor-pointer transition-all ${activeGuideKey === 'quest'
                 ? 'ring-2 ring-cyan-500 border-cyan-500 bg-cyan-500/5'
                 : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
-            }`}
+              }`}
           >
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-2">
@@ -396,11 +393,10 @@ export default function CockpitFieldGuide({
             <div
               onMouseEnter={(e) => { e.stopPropagation(); setActiveGuideKey('telemetry'); }}
               onClick={(e) => { e.stopPropagation(); setActiveGuideKey('telemetry'); }}
-              className={`mt-2 p-2 rounded-lg border flex items-center justify-between text-xs font-mono cursor-pointer transition-all ${
-                activeGuideKey === 'telemetry'
+              className={`mt-2 p-2 rounded-lg border flex items-center justify-between text-xs font-mono cursor-pointer transition-all ${activeGuideKey === 'telemetry'
                   ? 'ring-2 ring-orange-500 border-orange-500 bg-orange-500/15'
                   : 'bg-orange-500/10 border-orange-500/30 text-orange-700 dark:text-orange-300'
-              }`}
+                }`}
             >
               <div className="flex items-center gap-2">
                 <AlertTriangle className="w-3.5 h-3.5 text-orange-500 shrink-0" />
@@ -416,11 +412,10 @@ export default function CockpitFieldGuide({
           <div
             onMouseEnter={() => setActiveGuideKey('consensus')}
             onClick={() => setActiveGuideKey('consensus')}
-            className={`px-3 py-2 rounded-xl border flex items-center justify-between text-xs font-mono cursor-pointer transition-all ${
-              activeGuideKey === 'consensus'
+            className={`px-3 py-2 rounded-xl border flex items-center justify-between text-xs font-mono cursor-pointer transition-all ${activeGuideKey === 'consensus'
                 ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-500/10'
                 : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-emerald-500" />
@@ -439,11 +434,10 @@ export default function CockpitFieldGuide({
           <div
             onMouseEnter={() => setActiveGuideKey('tower')}
             onClick={() => setActiveGuideKey('tower')}
-            className={`p-3 rounded-xl flex flex-col justify-between border cursor-pointer transition-all ${
-              activeGuideKey === 'tower' || activeGuideKey === 'debt'
+            className={`p-3 rounded-xl flex flex-col justify-between border cursor-pointer transition-all ${activeGuideKey === 'tower' || activeGuideKey === 'debt'
                 ? 'ring-2 ring-rose-500 border-rose-500 bg-rose-500/5'
                 : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
-            }`}
+              }`}
           >
             {/* Tower Header */}
             <div>
@@ -459,11 +453,10 @@ export default function CockpitFieldGuide({
                   <div
                     onMouseEnter={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
                     onClick={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
-                    className={`text-[10px] font-mono px-2 py-0.5 rounded-md border cursor-pointer transition-all flex items-center gap-1.5 ${
-                      activeGuideKey === 'debt'
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded-md border cursor-pointer transition-all flex items-center gap-1.5 ${activeGuideKey === 'debt'
                         ? 'ring-2 ring-amber-500 border-amber-500 bg-amber-500/20 text-amber-600 dark:text-amber-300 font-bold'
                         : 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30'
-                    }`}
+                      }`}
                   >
                     <span>⚠️ TECH DEBT: 0/5</span>
                     <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/40">
@@ -511,11 +504,10 @@ export default function CockpitFieldGuide({
             <div
               onMouseEnter={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
               onClick={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
-              className={`p-2 rounded-lg border text-[10px] font-mono text-center cursor-pointer transition-all ${
-                activeGuideKey === 'debt'
+              className={`p-2 rounded-lg border text-[10px] font-mono text-center cursor-pointer transition-all ${activeGuideKey === 'debt'
                   ? 'ring-2 ring-amber-500 border-amber-500 bg-amber-500/20 text-amber-700 dark:text-amber-300'
                   : 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300 hover:border-amber-500'
-              }`}
+                }`}
             >
               <span>⚠️ TECHNICAL DEBT RULE: Reaching 4+ Debts triggers </span>
               <strong className="text-rose-600 dark:text-rose-400">Critical Fragility (3 pulls + 25% damage)</strong>
@@ -529,11 +521,10 @@ export default function CockpitFieldGuide({
             <div
               onMouseEnter={() => setActiveGuideKey('slot_1')}
               onClick={() => setActiveGuideKey('slot_1')}
-              className={`p-2.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                activeGuideKey === 'slot_1'
+              className={`p-2.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${activeGuideKey === 'slot_1'
                   ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-500/15'
                   : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
-              }`}
+                }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -555,11 +546,10 @@ export default function CockpitFieldGuide({
             <div
               onMouseEnter={() => setActiveGuideKey('slot_2')}
               onClick={() => setActiveGuideKey('slot_2')}
-              className={`p-2.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                activeGuideKey === 'slot_2'
+              className={`p-2.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${activeGuideKey === 'slot_2'
                   ? 'ring-2 ring-sky-500 border-sky-500 bg-sky-500/15'
                   : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
-              }`}
+                }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -581,11 +571,10 @@ export default function CockpitFieldGuide({
             <div
               onMouseEnter={() => setActiveGuideKey('slot_3')}
               onClick={() => setActiveGuideKey('slot_3')}
-              className={`p-2.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                activeGuideKey === 'slot_3'
+              className={`p-2.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${activeGuideKey === 'slot_3'
                   ? 'ring-2 ring-purple-500 border-purple-500 bg-purple-500/15'
                   : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
-              }`}
+                }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -607,11 +596,10 @@ export default function CockpitFieldGuide({
             <div
               onMouseEnter={() => setActiveGuideKey('slot_4')}
               onClick={() => setActiveGuideKey('slot_4')}
-              className={`p-2.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                activeGuideKey === 'slot_4'
+              className={`p-2.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${activeGuideKey === 'slot_4'
                   ? 'ring-2 ring-pink-500 border-pink-500 bg-pink-500/15'
                   : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
-              }`}
+                }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -670,11 +658,10 @@ export default function CockpitFieldGuide({
                   key={key}
                   type="button"
                   onClick={() => setActiveGuideKey(key)}
-                  className={`text-[9px] font-mono px-2 py-1 rounded-lg border transition-all cursor-pointer ${
-                    isActive
+                  className={`text-[9px] font-mono px-2 py-1 rounded-lg border transition-all cursor-pointer ${isActive
                       ? 'bg-slate-900 text-white border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-white font-bold shadow-xs'
                       : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-slate-700'
-                  }`}
+                    }`}
                 >
                   {item.badge.split(':')[0]}
                 </button>

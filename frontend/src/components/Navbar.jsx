@@ -121,7 +121,7 @@ function Navbar({
       navigator.clipboard.writeText(url.toString());
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2000);
-    } catch {}
+    } catch { }
   };
 
   const minutes = Math.floor(timeLeft / 60);
@@ -199,9 +199,8 @@ function Navbar({
                 <MinecraftHeart key={idx} state={state} shake={isLowHealth} />
               ))}
             </div>
-            <span className={`text-[11px] sm:text-xs font-mono font-bold ${
-              health > 60 ? 'text-emerald-800 dark:text-emerald-400' : health > 30 ? 'text-amber-800 dark:text-amber-400' : 'text-rose-700 dark:text-rose-400 animate-pulse'
-            }`}>
+            <span className={`text-[11px] sm:text-xs font-mono font-bold ${health > 60 ? 'text-emerald-800 dark:text-emerald-400' : health > 30 ? 'text-amber-800 dark:text-amber-400' : 'text-rose-700 dark:text-rose-400 animate-pulse'
+              }`}>
               {health}%
             </span>
           </div>
@@ -210,15 +209,14 @@ function Navbar({
 
           {/* Countdown Timer */}
           <div
-            className={`flex items-center gap-1 sm:gap-1.5 font-mono text-[11px] sm:text-xs font-bold transition-colors ${
-              isTimerPaused
+            className={`flex items-center gap-1 sm:gap-1.5 font-mono text-[11px] sm:text-xs font-bold transition-colors ${isTimerPaused
                 ? 'text-amber-600 dark:text-amber-400 animate-pulse'
                 : isUrgent
-                ? 'text-rose-600 dark:text-rose-400 animate-pulse font-black'
-                : isZero
-                ? 'text-rose-700 dark:text-rose-500 animate-bounce'
-                : 'text-[var(--text-primary)]'
-            }`}
+                  ? 'text-rose-600 dark:text-rose-400 animate-pulse font-black'
+                  : isZero
+                    ? 'text-rose-700 dark:text-rose-500 animate-bounce'
+                    : 'text-[var(--text-primary)]'
+              }`}
             title={isTimerPaused ? 'Game Master paused the countdown timer' : 'Stage countdown timer'}
           >
             <Clock className={`w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 ${isTimerPaused ? 'text-amber-600 dark:text-amber-400' : isUrgent ? 'text-rose-600 dark:text-rose-400 animate-pulse' : 'text-[var(--text-secondary)]'}`} />
@@ -269,7 +267,7 @@ function Navbar({
             </button>
           )}
 
-          {/* Reset AIDLC / World (Hidden for Spectators) */}
+          {/* Reset HITL / World (Hidden for Spectators) */}
           {!isSpectator && onResetGame && (
             <button
               type="button"

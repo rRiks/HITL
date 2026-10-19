@@ -112,7 +112,7 @@ class GameStateManager:
         self.custom_prompt_draft = None
         self.guardrail_rule_draft = None
 
-        # Record Stage Restart in AIDLC Audit Log
+        # Record Stage Restart in HITL Audit Log
         current_stg = self.get_current_stage()
         stg_id = current_stg["id"] if current_stg else (self.current_stage_index + 1)
         stg_title = current_stg["title"] if current_stg else f"Wave {stg_id}"

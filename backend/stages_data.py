@@ -1,5 +1,5 @@
 """
-Salesforce-Specific AIDLC Stages and Scenario Data for HITL Jenga: AI-Paced Development
+Salesforce-Specific HITL Stages and Scenario Data for HITL Jenga: AI-Paced Development
 11 sequential stages representing real-world Salesforce development dilemmas (Apex, SOQL, LWC, Governors, Security, Async, DevOps).
 Each stage includes 3 distinct AI Suggestions (Optimal: 80% accuracy, Patchwork: 50% accuracy, Flawed: Anti-pattern).
 """

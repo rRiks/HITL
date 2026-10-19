@@ -34,7 +34,7 @@ export default function VictoryScreen({
         });
       }, 500);
       return () => clearTimeout(timeout);
-    } catch {}
+    } catch { }
   }, []);
 
   // Composite Architectural Index Calculation
@@ -79,7 +79,7 @@ export default function VictoryScreen({
 - Production Outages / Restarts: ${restarts}
 - Technical Debt: ${debt}
 - Architectural Rating: ${rating} (${badgeTitle})
-Completed all 11 Salesforce AIDLC Stages!`;
+Completed all 11 Salesforce HITL Stages!`;
     navigator.clipboard.writeText(summaryText);
     alert('Summary copied to clipboard!');
   };
@@ -96,7 +96,7 @@ Completed all 11 Salesforce AIDLC Stages!`;
                 ADVANCEMENT MADE!
               </span>
               <span className="text-xs sm:text-sm text-[#55ff55] mc-font font-bold">
-                Master of Voxel AIDLC
+                Master of Voxel HITL
               </span>
             </div>
           </div>
@@ -185,7 +185,7 @@ Completed all 11 Salesforce AIDLC Stages!`;
         <div className="mc-panel-dark p-4 shadow-2xl mb-6">
           <h3 className="font-bold text-white text-xs sm:text-sm mb-3 flex items-center gap-2 mc-font">
             <Activity className="w-4 h-4 text-[#ffd700]" />
-            <span>AIDLC AUDIT LOG & MINED BLOCKS</span>
+            <span>HITL AUDIT LOG & MINED BLOCKS</span>
           </h3>
 
           <div className="overflow-x-auto">
@@ -205,11 +205,10 @@ Completed all 11 Salesforce AIDLC Stages!`;
                   return (
                     <tr
                       key={idx}
-                      className={`transition-colors ${
-                        isRestart
+                      className={`transition-colors ${isRestart
                           ? 'bg-[#152e22]/60 hover:bg-[#1a3829]/70 border-l-2 border-[#55ff55]'
                           : 'hover:bg-[#252525]'
-                      }`}
+                        }`}
                     >
                       <td className="py-2.5 px-2.5">
                         <span className="font-bold text-white">Wave {rec.stage_id}</span>
@@ -223,9 +222,8 @@ Completed all 11 Salesforce AIDLC Stages!`;
                       </td>
                       <td className="py-2.5 px-2.5">
                         <span
-                          className={`font-bold ${
-                            rec.health_delta >= 0 ? 'text-[#55ff55]' : 'text-[#ff5555]'
-                          }`}
+                          className={`font-bold ${rec.health_delta >= 0 ? 'text-[#55ff55]' : 'text-[#ff5555]'
+                            }`}
                         >
                           {rec.health_delta >= 0 ? `+${rec.health_delta}%` : `${rec.health_delta}%`}
                         </span>

@@ -55,7 +55,7 @@ export default function GameOverModal({
 
         {/* Workshop Pro-Tip */}
         <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed text-left font-sans">
-          PRO-TIP: Use <strong className="text-amber-800 dark:text-amber-300">Enforce Guardrail Rules</strong> or collaborative custom prompts to shield your voxel AIDLC from unexpected limits!
+          PRO-TIP: Use <strong className="text-amber-800 dark:text-amber-300">Enforce Guardrail Rules</strong> or collaborative custom prompts to shield your voxel HITL from unexpected limits!
         </p>
 
         {/* Action Buttons */}
@@ -82,9 +82,8 @@ export default function GameOverModal({
               e.stopPropagation();
               onRestart();
             }}
-            className={`mc-btn py-3 px-3 text-[10px] mc-font text-white cursor-pointer flex items-center justify-center gap-1.5 shadow-lg ${
-              !onRetryStage ? 'sm:col-span-2' : ''
-            }`}
+            className={`mc-btn py-3 px-3 text-[10px] mc-font text-white cursor-pointer flex items-center justify-center gap-1.5 shadow-lg ${!onRetryStage ? 'sm:col-span-2' : ''
+              }`}
           >
             <RotateCcw className="w-3.5 h-3.5 pointer-events-none" />
             <span className="pointer-events-none">New Run [Stage 1]</span>

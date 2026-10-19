@@ -13,7 +13,7 @@
 
 In modern AI-assisted engineering, coding agents generate code at blinding speed. But high velocity without **Human-in-the-Loop (HITL)** architectural verification rapidly destabilizes production systems—extracting critical foundational blocks until the architecture catastrophically collapses.
 
-**HITL Jenga** simulates this dynamic. Teams of 3–4 developers navigate **11 sequential Salesforce AIDLC crisis stages** under high pressure. They must balance **Application Health (starting at 100%)** against **Virtual 3D Tower Structural Integrity** while making critical decisions within a **2-minute countdown timer per stage**.
+**HITL Jenga** simulates this dynamic. Teams of 3–4 developers navigate **11 sequential Salesforce HITL crisis stages** under high pressure. They must balance **Application Health (starting at 100%)** against **Virtual 3D Tower Structural Integrity** while making critical decisions within a **2-minute countdown timer per stage**.
 
 ---
 
@@ -41,7 +41,7 @@ The tower represents critical components of a production Salesforce ecosystem ac
 
 ---
 
-## 📋 The 11 Salesforce AIDLC Stages
+## 📋 The 11 Salesforce HITL Stages
 
 Each stage presents real-world production code containing subtle, catastrophic traps typical of unverified AI code generation:
 
@@ -111,7 +111,7 @@ HITL/
 ├── backend/                  # FastAPI Python Service
 │   ├── main.py               # REST API endpoints & CORS middleware
 │   ├── game_state.py         # Health, tension, scoring & collapse mechanics
-│   ├── stages_data.py        # 11 Salesforce AIDLC scenarios & solution rules
+│   ├── stages_data.py        # 11 Salesforce HITL scenarios & solution rules
 │   └── requirements.txt      # fastapi, uvicorn, pydantic
 └── frontend/                 # React 19 + Vite Application
     ├── src/

@@ -57,7 +57,9 @@
     --diff-del-text: #9f1239;
   }
 
-  html, body, #root {
+  html,
+  body,
+  #root {
     min-height: 100vh;
     min-height: 100dvh;
     width: 100%;
@@ -69,7 +71,12 @@
     font-family: var(--theme-font-body, var(--font-pixel));
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--theme-font-display, var(--font-minecraft));
     letter-spacing: var(--theme-letter-spacing, 0.02em);
     text-transform: var(--theme-text-transform, uppercase);
@@ -77,7 +84,13 @@
   }
 
   /* Enterprise headings override the retro display font */
-  h1.font-theme-heading, h2.font-theme-heading, h3.font-theme-heading, h4.font-theme-heading, h5.font-theme-heading, h6.font-theme-heading, .font-theme-heading {
+  h1.font-theme-heading,
+  h2.font-theme-heading,
+  h3.font-theme-heading,
+  h4.font-theme-heading,
+  h5.font-theme-heading,
+  h6.font-theme-heading,
+  .font-theme-heading {
     font-family: var(--font-theme-heading) !important;
     letter-spacing: -0.015em !important;
     text-transform: none !important;
@@ -90,7 +103,9 @@
     text-transform: uppercase !important;
   }
 
-  code, pre, .font-mono {
+  code,
+  pre,
+  .font-mono {
     font-family: var(--theme-font-mono, var(--font-mono));
   }
 }
@@ -320,7 +335,7 @@
 /* Ambient Radial Mesh Glow */
 .bg-mesh-radial {
   background-color: #141210;
-  background-image: 
+  background-image:
     radial-gradient(at 0% 0%, rgba(139, 90, 43, 0.18) 0px, transparent 50%),
     radial-gradient(at 100% 0%, rgba(34, 139, 34, 0.15) 0px, transparent 50%),
     radial-gradient(at 50% 100%, rgba(77, 237, 244, 0.12) 0px, transparent 50%),
@@ -338,19 +353,45 @@
 
 /* Screen shake & animations */
 @keyframes shake-screen {
-  0%, 100% { transform: translate(0, 0); }
-  10%, 90% { transform: translate(-3px, 2px); }
-  20%, 80% { transform: translate(4px, -2px); }
-  30%, 70% { transform: translate(-4px, -3px); }
-  40%, 60% { transform: translate(3px, 3px); }
-  50% { transform: translate(-2px, 1px); }
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  10%,
+  90% {
+    transform: translate(-3px, 2px);
+  }
+
+  20%,
+  80% {
+    transform: translate(4px, -2px);
+  }
+
+  30%,
+  70% {
+    transform: translate(-4px, -3px);
+  }
+
+  40%,
+  60% {
+    transform: translate(3px, 3px);
+  }
+
+  50% {
+    transform: translate(-2px, 1px);
+  }
 }
 
 @keyframes pulse-danger-alarm {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 15px rgba(225, 29, 72, 0.3), inset 0 0 10px rgba(225, 29, 72, 0.1);
     border-color: #e11d48;
   }
+
   50% {
     box-shadow: 0 0 35px rgba(225, 29, 72, 0.6), inset 0 0 20px rgba(225, 29, 72, 0.3);
     border-color: #f43f5e;
@@ -358,12 +399,17 @@
 }
 
 @keyframes marquee-scroll {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .animate-screen-shake {
-  animation: shake-screen 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  animation: shake-screen 0.5s cubic-bezier(.36, .07, .19, .97) both;
 }
 
 .animate-pulse-danger-alarm {
@@ -381,13 +427,16 @@
   width: 5px;
   height: 5px;
 }
+
 ::-webkit-scrollbar-track {
   background: #f0ebe0;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #d4caa8;
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #b8ac8c;
 }
@@ -417,7 +466,7 @@
 [data-theme-family="minecraft"][data-theme="light"] body,
 [data-theme-family="minecraft"][data-theme="light"] #root {
   background-color: #ede7dc !important;
-  background-image: 
+  background-image:
     radial-gradient(#dfd7c9 15%, transparent 16%),
     radial-gradient(#d6cdbe 15%, transparent 16%) !important;
   background-size: 16px 16px !important;
@@ -427,7 +476,7 @@
 
 [data-theme-family="minecraft"][data-theme="light"] .bg-\[\#14161a\] {
   background-color: #ede7dc !important;
-  background-image: 
+  background-image:
     radial-gradient(#dfd7c9 15%, transparent 16%),
     radial-gradient(#d6cdbe 15%, transparent 16%) !important;
   background-size: 16px 16px !important;
@@ -549,7 +598,7 @@
 
 [data-theme-family="minecraft"][data-theme="light"] .bg-mesh-radial {
   background-color: #ede7dc !important;
-  background-image: 
+  background-image:
     radial-gradient(at 0% 0%, rgba(217, 119, 6, 0.08) 0px, transparent 50%),
     radial-gradient(at 100% 0%, rgba(22, 163, 74, 0.08) 0px, transparent 50%),
     radial-gradient(at 50% 100%, rgba(2, 132, 199, 0.08) 0px, transparent 50%),
@@ -591,7 +640,7 @@
   color: #92400e !important;
 }
 
-/* "WORLD AIDLC" leather badge */
+/* "WORLD HITL" leather badge */
 [data-theme-family="minecraft"][data-theme="light"] header .bg-\[\#2a2a2a\],
 [data-theme-family="minecraft"][data-theme="light"] .bg-\[\#2a2a2a\] {
   background-color: #3d3329 !important;
@@ -606,6 +655,7 @@
   border-color: #d97706 !important;
   color: #92400e !important;
 }
+
 [data-theme-family="minecraft"][data-theme="light"] header .bg-\[\#2a1d0d\]:hover {
   background-color: #fde68a !important;
 }
@@ -651,11 +701,13 @@
   border-color: #d8cfbe !important;
   color: #2b251f !important;
 }
+
 [data-theme-family="minecraft"][data-theme="light"] .bg-\[\#222\] {
   background-color: #e5ded0 !important;
   border-color: #cbbfae !important;
   color: #78350f !important;
 }
+
 [data-theme-family="minecraft"][data-theme="light"] .bg-\[\#252010\] {
   background-color: #fef9c3 !important;
   border-color: #f59e0b !important;
@@ -979,7 +1031,7 @@
 [data-theme-family="pixel-art"][data-theme="dark"] #root,
 [data-theme-family="pixel-art"][data-theme="dark"] .bg-\[\#14161a\] {
   background-color: #140f26 !important;
-  background-image: 
+  background-image:
     radial-gradient(#20183b 20%, transparent 20%),
     linear-gradient(rgba(255, 0, 127, 0.05) 1px, transparent 1px) !important;
   background-size: 8px 8px, 100% 4px !important;
@@ -1038,7 +1090,7 @@
 [data-theme-family="glassmorphism"][data-theme="dark"] #root,
 [data-theme-family="glassmorphism"][data-theme="dark"] .bg-\[\#14161a\] {
   background-color: #090d16 !important;
-  background-image: 
+  background-image:
     radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
     radial-gradient(circle at 90% 80%, rgba(192, 132, 252, 0.12) 0%, transparent 40%) !important;
   color: #f8fafc !important;
@@ -1066,7 +1118,7 @@
 [data-theme-family="glassmorphism"][data-theme="light"] #root,
 [data-theme-family="glassmorphism"][data-theme="light"] .bg-\[\#14161a\] {
   background-color: #e8f2fc !important;
-  background-image: 
+  background-image:
     radial-gradient(circle at 20% 20%, rgba(186, 230, 253, 0.5) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(233, 213, 255, 0.4) 0%, transparent 50%) !important;
   color: #0f172a !important;
@@ -1139,7 +1191,7 @@
 [data-theme-family="bento-grid"][data-theme="dark"] #root,
 [data-theme-family="bento-grid"][data-theme="dark"] .bg-\[\#14161a\] {
   background-color: #090a0f !important;
-  background-image: 
+  background-image:
     linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) !important;
   background-size: 32px 32px !important;
@@ -1166,7 +1218,7 @@
 [data-theme-family="bento-grid"][data-theme="light"] #root,
 [data-theme-family="bento-grid"][data-theme="light"] .bg-\[\#14161a\] {
   background-color: #f8fafc !important;
-  background-image: 
+  background-image:
     linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px) !important;
   background-size: 32px 32px !important;
@@ -1203,7 +1255,7 @@
 [data-theme-family="spatial-ui"][data-theme="dark"] #root,
 [data-theme-family="spatial-ui"][data-theme="dark"] .bg-\[\#14161a\] {
   background-color: #040712 !important;
-  background-image: 
+  background-image:
     radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.15) 0%, transparent 65%),
     radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.1) 0%, transparent 50%) !important;
   color: #f8fafc !important;
@@ -1239,7 +1291,7 @@
 [data-theme-family="spatial-ui"][data-theme="light"] #root,
 [data-theme-family="spatial-ui"][data-theme="light"] .bg-\[\#14161a\] {
   background-color: #f3f6fc !important;
-  background-image: 
+  background-image:
     radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.08) 0%, transparent 60%),
     radial-gradient(circle at 100% 100%, rgba(2, 132, 199, 0.08) 0%, transparent 50%) !important;
   color: #090d16 !important;
@@ -1272,7 +1324,7 @@
 [data-theme-family="liquid-glass"][data-theme="dark"] #root,
 [data-theme-family="liquid-glass"][data-theme="dark"] .bg-\[\#14161a\] {
   background-color: #050c18 !important;
-  background-image: 
+  background-image:
     radial-gradient(circle at 20% 30%, rgba(0, 242, 254, 0.12) 0%, transparent 50%),
     radial-gradient(circle at 80% 70%, rgba(240, 147, 251, 0.12) 0%, transparent 50%) !important;
   color: #e0f7fa !important;
@@ -1308,7 +1360,7 @@
 [data-theme-family="liquid-glass"][data-theme="light"] #root,
 [data-theme-family="liquid-glass"][data-theme="light"] .bg-\[\#14161a\] {
   background-color: #f8f6fc !important;
-  background-image: 
+  background-image:
     radial-gradient(circle at 20% 30%, rgba(0, 147, 233, 0.08) 0%, transparent 50%),
     radial-gradient(circle at 80% 70%, rgba(217, 70, 239, 0.08) 0%, transparent 50%) !important;
   color: #0b2038 !important;
@@ -1337,8 +1389,3 @@
 [data-theme-family="liquid-glass"][data-theme="light"] .mc-btn * {
   text-shadow: none !important;
 }
-
-
-
-
-
