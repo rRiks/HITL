@@ -921,6 +921,8 @@ export default function App() {
         isWalkthrough={!isFromAdmin && !gameStarted && !!walkthroughLaunch}
         isAdminView={isFromAdmin}
         teamName={walkthroughLaunch?.team || gameState?.team_name || 'Cloud Titans'}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
     );
   }

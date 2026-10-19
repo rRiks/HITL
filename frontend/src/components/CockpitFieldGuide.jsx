@@ -4,10 +4,14 @@ import {
   Users,
   AlertTriangle,
   ArrowRight,
-  Sparkles,
   X,
   BookOpen,
+  Sun,
+  Moon,
+  Trophy,
+  Maximize2,
 } from 'lucide-react';
+import themeEngine from '../themes/themeEngine';
 
 export const GUIDE_SECTIONS = {
   top_hud: {
@@ -15,7 +19,7 @@ export const GUIDE_SECTIONS = {
     badge: 'COCKPIT TOP HUD',
     title: 'Hearts, Stage Counter & 2-Minute Timer',
     icon: '❤️',
-    color: '#ff5555',
+    color: '#ef4444',
     desc: 'Each AIDLC stage grants your squad a strict 2-minute countdown clock. System stability begins at 100% (10 pixel hearts). If health drops to 0% or the tower topples, a catastrophic outage occurs!',
     tip: 'Pro-Tip: Maintain high stability to prevent structural sway. If the countdown reaches 0:00, an automatic blind deployment executes!',
   },
@@ -24,7 +28,7 @@ export const GUIDE_SECTIONS = {
     badge: 'REALM TICKER',
     title: 'Live Cross-Table Rivalry Leaderboard',
     icon: '🏆',
-    color: '#ffd700',
+    color: '#eab308',
     desc: 'Broadcasts real-time stage numbers, health, and mined blocks of competing developer squads across the venue.',
     tip: 'Pro-Tip: Watch competing tables in real-time to balance your speed against risk and quality!',
   },
@@ -33,7 +37,7 @@ export const GUIDE_SECTIONS = {
     badge: 'QUEST BRIEFING & CODE DIFF',
     title: 'AI Commit Proposal & Code Diff Review',
     icon: '📜',
-    color: '#55ffff',
+    color: '#06b6d4',
     desc: 'The AI coding agent generates rapid pull requests. Inspect the code diff (+ additions, - deletions) to detect governor limit loops, security bypasses, or bad abstractions.',
     tip: 'Pro-Tip: Click [ENLARGE] in the top-right corner anytime to pop out a full side-by-side single-screen inspection console!',
   },
@@ -42,7 +46,7 @@ export const GUIDE_SECTIONS = {
     badge: 'ARCHITECTURE TELEMETRY',
     title: 'Hidden Risk Scanner & Suspect Patterns',
     icon: '⚠️',
-    color: '#ffaa00',
+    color: '#f97316',
     desc: 'Automated telemetry scans unearth hidden architectural vulnerabilities in the AI code. Expanding it reveals the exact anti-pattern to avoid.',
     tip: 'Pro-Tip: Consult telemetry before voting if you are uncertain whether the proposal is safe to merge.',
   },
@@ -51,40 +55,40 @@ export const GUIDE_SECTIONS = {
     badge: 'REALM CONSENSUS',
     title: 'Democratic Multiplayer Voting',
     icon: '👥',
-    color: '#55ff55',
+    color: '#10b981',
     desc: 'Democratic consensus engine. Teammates in the room vote on actions in real-time. As soon as all active teammates cast their votes, or when you click [RESOLVE NOW], the decision executes immediately!',
-    tip: 'Pro-Tip: Reach team consensus quickly and click [RESOLVE NOW] to lock in early without waiting for the 2-minute timer!',
+    tip: 'Pro-Tip: Reach team consensus quickly to lock in decisions early without waiting for the 2-minute timer!',
   },
   slot_1: {
     id: 'slot_1',
-    badge: 'SLOT 1: ACCEPT AS-IS',
+    badge: 'SLOT 1: ACCEPT AS-IS [1]',
     title: 'Raw Speed Blind Deploy 🍏',
     icon: '⚡',
-    color: '#ffff55',
+    color: '#22c55e',
     desc: 'Blindly merge the AI code without review. High risk roll! If it succeeds, grants +8% HP and zero block pulls. If it fails, pulls 2 blocks and draws heavy damage.',
     tip: 'Warning: If Technical Debt reaches 5, the Accept as-is success threshold degrades permanently to 15%!',
   },
   slot_2: {
     id: 'slot_2',
-    badge: 'SLOT 2: BYPASS & SKIP',
+    badge: 'SLOT 2: BYPASS & SKIP [2]',
     title: 'Defensive Architectural Skip 🛡️',
     icon: '🛡️',
-    color: '#38bdf8',
+    color: '#0ea5e9',
     desc: 'Reject the commit to safeguard existing architecture. 100% safe from immediate crash, but incurs +1 Technical Debt and pulls 1 block.',
     tip: 'Pro-Tip: Useful when facing extreme catastrophic risk, but avoid accumulating too much debt!',
   },
   slot_3: {
     id: 'slot_3',
-    badge: 'SLOT 3: HUMAN GUIDANCE',
+    badge: 'SLOT 3: HUMAN GUIDANCE [3]',
     title: 'Book & Quill Collaborative Prompt 🪶',
     icon: '🪶',
-    color: '#a855f7',
+    color: '#8b5cf6',
     desc: 'Write architectural instructions in Book & Quill to steer the AI agent. Drafts appear live for your team. Including stage-specific architectural keywords guarantees +8% HP and zero block pulls!',
     tip: 'Pro-Tip: Vague or empty prompts incur -12% HP damage and +1 Debt. Always write concrete technical terms (e.g., bulkify, map, platform events)!',
   },
   slot_4: {
     id: 'slot_4',
-    badge: 'SLOT 4: AI SUGGESTIONS',
+    badge: 'SLOT 4: AI SUGGESTIONS [4]',
     title: '3-Way Technical Solution Review 🤖',
     icon: '🤖',
     color: '#ec4899',
@@ -96,16 +100,16 @@ export const GUIDE_SECTIONS = {
     badge: 'TECHNICAL DEBT (0-5 DEBTS)',
     title: 'Shortcuts, Critical Fragility & System Decay ⚠️',
     icon: '⚠️',
-    color: '#ffaa00',
+    color: '#f59e0b',
     desc: 'What is Technical Debt? Taking architectural shortcuts (Bypass & Skip, choosing Flawed AI suggestions, or writing vague prompts) accumulates Technical Debt (0 to 5).\n\n• Debts 0-3: Normal base penalties.\n• Debt 4 (Critical Fragility): Any subsequent failure triggers 3 block pulls and at least 25% health drained!\n• Debt 5 (Degraded Velocity): "Accept as-is" success rate drops permanently to 15%!',
     tip: 'Pro-Tip: Keep Debt below 4! At 4+ Debts, a single bad choice will catastrophically topple your 3D tower.',
   },
   tower: {
     id: 'tower',
     badge: '3D ARCHITECTURE TOWER',
-    title: '54 Microservices & Structural Integrity',
+    title: '54 Microservices & Structural Stability',
     icon: '🏛️',
-    color: '#ff5555',
+    color: '#ef4444',
     desc: '54 physical blocks (Redstone, Diamond, Emerald). Shortcuts and failures physically mine blocks from the tower, increasing physical tilt and sway.',
     tip: 'Critical: Each block extracted weakens the physics engine. Keep tower integrity high for a top final score!',
   },
@@ -118,8 +122,37 @@ export default function CockpitFieldGuide({
   teamName = 'Cloud Titans',
   onGoHome,
   isAdminView = false,
+  theme: propTheme,
+  onToggleTheme: propToggleTheme,
 }) {
   const [activeGuideKey, setActiveGuideKey] = useState('quest');
+
+  // Reactive theme engine integration (syncs with global theme state & parents)
+  const [internalMode, setInternalMode] = useState(() => {
+    try {
+      const cur = themeEngine.init();
+      return cur?.mode || 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
+
+  const currentMode = propTheme || internalMode;
+
+  useEffect(() => {
+    const unsubscribe = themeEngine.subscribe((state) => {
+      setInternalMode(state.mode);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleToggleTheme = () => {
+    if (propToggleTheme) {
+      propToggleTheme();
+    } else {
+      themeEngine.toggleMode();
+    }
+  };
 
   // Hotkey support: Space / Enter to launch (if walkthrough), Escape to close
   useEffect(() => {
@@ -139,14 +172,14 @@ export default function CockpitFieldGuide({
   const activeGuide = GUIDE_SECTIONS[activeGuideKey] || GUIDE_SECTIONS.quest;
 
   return (
-    <div className="cockpit-field-guide-root fixed inset-0 z-50 bg-[#14161a]/95 backdrop-blur-xs text-white flex flex-col justify-between select-none p-2 sm:p-3 overflow-y-auto animate-fadeIn">
+    <div className="cockpit-field-guide-root fixed inset-0 z-50 bg-[var(--bg-app)] text-[var(--text-primary)] flex flex-col justify-between select-none p-2 sm:p-3 overflow-y-auto animate-fadeIn transition-colors duration-200">
       {/* Top Walkthrough Navigation Control Bar */}
-      <div className="mc-panel-dark px-3 py-2 mb-2 flex items-center justify-between gap-2 border-2 border-[#ffd700] shadow-xl shrink-0">
-        <div className="flex items-center gap-1.5">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-subtle)] px-3 py-2 sm:py-2.5 mb-2 rounded-xl flex items-center justify-between gap-3 shadow-md shrink-0 transition-colors">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="mc-btn px-3 py-1.5 text-[9px] mc-font text-white hover:text-[#ffaa00] flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-1.5 text-xs font-mono font-bold rounded-lg border transition-all cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-1.5"
           >
             {isAdminView ? (
               <span>← ADMIN CONSOLE [ESC]</span>
@@ -161,7 +194,7 @@ export default function CockpitFieldGuide({
               type="button"
               onClick={onGoHome}
               title="Return to Home Screen"
-              className="mc-btn px-2.5 py-1.5 text-[9px] mc-font text-[#ffd700] hover:text-white flex items-center gap-1 cursor-pointer bg-[#3a2211] border-[#ffaa00]"
+              className="px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border transition-all cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-1"
             >
               <span>HOME</span>
             </button>
@@ -169,12 +202,12 @@ export default function CockpitFieldGuide({
         </div>
 
         <div className="flex items-center gap-2 text-center">
-          <BookOpen className="w-4 h-4 text-[#ffd700]" />
+          <BookOpen className="w-4 h-4 text-sky-500 shrink-0" />
           <div>
-            <span className="text-[10px] mc-font text-[#ffd700] uppercase font-bold block">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wide block text-[var(--text-primary)]">
               COCKPIT FIELD GUIDE • HOVER / TAP ANY COMPONENT TO INSPECT
             </span>
-            <span className="text-[9px] text-[#aaa] font-sans">
+            <span className="text-[10px] text-[var(--text-muted)] font-sans hidden sm:block">
               {isAdminView
                 ? 'Facilitator Reference • Architecture & Decision Mechanics Guide'
                 : isWalkthrough
@@ -184,56 +217,86 @@ export default function CockpitFieldGuide({
           </div>
         </div>
 
-        {isAdminView ? (
+        <div className="flex items-center gap-2">
+          {/* Universal Theme Switcher */}
           <button
             type="button"
-            onClick={onClose}
-            className="mc-btn mc-btn-green px-4 py-1.5 text-[10px] mc-font text-white flex items-center gap-1.5 cursor-pointer shadow-md"
+            onClick={handleToggleTheme}
+            title={currentMode === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all text-xs font-mono font-bold cursor-pointer select-none bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 shadow-xs"
           >
-            <span>RETURN TO CONSOLE</span>
-            <X className="w-3 h-3" />
+            {currentMode === 'light' ? (
+              <>
+                <Sun className="w-3.5 h-3.5 text-amber-500" />
+                <span className="text-[11px] text-slate-700">LIGHT</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-3.5 h-3.5 text-sky-400" />
+                <span className="text-[11px] text-slate-200">DARK</span>
+              </>
+            )}
           </button>
-        ) : isWalkthrough ? (
-          <button
-            type="button"
-            onClick={onLaunchGame}
-            className="mc-btn mc-btn-green px-4 py-2 text-[10px] mc-font text-white flex items-center gap-2 cursor-pointer shadow-lg animate-pulse"
-          >
-            <span>ENTER REALM [SPACE]</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={onClose}
-            className="mc-btn mc-btn-green px-4 py-1.5 text-[10px] mc-font text-white flex items-center gap-1.5 cursor-pointer shadow-md"
-          >
-            <span>RESUME GAME</span>
-            <X className="w-3 h-3" />
-          </button>
-        )}
+
+          {isAdminView ? (
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-3.5 py-1.5 text-xs font-mono font-bold rounded-lg bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-white dark:text-slate-950 flex items-center gap-1.5 cursor-pointer shadow-md transition-all active:scale-[0.99]"
+            >
+              <span>RETURN TO CONSOLE</span>
+              <X className="w-3.5 h-3.5" />
+            </button>
+          ) : isWalkthrough ? (
+            <button
+              type="button"
+              onClick={onLaunchGame}
+              className="px-4 py-1.5 text-xs font-mono font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 cursor-pointer shadow-lg animate-pulse transition-all active:scale-[0.99]"
+            >
+              <span>ENTER REALM [SPACE]</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-3.5 py-1.5 text-xs font-mono font-bold rounded-lg bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-white dark:text-slate-950 flex items-center gap-1.5 cursor-pointer shadow-md transition-all active:scale-[0.99]"
+            >
+              <span>RESUME GAME</span>
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Replica Cockpit Arena Container */}
+      {/* Replica Cockpit Arena Container: 7-Col Scenario (Left) & 5-Col Tower + Decision Matrix (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 flex-1 min-h-0 items-stretch mb-2">
-        {/* Left Wing (6 cols): Stage Scenario & 4 Action Consoles Replica */}
-        <div className="lg:col-span-6 flex flex-col gap-2 min-h-0">
+        {/* Left Wing (7 cols): Scenario, Diff Workspace, Telemetry & Consensus */}
+        <div className="lg:col-span-7 flex flex-col gap-2 min-h-0">
           {/* Top Bar Replica */}
           <div
             onMouseEnter={() => setActiveGuideKey('top_hud')}
             onClick={() => setActiveGuideKey('top_hud')}
-            className={`mc-panel-dark px-2.5 py-1.5 flex items-center justify-between gap-2 border cursor-pointer transition-all ${
-              activeGuideKey === 'top_hud' ? 'ring-2 ring-[#ffd700] border-[#ffd700] bg-[#221c10]' : 'border-[#444] hover:border-[#888]'
+            className={`px-3 py-1.5 rounded-xl border flex items-center justify-between gap-2 cursor-pointer transition-all ${
+              activeGuideKey === 'top_hud'
+                ? 'ring-2 ring-sky-500 border-sky-500 bg-sky-500/10'
+                : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="text-[9px] mc-font text-[#ffd700] font-bold">REALM: {teamName}</span>
-              <span className="text-[9px] mc-font text-[#55ff55]">LV 1/11</span>
+              <span className="text-[11px] font-mono font-bold text-[var(--text-primary)]">REALM: {teamName}</span>
+              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                STAGE 1/11
+              </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[9px] mc-font text-[#ff5555]">❤️❤️❤️❤️❤️ 100%</span>
-              <span className="text-[9px] mc-font text-[#55ffff] bg-[#111] px-1.5 py-0.5 border border-[#333]">02:00</span>
-              <span className="text-[7.5px] mc-font text-[#ffd700] bg-[#332200] px-1 border border-[#664400]">ⓘ TOP HUD</span>
+              <span className="text-xs font-mono text-rose-500 font-bold">❤️❤️❤️❤️❤️ 100%</span>
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
+                02:00
+              </span>
+              <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-600 dark:text-sky-300 border border-sky-500/30">
+                ⓘ TOP HUD
+              </span>
             </div>
           </div>
 
@@ -241,63 +304,111 @@ export default function CockpitFieldGuide({
           <div
             onMouseEnter={() => setActiveGuideKey('ticker')}
             onClick={() => setActiveGuideKey('ticker')}
-            className={`bg-[#181614] border px-2.5 py-1 flex items-center justify-between gap-2 text-[9px] mc-font cursor-pointer transition-all ${
-              activeGuideKey === 'ticker' ? 'ring-2 ring-[#ffd700] border-[#ffd700] bg-[#221c10]' : 'border-[#444] hover:border-[#888]'
+            className={`px-3 py-1 rounded-xl border flex items-center justify-between gap-2 text-[10px] font-mono cursor-pointer transition-all ${
+              activeGuideKey === 'ticker'
+                ? 'ring-2 ring-amber-500 border-amber-500 bg-amber-500/10'
+                : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
             }`}
           >
-            <div className="flex items-center gap-2 text-[#ffd700]">
-              <span>🏆 REALM TICKER</span>
-              <span className="text-[#55ff55]">Table 4: QuantumSREs 94% W7/11</span>
-              <span className="text-[#aaa] hidden sm:inline">• Table 2: ByteBusters 82%</span>
+            <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 truncate">
+              <Trophy className="w-3.5 h-3.5 shrink-0" />
+              <span className="font-bold">REALM TICKER:</span>
+              <span className="text-emerald-600 dark:text-emerald-400">Table 4: QuantumSREs 94% W7/11</span>
+              <span className="text-[var(--text-muted)] hidden sm:inline">• Table 2: ByteBusters 82%</span>
             </div>
-            <span className="text-[7.5px] mc-font text-[#ffd700] bg-[#332200] px-1 border border-[#664400]">ⓘ TICKER</span>
+            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 shrink-0">
+              ⓘ TICKER
+            </span>
           </div>
 
           {/* Quest Briefing & Code Diff Replica */}
           <div
             onMouseEnter={() => setActiveGuideKey('quest')}
             onClick={() => setActiveGuideKey('quest')}
-            className={`mc-panel-dark p-2.5 flex flex-col flex-1 min-h-0 border cursor-pointer transition-all ${
-              activeGuideKey === 'quest' ? 'ring-2 ring-[#ffd700] border-[#ffd700] bg-[#221c10]' : 'border-[#444] hover:border-[#888]'
+            className={`p-3 rounded-xl flex flex-col flex-1 min-h-0 border cursor-pointer transition-all ${
+              activeGuideKey === 'quest'
+                ? 'ring-2 ring-cyan-500 border-cyan-500 bg-cyan-500/5'
+                : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
             }`}
           >
-            <div className="flex items-center justify-between gap-2 mb-1.5">
-              <div className="flex items-center gap-1.5">
-                <span className="px-2 py-0.5 text-[8.5px] mc-font bg-[#3a0000] text-[#ff5555] border border-[#aa0000]">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 text-[10px] font-mono font-bold rounded-md bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
                   QUEST WAVE 1
                 </span>
-                <span className="text-[8.5px] mc-font text-[#aaa]">Apex Trigger & Bulkification</span>
+                <span className="text-xs font-mono text-[var(--text-muted)]">Apex Trigger & Bulkification</span>
               </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[8px] mc-font text-[#55ffff] border border-[#333] px-1.5 py-0.5">⤢ ENLARGE</span>
-                <span className="text-[7.5px] mc-font text-[#ffd700] bg-[#332200] px-1 border border-[#664400]">ⓘ QUEST & DIFF</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] font-mono px-2 py-0.5 rounded-md border border-[var(--border-subtle)] text-[var(--text-muted)] flex items-center gap-1">
+                  <Maximize2 className="w-3 h-3" /> ENLARGE
+                </span>
+                <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 border border-cyan-500/30">
+                  ⓘ QUEST & DIFF
+                </span>
               </div>
             </div>
 
-            <h3 className="text-xs font-bold text-[#ffff55] mc-font mb-1">The Governor Limit Trap</h3>
-            <p className="text-[10px] text-[#ccc] font-sans leading-tight mb-2 line-clamp-2">
-              The AI coding agent generated an Account-to-Contact synchronization trigger, placing SOQL inside a for-loop!
+            <h3 className="text-sm font-bold text-[var(--text-primary)] mb-1 font-mono">
+              CSC-101: Account-to-Contact Phone Sync
+            </h3>
+            <p className="text-xs text-[var(--text-secondary)] font-sans leading-tight mb-2 line-clamp-2">
+              When an Account phone number is updated, synchronize the new phone number to all related child Contact records.
             </p>
 
-            {/* Code Diff Box Replica */}
-            <div className="border border-[#444] bg-[#0c0d10] p-2 font-mono text-[10px] flex-1 min-h-[75px] flex flex-col justify-center">
-              <span className="text-[#ff5555]">- Map&lt;Id, Account&gt; accMap = new Map&lt;Id, Account&gt;(accounts);</span>
-              <span className="text-[#55ff55]">+ for (Account a : accounts) &#123; [SELECT Id FROM Contact] &#125;</span>
+            {/* AI Golem Proposal Callout matching real game */}
+            <div className="mb-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs font-mono">
+              <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 block mb-0.5">
+                🤖 AIGOLEM PROPOSAL
+              </span>
+              <span className="text-[10.5px] text-[var(--text-secondary)] italic">
+                "Implemented Contact to Account phone synchronization in AccountTriggerHandler.cls using direct query lookups inside account iteration."
+              </span>
+            </div>
+
+            {/* Realistic Multi-line Code Diff Box */}
+            <div className="border border-[var(--border-subtle)] rounded-lg bg-[var(--bg-code,#070b14)] p-2.5 font-mono text-[10.5px] flex-1 min-h-[135px] flex flex-col justify-start space-y-0.5 overflow-hidden">
+              <div className="text-[10px] text-[var(--text-muted)] border-b border-[var(--border-subtle)] pb-1 mb-1 flex items-center justify-between">
+                <span>force-app/main/default/classes/AccountTriggerHandler.cls (git diff)</span>
+                <span className="text-[9px] text-sky-500 font-bold">FULL DIFF ➔</span>
+              </div>
+              <div className="text-[var(--text-muted)] opacity-60">1  public with sharing class AccountTriggerHandler &#123;</div>
+              <div className="text-[var(--text-muted)] opacity-60">2    public static void syncContacts(List&lt;Account&gt; accounts) &#123;</div>
+              <div className="px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-700 dark:text-rose-300 font-semibold">
+                3  -     // TODO: Bulkified map lookup
+              </div>
+              <div className="px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-700 dark:text-rose-300 font-semibold">
+                4  -     Map&lt;Id, Account&gt; accMap = new Map&lt;Id, Account&gt;(accounts);
+              </div>
+              <div className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold">
+                5  +     for (Account acc : accounts) &#123;
+              </div>
+              <div className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold">
+                6  +       List&lt;Contact&gt; cons = [SELECT Id FROM Contact WHERE AccountId = :acc.Id];
+              </div>
+              <div className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold">
+                7  +       update cons; // Anti-pattern: DML inside loop!
+              </div>
+              <div className="text-[var(--text-muted)] opacity-60">8    &#125;</div>
+              <div className="text-[var(--text-muted)] opacity-60">9  &#125;</div>
             </div>
 
             {/* Telemetry Accordion Replica */}
             <div
               onMouseEnter={(e) => { e.stopPropagation(); setActiveGuideKey('telemetry'); }}
               onClick={(e) => { e.stopPropagation(); setActiveGuideKey('telemetry'); }}
-              className={`mt-1.5 p-1.5 border flex items-center justify-between text-[9px] mc-font cursor-pointer ${
-                activeGuideKey === 'telemetry' ? 'ring-2 ring-[#ffaa00] border-[#ffaa00] bg-[#331c05]' : 'border-[#aa5500] bg-[#221200]'
+              className={`mt-2 p-2 rounded-lg border flex items-center justify-between text-xs font-mono cursor-pointer transition-all ${
+                activeGuideKey === 'telemetry'
+                  ? 'ring-2 ring-orange-500 border-orange-500 bg-orange-500/15'
+                  : 'bg-orange-500/10 border-orange-500/30 text-orange-700 dark:text-orange-300'
               }`}
             >
-              <div className="flex items-center gap-1.5 text-[#ffaa00]">
-                <AlertTriangle className="w-3 h-3" />
-                <span>DETECTED ARCHITECTURE TELEMETRY (SOQL IN LOOP)</span>
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                <span className="font-bold">DETECTED ARCHITECTURE TELEMETRY: SOQL IN FOR-LOOP</span>
               </div>
-              <span className="text-[7.5px] mc-font text-[#ffd700] bg-[#332200] px-1 border border-[#664400]">ⓘ TELEMETRY</span>
+              <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/40">
+                ⓘ TELEMETRY
+              </span>
             </div>
           </div>
 
@@ -305,196 +416,245 @@ export default function CockpitFieldGuide({
           <div
             onMouseEnter={() => setActiveGuideKey('consensus')}
             onClick={() => setActiveGuideKey('consensus')}
-            className={`bg-[#181818] border p-2 flex items-center justify-between text-[9px] mc-font cursor-pointer ${
-              activeGuideKey === 'consensus' ? 'ring-2 ring-[#55ff55] border-[#55ff55] bg-[#112611]' : 'border-[#444]'
+            className={`px-3 py-2 rounded-xl border flex items-center justify-between text-xs font-mono cursor-pointer transition-all ${
+              activeGuideKey === 'consensus'
+                ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-500/10'
+                : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
             }`}
           >
             <div className="flex items-center gap-2">
-              <Users className="w-3.5 h-3.5 text-[#ffd700]" />
-              <span className="text-white">REALM CONSENSUS: 0 / 4 VOTES</span>
-              <span className="text-[#888] text-[8px]">(LOCKS AT 100% OR 2MIN)</span>
+              <Users className="w-4 h-4 text-emerald-500" />
+              <span className="text-[var(--text-primary)] font-bold">REALM CONSENSUS: 0 / 4 VOTES</span>
+              <span className="text-[var(--text-muted)] text-[10px]">(LOCKS AT 100% OR 2-MIN TIMER)</span>
             </div>
-            <span className="text-[7.5px] mc-font text-[#55ff55] bg-[#112611] px-1.5 py-0.5 border border-[#2d5a2d]">
+            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">
               ⓘ CONSENSUS
             </span>
           </div>
+        </div>
 
-          {/* 4 Action Consoles Replica */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+        {/* Right Wing (5 cols): 3D Architecture Tower Stability Twin + 2x2 Decision Matrix */}
+        <div className="lg:col-span-5 flex flex-col gap-2 min-h-0">
+          {/* Top: 3D Tower Replica Viewport */}
+          <div
+            onMouseEnter={() => setActiveGuideKey('tower')}
+            onClick={() => setActiveGuideKey('tower')}
+            className={`p-3 rounded-xl flex flex-col justify-between border cursor-pointer transition-all ${
+              activeGuideKey === 'tower' || activeGuideKey === 'debt'
+                ? 'ring-2 ring-rose-500 border-rose-500 bg-rose-500/5'
+                : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
+            }`}
+          >
+            {/* Tower Header */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <Rotate3d className="w-4 h-4 text-sky-500" />
+                  <span className="text-xs font-mono uppercase font-bold text-[var(--text-primary)]">
+                    3D VOXEL TOWER
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {/* Real-time Tech Debt outcome badge as per latest app */}
+                  <div
+                    onMouseEnter={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
+                    onClick={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded-md border cursor-pointer transition-all flex items-center gap-1.5 ${
+                      activeGuideKey === 'debt'
+                        ? 'ring-2 ring-amber-500 border-amber-500 bg-amber-500/20 text-amber-600 dark:text-amber-300 font-bold'
+                        : 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30'
+                    }`}
+                  >
+                    <span>⚠️ TECH DEBT: 0/5</span>
+                    <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/40">
+                      STABLE
+                    </span>
+                  </div>
+
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-bold">
+                    100% SOLID
+                  </span>
+                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/30">
+                    ⓘ TOWER
+                  </span>
+                </div>
+              </div>
+
+              {/* Stability Bar */}
+              <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 mb-2 overflow-hidden">
+                <div className="w-full bg-emerald-500 h-1.5 rounded-full" />
+              </div>
+
+              {/* Domain badges */}
+              <div className="flex flex-wrap gap-1 text-[9px] font-mono">
+                <span className="px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">Governors</span>
+                <span className="px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30">Async Apex</span>
+                <span className="px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30">Security/FLS</span>
+                <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">LWC Engine</span>
+              </div>
+            </div>
+
+            {/* Stylized 3D Jenga Tower Voxel Graphics Mockup */}
+            <div className="my-2.5 rounded-xl flex items-center justify-center min-h-[140px] bg-[var(--bg-code,#070b14)] border border-[var(--border-subtle)] relative overflow-hidden">
+              <div className="flex flex-col items-center gap-1.5 py-3">
+                <div className="w-28 h-5 rounded bg-amber-600/80 border border-amber-400 shadow-sm flex items-center justify-center text-[9px] font-mono font-bold text-white">54 BLOCKS</div>
+                <div className="w-28 h-5 rounded bg-amber-700/80 border border-amber-500 shadow-sm" />
+                <div className="w-28 h-5 rounded bg-amber-600/80 border border-amber-400 shadow-sm flex items-center justify-center text-[9px] font-mono font-bold text-emerald-200">STABLE</div>
+                <div className="w-28 h-5 rounded bg-amber-700/80 border border-amber-500 shadow-sm" />
+                <div className="w-28 h-5 rounded bg-amber-600/80 border border-amber-400 shadow-sm flex items-center justify-center text-[9px] font-mono font-bold text-emerald-300">FULL UPTIME</div>
+              </div>
+              <div className="absolute bottom-2 text-center text-[9px] font-mono text-amber-600 dark:text-amber-300 bg-amber-500/15 px-2.5 py-0.5 rounded-md border border-amber-500/30 font-semibold backdrop-blur-xs">
+                Every risk mines blocks & destabilizes physics
+              </div>
+            </div>
+
+            <div
+              onMouseEnter={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
+              onClick={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
+              className={`p-2 rounded-lg border text-[10px] font-mono text-center cursor-pointer transition-all ${
+                activeGuideKey === 'debt'
+                  ? 'ring-2 ring-amber-500 border-amber-500 bg-amber-500/20 text-amber-700 dark:text-amber-300'
+                  : 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300 hover:border-amber-500'
+              }`}
+            >
+              <span>⚠️ TECHNICAL DEBT RULE: Reaching 4+ Debts triggers </span>
+              <strong className="text-rose-600 dark:text-rose-400">Critical Fragility (3 pulls + 25% damage)</strong>
+              <span className="ml-1 text-[9px] text-amber-600 dark:text-amber-400 underline">[Hover for details]</span>
+            </div>
+          </div>
+
+          {/* Bottom: 2x2 Decision Matrix Replica matching exact live game layout */}
+          <div className="grid grid-cols-2 gap-1.5">
             {/* Slot 1 */}
             <div
               onMouseEnter={() => setActiveGuideKey('slot_1')}
               onClick={() => setActiveGuideKey('slot_1')}
-              className={`mc-slot-dark p-2 border cursor-pointer transition-all ${
-                activeGuideKey === 'slot_1' ? 'ring-2 ring-[#ffd700] border-[#ffd700] bg-[#221c10]' : 'border-[#444] hover:border-[#888]'
+              className={`p-2.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
+                activeGuideKey === 'slot_1'
+                  ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-500/15'
+                  : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
               }`}
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[7.5px] mc-font text-[#ffd700]">SLOT 1</span>
-                <span>🍏</span>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-400">[1]</span>
+                  <span>🍏</span>
+                </div>
+                <h4 className="text-xs font-bold text-[var(--text-primary)] font-mono">Accept as-is</h4>
+                <p className="text-[10px] text-[var(--text-muted)] font-sans mt-0.5">Rapid merge, zero review. High risk!</p>
               </div>
-              <h4 className="text-[10px] font-bold text-white mc-font">Accept as-is</h4>
-              <p className="text-[9px] text-[#aaa] font-sans mt-0.5">Raw speed roll</p>
-              <span className="text-[7px] text-[#ffd700] block mt-1">ⓘ HOVER</span>
+              <div className="flex items-center justify-between mt-2 pt-1 border-t border-[var(--border-subtle)]/60">
+                <span className="text-[8.5px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 font-mono">
+                  RAW SPEED
+                </span>
+                <span className="text-[8px] text-emerald-600 dark:text-emerald-400 font-mono">ⓘ HOVER</span>
+              </div>
             </div>
 
             {/* Slot 2 */}
             <div
               onMouseEnter={() => setActiveGuideKey('slot_2')}
               onClick={() => setActiveGuideKey('slot_2')}
-              className={`mc-slot-dark p-2 border cursor-pointer transition-all ${
-                activeGuideKey === 'slot_2' ? 'ring-2 ring-[#38bdf8] border-[#38bdf8] bg-[#0c1c28]' : 'border-[#444] hover:border-[#888]'
+              className={`p-2.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
+                activeGuideKey === 'slot_2'
+                  ? 'ring-2 ring-sky-500 border-sky-500 bg-sky-500/15'
+                  : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
               }`}
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[7.5px] mc-font text-[#aaa]">SLOT 2</span>
-                <span>🛡️</span>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[9px] font-mono font-bold text-sky-600 dark:text-sky-400">[2]</span>
+                  <span>🛡️</span>
+                </div>
+                <h4 className="text-xs font-bold text-[var(--text-primary)] font-mono">Bypass & Skip</h4>
+                <p className="text-[10px] text-[var(--text-muted)] font-sans mt-0.5">Reject commit to safeguard health.</p>
               </div>
-              <h4 className="text-[10px] font-bold text-white mc-font">Bypass & Skip</h4>
-              <p className="text-[9px] text-[#aaa] font-sans mt-0.5">Safe +1 Debt</p>
-              <span className="text-[7px] text-[#38bdf8] block mt-1">ⓘ HOVER</span>
+              <div className="flex items-center justify-between mt-2 pt-1 border-t border-[var(--border-subtle)]/60">
+                <span className="text-[8.5px] font-bold px-1.5 py-0.5 rounded bg-sky-500/15 text-sky-600 dark:text-sky-300 font-mono">
+                  SAFE SKIP
+                </span>
+                <span className="text-[8px] text-sky-600 dark:text-sky-400 font-mono">ⓘ HOVER</span>
+              </div>
             </div>
 
             {/* Slot 3 */}
             <div
               onMouseEnter={() => setActiveGuideKey('slot_3')}
               onClick={() => setActiveGuideKey('slot_3')}
-              className={`mc-slot-dark p-2 border cursor-pointer transition-all ${
-                activeGuideKey === 'slot_3' ? 'ring-2 ring-[#a855f7] border-[#a855f7] bg-[#220d30]' : 'border-[#444] hover:border-[#888]'
+              className={`p-2.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
+                activeGuideKey === 'slot_3'
+                  ? 'ring-2 ring-purple-500 border-purple-500 bg-purple-500/15'
+                  : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
               }`}
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[7.5px] mc-font text-[#a855f7]">SLOT 3</span>
-                <span>🪶</span>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[9px] font-mono font-bold text-purple-600 dark:text-purple-400">[3]</span>
+                  <span>🪶</span>
+                </div>
+                <h4 className="text-xs font-bold text-[var(--text-primary)] font-mono">Human Guidance</h4>
+                <p className="text-[10px] text-[var(--text-muted)] font-sans mt-0.5">Draft steering prompt in Book & Quill.</p>
               </div>
-              <h4 className="text-[10px] font-bold text-white mc-font">Human Guide</h4>
-              <p className="text-[9px] text-[#aaa] font-sans mt-0.5">Write prompts</p>
-              <span className="text-[7px] text-[#a855f7] block mt-1">ⓘ HOVER</span>
+              <div className="flex items-center justify-between mt-2 pt-1 border-t border-[var(--border-subtle)]/60">
+                <span className="text-[8.5px] font-bold px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-600 dark:text-purple-300 font-mono">
+                  COLLAB
+                </span>
+                <span className="text-[8px] text-purple-600 dark:text-purple-400 font-mono">ⓘ HOVER</span>
+              </div>
             </div>
 
             {/* Slot 4 */}
             <div
               onMouseEnter={() => setActiveGuideKey('slot_4')}
               onClick={() => setActiveGuideKey('slot_4')}
-              className={`mc-slot-dark p-2 border cursor-pointer transition-all ${
-                activeGuideKey === 'slot_4' ? 'ring-2 ring-[#ec4899] border-[#ec4899] bg-[#2d0f20]' : 'border-[#444] hover:border-[#888]'
+              className={`p-2.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
+                activeGuideKey === 'slot_4'
+                  ? 'ring-2 ring-pink-500 border-pink-500 bg-pink-500/15'
+                  : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600'
               }`}
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[7.5px] mc-font text-[#ffd700]">SLOT 4</span>
-                <span>🤖</span>
-              </div>
-              <h4 className="text-[10px] font-bold text-white mc-font">AI Suggestion</h4>
-              <p className="text-[9px] text-[#aaa] font-sans mt-0.5">Review 3 fixes</p>
-              <span className="text-[7px] text-[#ec4899] block mt-1">ⓘ HOVER</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Wing (6 cols): 3D Architecture Tower Mockup Replica */}
-        <div
-          onMouseEnter={() => setActiveGuideKey('tower')}
-          onClick={() => setActiveGuideKey('tower')}
-          className={`lg:col-span-6 mc-panel-dark p-3 flex flex-col justify-between border cursor-pointer transition-all ${
-            activeGuideKey === 'tower' ? 'ring-2 ring-[#ff5555] border-[#ff5555] bg-[#221010]' : 'border-[#444] hover:border-[#888]'
-          }`}
-        >
-          {/* Tower Header */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Rotate3d className="w-4 h-4 text-[#ffd700]" />
-                <span className="text-[10px] mc-font text-[#ffd700] uppercase font-bold">
-                  3D VOXEL REDSTONE TOWER
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div
-                  onMouseEnter={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
-                  onClick={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
-                  className={`text-[8.5px] mc-font px-2 py-0.5 border cursor-pointer transition-all flex items-center gap-1 ${
-                    activeGuideKey === 'debt'
-                      ? 'ring-2 ring-[#ffaa00] border-[#ffd700] bg-[#331c00] text-[#ffd700]'
-                      : 'bg-[#251505] text-[#ffaa00] border-[#885500] hover:border-[#ffd700]'
-                  }`}
-                >
-                  <span>⚠️ DEBT: 0/5</span>
-                  <span className="text-[7px] text-[#ffd700] bg-[#111] px-1 border border-[#553300]">ⓘ DEBT</span>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[9px] font-mono font-bold text-pink-600 dark:text-pink-400">[4]</span>
+                  <span>🤖</span>
                 </div>
-                <span className="text-[8px] mc-font px-1.5 py-0.5 bg-[#002b00] text-[#55ff55] border border-[#00aa00]">
-                  STABILITY: 100% SOLID
+                <h4 className="text-xs font-bold text-[var(--text-primary)] font-mono">AI Suggestions</h4>
+                <p className="text-[10px] text-[var(--text-muted)] font-sans mt-0.5">Review 3 AI-proposed technical fixes.</p>
+              </div>
+              <div className="flex items-center justify-between mt-2 pt-1 border-t border-[var(--border-subtle)]/60">
+                <span className="text-[8.5px] font-bold px-1.5 py-0.5 rounded bg-pink-500/15 text-pink-600 dark:text-pink-300 font-mono">
+                  PROPOSALS
                 </span>
-                <span className="text-[7.5px] mc-font text-[#ffd700] bg-[#332200] px-1 border border-[#664400]">
-                  ⓘ TOWER
-                </span>
+                <span className="text-[8px] text-pink-600 dark:text-pink-400 font-mono">ⓘ HOVER</span>
               </div>
             </div>
-
-            {/* Boss Stability Bar */}
-            <div className="w-full bg-[#111] p-[2px] border border-[#555] mb-2">
-              <div className="w-full bg-[#00aa00] h-2" />
-            </div>
-
-            {/* Domain badges */}
-            <div className="flex flex-wrap gap-1 text-[8px] mc-font">
-              <span className="guide-domain-pill px-1.5 py-0.5 bg-[#ff3b30]/30 text-[#ff7777] border border-[#ff3b30]/50">Governors</span>
-              <span className="guide-domain-pill px-1.5 py-0.5 bg-[#38bdf8]/30 text-[#88ddff] border border-[#38bdf8]/50">Async Apex</span>
-              <span className="guide-domain-pill px-1.5 py-0.5 bg-[#a855f7]/30 text-[#d8a8ff] border border-[#a855f7]/50">Security/FLS</span>
-              <span className="guide-domain-pill px-1.5 py-0.5 bg-[#22c55e]/30 text-[#77ff99] border border-[#22c55e]/50">LWC Engine</span>
-            </div>
-          </div>
-
-          {/* Stylized 3D Jenga Tower Voxel Graphics Mockup */}
-          <div className="guide-tower-mockup flex-1 my-3 flex items-center justify-center min-h-[160px] bg-[#111115] border border-[#333] relative overflow-hidden">
-            <div className="flex flex-col items-center gap-1">
-              <div className="w-24 h-4 bg-[#8b6508] border border-[#ffd700] shadow-md flex items-center justify-center text-[7.5px] mc-font text-white">54 BLOCKS</div>
-              <div className="w-24 h-4 bg-[#6b4e06] border border-[#e5c100] shadow-md" />
-              <div className="w-24 h-4 bg-[#8b6508] border border-[#ffd700] shadow-md flex items-center justify-center text-[7px] mc-font text-[#ffd700]">STABLE</div>
-              <div className="w-24 h-4 bg-[#6b4e06] border border-[#e5c100] shadow-md" />
-              <div className="w-24 h-4 bg-[#8b6508] border border-[#ffd700] shadow-md flex items-center justify-center text-[7px] mc-font text-[#55ff55]">FULL UPTIME</div>
-              <div className="w-24 h-4 bg-[#553b05] border border-[#b29600] shadow-md" />
-            </div>
-            <div className="absolute bottom-2 text-center text-[8.5px] mc-font text-[#ffd700] bg-[#1b1500]/90 px-2 py-0.5 border border-[#886600]">
-              Every risk mines blocks & destabilizes physics
-            </div>
-          </div>
-
-          <div
-            onMouseEnter={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
-            onClick={(e) => { e.stopPropagation(); setActiveGuideKey('debt'); }}
-            className={`guide-debt-box p-2 border text-[8.5px] mc-font text-center cursor-pointer transition-all ${
-              activeGuideKey === 'debt'
-                ? 'ring-2 ring-[#ffaa00] border-[#ffd700] bg-[#331c00] text-[#ffd700]'
-                : 'bg-[#221000] border-[#885500] text-[#ffaa00] hover:border-[#ffd700]'
-            }`}
-          >
-            <span>⚠️ TECHNICAL DEBT RULE: Reaching 4+ Debts triggers </span>
-            <strong className="text-[#ff5555]">Critical Fragility (3 pulls + 25% damage)</strong>
-            <span className="ml-1 text-[7.5px] text-[#ffd700] underline">[Hover for details]</span>
           </div>
         </div>
       </div>
 
       {/* Docked Interactive Inspector Panel */}
-      <div className="mc-panel-dark p-3.5 border-2 border-[#ffd700] shadow-2xl shrink-0 animate-fadeIn">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-subtle)] p-3 sm:p-4 rounded-xl shadow-xl shrink-0 animate-fadeIn transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <span className="text-3xl p-2 bg-[#1b1b1b] border-2 border-[#555] shrink-0">
+            <span className="text-3xl p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 shrink-0">
               {activeGuide.icon}
             </span>
             <div>
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="text-[9px] mc-font px-2 py-0.5 uppercase font-bold border" style={{ color: activeGuide.color, borderColor: activeGuide.color }}>
+                <span
+                  className="text-[10px] font-mono px-2 py-0.5 rounded-md uppercase font-bold border"
+                  style={{ color: activeGuide.color, borderColor: activeGuide.color, backgroundColor: `${activeGuide.color}15` }}
+                >
                   {activeGuide.badge}
                 </span>
-                <h3 className="text-xs sm:text-sm font-bold text-white mc-font">
+                <h3 className="text-sm font-bold text-[var(--text-primary)] font-mono">
                   {activeGuide.title}
                 </h3>
               </div>
-              <p className="text-[11px] text-[#ddd] font-sans leading-relaxed mb-1.5 select-text whitespace-pre-line">
+              <p className="text-xs text-[var(--text-secondary)] font-sans leading-relaxed mb-2 select-text whitespace-pre-line">
                 {activeGuide.desc}
               </p>
-              <div className="guide-tip-box text-[10px] text-[#ffd700] font-sans bg-[#251d08] border border-[#664400] px-2.5 py-1">
+              <div className="text-[11px] font-sans rounded-lg px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-200">
                 <strong>💡 {activeGuide.tip}</strong>
               </div>
             </div>
@@ -504,18 +664,19 @@ export default function CockpitFieldGuide({
           <div className="flex flex-wrap gap-1 sm:max-w-xs justify-end shrink-0 pt-1">
             {Object.keys(GUIDE_SECTIONS).map((key) => {
               const item = GUIDE_SECTIONS[key];
+              const isActive = activeGuideKey === key;
               return (
                 <button
                   key={key}
                   type="button"
                   onClick={() => setActiveGuideKey(key)}
-                  className={`guide-switcher-pill text-[8px] mc-font px-2 py-1 border transition-colors cursor-pointer ${
-                    activeGuideKey === key
-                      ? 'bg-[#ffd700] text-black font-bold border-[#ffd700]'
-                      : 'bg-[#222] text-[#ccc] border-[#444] hover:border-[#888]'
+                  className={`text-[9px] font-mono px-2 py-1 rounded-lg border transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-slate-900 text-white border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-white font-bold shadow-xs'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-slate-700'
                   }`}
                 >
-                  {item.badge.replace('SLOT ', 'S')}
+                  {item.badge.split(':')[0]}
                 </button>
               );
             })}

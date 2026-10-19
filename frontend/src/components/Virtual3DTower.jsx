@@ -11,6 +11,7 @@ import {
   Sparkles,
   CheckCircle2,
   Crosshair,
+  Info,
 } from 'lucide-react';
 
 // Minecraft Voxel Architecture Block Config
@@ -539,6 +540,7 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
   const towerGroupRef = useRef(null);
   const defaultCameraDistanceRef = useRef(52.0);
   const defaultLookAtYRef = useRef(15.0);
+  const [showDebtInfo, setShowDebtInfo] = useState(false);
 
   // Compute optimal camera distance so tower height + 15% top & bottom margin fits any aspect ratio
   const computeOptimalCamera = (w, h, fov = 48) => {
@@ -1449,33 +1451,77 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
       >
         <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-        {/* Top-Left Telemetry Overlay: TECH DEBT & Outcome Badge */}
-        <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-2 bg-[var(--bg-panel)] backdrop-blur-md border border-[var(--border-subtle)] rounded-lg px-2.5 py-1.5 shadow-lg select-none">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-bold tracking-wider text-[var(--text-secondary)] uppercase">
-              TECH DEBT:
-            </span>
-            <span
-              className={`font-mono text-xs font-bold ${
-                clampedDebt >= 4
-                  ? 'text-rose-600 dark:text-rose-400'
-                  : clampedDebt > 0
-                  ? 'text-amber-800 dark:text-amber-400'
-                  : 'text-[var(--text-primary)]'
-              }`}
+        {/* Top-Left Telemetry Overlay: TECH DEBT & Outcome Badge with Informative Explainer Popover */}
+        <div className="absolute top-2.5 left-2.5 z-30 flex flex-col items-start gap-1 select-none">
+          <div
+            onClick={() => setShowDebtInfo((prev) => !prev)}
+            onMouseEnter={() => setShowDebtInfo(true)}
+            onMouseLeave={() => setShowDebtInfo(false)}
+            className="flex items-center gap-2 bg-[var(--bg-panel)] backdrop-blur-md border border-[var(--border-subtle)] hover:border-slate-400 dark:hover:border-slate-600 rounded-lg px-2.5 py-1.5 shadow-lg cursor-pointer transition-all"
+            title="Click or hover to view Technical Debt rules & consequence breakdown"
+          >
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold tracking-wider text-[var(--text-secondary)] uppercase">
+                TECH DEBT:
+              </span>
+              <span
+                className={`font-mono text-xs font-bold ${
+                  clampedDebt >= 4
+                    ? 'text-rose-600 dark:text-rose-400'
+                    : clampedDebt > 0
+                    ? 'text-amber-800 dark:text-amber-400'
+                    : 'text-[var(--text-primary)]'
+                }`}
+              >
+                {clampedDebt}/5
+              </span>
+            </div>
+
+            {/* Outcome Badge shown directly beside Tech Debt count */}
+            <div
+              className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono border ${debtOutcome.badgeClass}`}
             >
-              {clampedDebt}/5
-            </span>
+              <span className="font-bold">{debtOutcome.label}:</span>
+              <span className="font-semibold opacity-90">{debtOutcome.desc}</span>
+            </div>
+
+            <Info className="w-3.5 h-3.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] shrink-0 transition-colors" />
           </div>
 
-          {/* Outcome Badge shown directly beside Tech Debt count */}
-          <div
-            className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono border ${debtOutcome.badgeClass}`}
-            title={`Architectural Impact: ${debtOutcome.desc}`}
-          >
-            <span className="font-bold">{debtOutcome.label}:</span>
-            <span className="font-semibold opacity-90">{debtOutcome.desc}</span>
-          </div>
+          {/* Informative Technical Debt Rules Popover */}
+          {showDebtInfo && (
+            <div
+              onMouseEnter={() => setShowDebtInfo(true)}
+              onMouseLeave={() => setShowDebtInfo(false)}
+              className="w-72 p-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-xl shadow-2xl backdrop-blur-xl animate-fadeIn text-xs font-mono space-y-1.5 z-40"
+            >
+              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-1.5">
+                <span className="font-bold text-[11px] text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5" /> TECHNICAL DEBT ({clampedDebt}/5)
+                </span>
+                <span className={`text-[9px] font-black px-1.5 py-0.5 rounded border ${debtOutcome.badgeClass}`}>
+                  {debtOutcome.label}
+                </span>
+              </div>
+              <p className="text-[10px] text-[var(--text-secondary)] font-sans leading-tight">
+                Current Consequence: <strong>{debtOutcome.desc}</strong>
+              </p>
+              <div className="text-[10px] space-y-1 text-[var(--text-muted)] font-mono bg-slate-100 dark:bg-slate-900/80 p-2 rounded-lg border border-[var(--border-subtle)]">
+                <div className={clampedDebt <= 3 ? 'text-emerald-700 dark:text-emerald-300 font-bold' : ''}>
+                  • Debts 0-3: Standard risk penalties
+                </div>
+                <div className={clampedDebt === 4 ? 'text-rose-600 dark:text-rose-400 font-bold animate-pulse' : ''}>
+                  • Debt 4 (Critical Fragility): Any failure pulls 3 blocks + 25% damage!
+                </div>
+                <div className={clampedDebt >= 5 ? 'text-rose-700 dark:text-rose-300 font-bold animate-pulse' : ''}>
+                  • Debt 5 (Degraded Velocity): Accept as-is drops permanently to 15%!
+                </div>
+              </div>
+              <p className="text-[9.5px] text-amber-700 dark:text-amber-300 font-sans italic">
+                💡 Keep Debt below 4 to prevent catastrophic tower collapse.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Full-view Target Reticle */}
@@ -1527,6 +1573,50 @@ const Virtual3DTower = forwardRef(function Virtual3DTower(
           <Rotate3d className="w-3 h-3 text-sky-500 dark:text-sky-400" />
           <span>DRAG TO ORBIT 360°</span>
         </div>
+      </div>
+
+      {/* Informative Technical Debt Status & Rule Banner */}
+      <div
+        onClick={() => setShowDebtInfo((prev) => !prev)}
+        className={`shrink-0 px-2.5 py-1.5 border-t border-[var(--border-subtle)] text-[10px] sm:text-[10.5px] font-mono flex items-center justify-between cursor-pointer transition-all select-none ${
+          clampedDebt >= 4
+            ? 'bg-rose-500/15 text-rose-800 dark:text-rose-300 hover:bg-rose-500/25'
+            : clampedDebt > 0
+            ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25'
+            : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 hover:bg-amber-500/15'
+        }`}
+        title="Click to toggle Technical Debt rules & consequence breakdown"
+      >
+        <div className="flex items-center gap-1.5 truncate">
+          <AlertTriangle
+            className={`w-3.5 h-3.5 shrink-0 ${
+              clampedDebt >= 4 ? 'text-rose-600 dark:text-rose-400 animate-pulse' : 'text-amber-600 dark:text-amber-400'
+            }`}
+          />
+          <span className="font-semibold truncate">
+            {clampedDebt >= 5 ? (
+              <span>
+                <strong className="text-rose-600 dark:text-rose-400 font-bold">DEGRADED VELOCITY (5/5):</strong> Accept as-is success rate capped at 15%!
+              </span>
+            ) : clampedDebt === 4 ? (
+              <span>
+                <strong className="text-rose-600 dark:text-rose-400 font-bold">CRITICAL FRAGILITY TRIGGERED (4/5):</strong> Any failure pulls 3 blocks + 25% damage!
+              </span>
+            ) : clampedDebt > 0 ? (
+              <span>
+                <strong>TECH DEBT ({clampedDebt}/5):</strong> {debtOutcome.label} ({debtOutcome.desc}). Reaching 4 triggers Critical Fragility!
+              </span>
+            ) : (
+              <span>
+                <strong>TECHNICAL DEBT RULE:</strong> Reaching 4+ Debts triggers{' '}
+                <strong className="text-rose-600 dark:text-rose-400 font-bold">Critical Fragility (3 pulls + 25% damage)</strong>
+              </span>
+            )}
+          </span>
+        </div>
+        <span className="text-[9px] opacity-80 underline ml-2 shrink-0 font-sans hover:opacity-100">
+          {showDebtInfo ? 'Hide breakdown' : 'Rules breakdown'}
+        </span>
       </div>
     </div>
   );

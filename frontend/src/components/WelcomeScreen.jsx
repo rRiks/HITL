@@ -311,6 +311,8 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
         onLaunchGame={handleLaunchGame}
         isWalkthrough={true}
         teamName={pendingLaunch?.team || 'Cloud Titans'}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
       />
     );
   }
