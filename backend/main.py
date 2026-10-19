@@ -31,14 +31,25 @@ from admin_router import admin_router, verify_admin_auth
 _is_production = os.getenv("ENVIRONMENT", "development").lower() == "production"
 
 # Read allowed CORS origins from environment.
-# Set CORS_ORIGINS on Render to your exact Netlify URL, e.g.:
-#   CORS_ORIGINS=https://your-app.netlify.app
-# Multiple origins can be comma-separated.
-_raw_origins = os.getenv(
-    "CORS_ORIGINS",
-    "http://localhost:5173,http://localhost:3000"
-)
-ALLOWED_ORIGINS: list = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+# Defaults to wildcard/Netlify for smooth development and hosting.
+_raw_origins = os.getenv("CORS_ORIGINS", "*").strip()
+if _raw_origins == "*":
+    ALLOWED_ORIGINS = ["*"]
+else:
+    ALLOWED_ORIGINS = []
+    for item in _raw_origins.split(","):
+        cleaned = item.strip().strip("'\"").rstrip("/")
+        if cleaned:
+            ALLOWED_ORIGINS.append(cleaned)
+    # Always ensure Netlify domain and local dev origins are accepted
+    for fallback in [
+        "https://human-intheloop.netlify.app",
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:80",
+    ]:
+        if fallback not in ALLOWED_ORIGINS:
+            ALLOWED_ORIGINS.append(fallback)
 
 app = FastAPI(
     title="HITL Jenga: AI-Paced Development API",
@@ -55,13 +66,14 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Enable CORS — origins are explicitly scoped per environment (Fix C1)
+# Enable CORS with full support for Netlify and preflight headers
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"https:\/\/.*\.netlify\.app",
     allow_credentials=False,  # No cookie/session auth used; header-based only
-    allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type", "X-Admin-Key"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Register isolated Admin Router
