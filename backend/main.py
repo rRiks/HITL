@@ -294,6 +294,9 @@ def trigger_incident_room(room_id: str, incident_type: Optional[str] = Query(def
 def purge_hallucination_room(room_id: str):
     manager = room_manager.get_room(room_id)
     manager.purge_hallucination()
+    clean_id = (room_id or "default").lower().strip()
+    if clean_id in _sprint_rooms:
+        _sprint_rooms[clean_id].purge_hallucination()
     return manager.get_state()
 
 # -------------------------------------------------------------

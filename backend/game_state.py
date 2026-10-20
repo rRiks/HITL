@@ -280,7 +280,7 @@ class GameStateManager:
         return incident
 
     def purge_hallucination(self) -> bool:
-        if self.active_incident and self.active_incident.get("type") == "rogue_ai":
+        if self.active_incident:
             self.active_incident["purged"] = True
             self.active_incident = None
             return True

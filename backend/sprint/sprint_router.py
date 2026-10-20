@@ -116,3 +116,10 @@ def advance_sprint_stage(room_id: str):
 def reset_sprint(room_id: str):
     manager = get_or_create_sprint_room(room_id)
     return manager.reset_sprint()
+
+
+@sprint_router.post("/{room_id}/purge-hallucination")
+def purge_sprint_hallucination(room_id: str):
+    manager = get_or_create_sprint_room(room_id)
+    manager.purge_hallucination()
+    return manager.get_state()

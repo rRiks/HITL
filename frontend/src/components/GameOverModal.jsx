@@ -16,7 +16,7 @@ export default function GameOverModal({
 
   return (
     <div className="fixed inset-0 z-[60] bg-black/75 dark:bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 select-none animate-fadeIn pointer-events-auto">
-      <div className="mc-panel-dark p-5 sm:p-6 shadow-2xl border-2 border-rose-500 bg-[var(--bg-card)] text-[var(--text-primary)] rounded-2xl max-w-lg w-full text-center space-y-3.5 relative max-h-[88vh] overflow-y-auto">
+      <div className="mc-panel-dark p-5 sm:p-6 shadow-2xl border-2 border-rose-500 bg-[var(--bg-card)] text-[var(--text-primary)] rounded-2xl max-w-lg w-full text-center space-y-3.5 relative max-h-[88vh] overflow-y-auto font-sans">
         {/* Header: Catastrophic Incident Notice */}
         <div className="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] pb-3">
           <div className="flex items-center gap-3">

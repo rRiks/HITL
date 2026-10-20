@@ -93,8 +93,10 @@ export default function StageArena({
 
       {/* Emergency Chaos Incident Banner */}
       <ChaosIncidentBanner
+        roomId={roomId}
         incident={activeIncident}
         onPurge={onPurgeIncident}
+        onPurgeSuccess={onPurgeIncident}
         sound={sound}
       />
 

@@ -38,7 +38,7 @@ export function CustomPromptModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 dark:bg-black/75 backdrop-blur-sm animate-fadeIn select-none">
-      <div className="mc-panel-dark w-full max-w-lg p-5 sm:p-6 shadow-2xl relative bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-2xl max-h-[88vh] overflow-y-auto">
+      <div className="mc-panel-dark w-full max-w-lg p-5 sm:p-6 shadow-2xl relative bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-2xl max-h-[88vh] overflow-y-auto font-sans">
         <button
           type="button"
           onClick={onClose}
@@ -132,7 +132,7 @@ export function GuardrailsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 dark:bg-black/75 backdrop-blur-sm animate-fadeIn select-none">
-      <div className="mc-panel-dark w-full max-w-lg p-5 sm:p-6 shadow-2xl relative bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-2xl max-h-[88vh] overflow-y-auto">
+      <div className="mc-panel-dark w-full max-w-lg p-5 sm:p-6 shadow-2xl relative bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-2xl max-h-[88vh] overflow-y-auto font-sans">
         <button
           type="button"
           onClick={onClose}
@@ -292,7 +292,7 @@ export function ResultModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 dark:bg-black/75 backdrop-blur-sm animate-fadeIn select-none">
-      <div className="mc-panel-dark w-full max-w-lg p-5 sm:p-6 shadow-2xl relative bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-2xl max-h-[88vh] overflow-y-auto">
+      <div className="mc-panel-dark w-full max-w-lg p-5 sm:p-6 shadow-2xl relative bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-2xl max-h-[88vh] overflow-y-auto font-sans">
         {onClose && (
           <button
             type="button"
@@ -319,7 +319,7 @@ export function ResultModal({
             )}
           </div>
 
-          <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] block mb-0.5 font-bold">
+          <span className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] block mb-0.5 font-bold font-sans">
             {actionResult.action_label || (actionResult.action_type ? actionResult.action_type.replace(/_/g, ' ').toUpperCase() : 'DECISION EVALUATED')}
           </span>
           <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)] font-theme-heading tracking-wide">
@@ -334,13 +334,13 @@ export function ResultModal({
 
           {/* Voting Consensus & Tie-Breaker Badges */}
           {actionResult.tie_broken && (
-            <div className="mt-2.5 bg-amber-500/15 border border-amber-500/40 p-2.5 text-left flex items-center gap-2 rounded-xl">
+            <div className="mt-2.5 bg-amber-500/15 border border-amber-500/40 p-2.5 text-left flex items-center gap-2 rounded-xl font-sans">
               <span className="text-xl">🎲</span>
               <div>
-                <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase block">
+                <span className="text-[10.5px] font-bold text-amber-800 dark:text-amber-300 uppercase block font-sans">
                   50/50 TOSS TIE-BREAKER
                 </span>
-                <p className="text-xs text-[var(--text-secondary)] font-medium">
+                <p className="text-xs text-[var(--text-secondary)] font-medium font-sans">
                   Party split evenly! Random toss selected <strong>{actionResult.action_label || 'Action'}</strong>.
                 </p>
               </div>
@@ -357,9 +357,9 @@ export function ResultModal({
         {/* Dice roll percentage graphic */}
         {hasRoll && (
           <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-3 mb-3 text-center rounded-xl shadow-xs">
-            <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] mb-0.5">
+            <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] mb-0.5 font-sans">
               <Dice5 className={`w-3.5 h-3.5 ${animatingRoll ? 'animate-spin' : isFailure ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`} />
-              <span className="uppercase tracking-wider">
+              <span className="uppercase tracking-wider font-bold font-sans">
                 {animatingRoll
                   ? 'EVALUATING ARCHITECTURAL RISK...'
                   : isFailure
@@ -374,8 +374,8 @@ export function ResultModal({
             >
               {displayedRoll}%
             </div>
-            <p className="text-xs text-[var(--text-muted)] font-medium">
-              Success Threshold: <strong className="text-[var(--text-primary)] font-bold">{Math.round(Number(rawThreshold) * 100)}%</strong>
+            <p className="text-xs text-[var(--text-muted)] font-medium font-sans">
+              Success Threshold: <strong className="text-[var(--text-primary)] font-bold font-mono">{Math.round(Number(rawThreshold) * 100)}%</strong>
               <span className="font-sans ml-1 text-[var(--text-secondary)]">
                 (Roll ≤ {Math.round(Number(rawThreshold) * 100)}% to Pass
                 {actionResult?.risk_pct !== undefined ? ` • Defect Risk: ${actionResult.risk_pct}%` : ''})
@@ -394,7 +394,7 @@ export function ResultModal({
         {/* Stats Impact Banner (Clean 2-Column Grid) */}
         <div className="grid grid-cols-2 gap-2.5 mb-3.5 text-center">
           <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-2.5 rounded-xl shadow-xs">
-            <span className="text-[10px] font-bold text-[var(--text-muted)] block mb-0.5 uppercase tracking-wider">Health Impact</span>
+            <span className="text-[10.5px] font-bold text-[var(--text-muted)] block mb-0.5 uppercase tracking-wider font-sans">Health Impact</span>
             <span
               className={`text-base sm:text-lg font-black font-mono ${
                 actionResult.health_delta >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
@@ -402,13 +402,13 @@ export function ResultModal({
             >
               {actionResult.health_delta >= 0 ? `+${actionResult.health_delta}%` : `${actionResult.health_delta}%`}
             </span>
-            <span className="text-[10px] text-[var(--text-secondary)] block mt-0.5 font-medium font-mono">
-              Now: {actionResult.new_health ?? actionResult.health ?? actionResult.health_after ?? 100}%
+            <span className="text-[10px] text-[var(--text-secondary)] block mt-0.5 font-medium font-sans">
+              Now: <span className="font-mono font-bold">{actionResult.new_health ?? actionResult.health ?? actionResult.health_after ?? 100}%</span>
             </span>
           </div>
 
           <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-2.5 rounded-xl shadow-xs">
-            <span className="text-[10px] font-bold text-[var(--text-muted)] block mb-0.5 uppercase tracking-wider">Tower Loss</span>
+            <span className="text-[10.5px] font-bold text-[var(--text-muted)] block mb-0.5 uppercase tracking-wider font-sans">Tower Loss</span>
             <span
               className={`text-base sm:text-lg font-black font-mono ${
                 isGameOver || hasBlocksToRemove ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'
@@ -420,31 +420,31 @@ export function ResultModal({
                 ? `-${actionResult.jenga_pulls} Blocks`
                 : '0 Blocks Lost'}
             </span>
-            <span className="text-[10px] text-[var(--text-secondary)] block mt-0.5 font-medium font-mono">
+            <span className="text-[10px] text-[var(--text-secondary)] block mt-0.5 font-medium font-sans">
               {isGameOver ? 'Critical Failure' : hasBlocksToRemove ? 'Mining from tower' : 'Tower Stable'}
             </span>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="space-y-2">
+        <div className="space-y-2 font-sans">
           {isGameOver ? (
             <button
               type="button"
               onClick={onWatchCollapse}
-              className="w-full py-3 px-4 text-xs sm:text-sm font-bold bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center gap-2 rounded-xl shadow-lg transition-all cursor-pointer animate-pulse"
+              className="w-full py-3 px-4 text-xs sm:text-sm font-bold font-sans bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center gap-2 rounded-xl shadow-lg transition-all cursor-pointer animate-pulse"
             >
               <AlertOctagon className="w-4 h-4 pointer-events-none" />
-              <span className="pointer-events-none">WATCH TOWER COLLAPSE ➔</span>
+              <span className="pointer-events-none font-sans font-bold">WATCH TOWER COLLAPSE ➔</span>
             </button>
           ) : hasBlocksToRemove ? (
             <button
               type="button"
               onClick={onWatchRemoval}
-              className="w-full py-3 px-4 text-xs sm:text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-2 rounded-xl shadow-lg transition-all cursor-pointer"
+              className="w-full py-3 px-4 text-xs sm:text-sm font-bold font-sans bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-2 rounded-xl shadow-lg transition-all cursor-pointer"
             >
               <Rotate3d className="w-4 h-4 pointer-events-none" />
-              <span className="pointer-events-none">Watch Block Removal (-{actionResult.jenga_pulls} Blocks)</span>
+              <span className="pointer-events-none font-sans font-bold">Watch Block Removal (-{actionResult.jenga_pulls} Blocks)</span>
               <ArrowRight className="w-4 h-4 pointer-events-none" />
             </button>
           ) : (
@@ -452,13 +452,13 @@ export function ResultModal({
               type="button"
               onClick={onProceed}
               disabled={isTimerPaused}
-              className={`w-full py-3 px-4 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 rounded-xl shadow-md transition-all ${
+              className={`w-full py-3 px-4 text-xs sm:text-sm font-bold font-sans flex items-center justify-center gap-2 rounded-xl shadow-md transition-all ${
                 isTimerPaused
                   ? 'opacity-60 cursor-not-allowed bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-muted)]'
                   : 'bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer hover:shadow-lg'
               }`}
             >
-              <span className="pointer-events-none">
+              <span className="pointer-events-none font-sans font-bold">
                 {isTimerPaused
                   ? '⏸ TIME FROZEN BY GAME MASTER (PAUSED)'
                   : actionResult.is_victory
@@ -477,13 +477,13 @@ export function ResultModal({
                 if (!isTimerPaused && onProceed) onProceed();
               }}
               disabled={isTimerPaused}
-              className={`w-full py-2 px-3 text-xs font-semibold rounded-xl transition-colors text-center ${
+              className={`w-full py-2 px-3 text-xs font-semibold font-sans rounded-xl transition-colors text-center ${
                 isTimerPaused
                   ? 'text-[var(--text-muted)] cursor-not-allowed opacity-60'
                   : 'text-amber-800 dark:text-amber-300 hover:underline cursor-pointer'
               }`}
             >
-              <span className="pointer-events-none">
+              <span className="pointer-events-none font-sans font-semibold">
                 {isTimerPaused ? '⏸ Advancing is frozen by Game Master' : 'Skip Animation & Proceed Directly ➔'}
               </span>
             </button>
@@ -519,7 +519,7 @@ export function ConfirmResetModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn select-none">
-      <div className="mc-panel-dark max-w-md w-full p-6 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl text-center space-y-4 relative text-[var(--text-primary)]">
+      <div className="mc-panel-dark max-w-md w-full p-6 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl text-center space-y-4 relative text-[var(--text-primary)] font-sans">
         <button
           type="button"
           onClick={onClose}

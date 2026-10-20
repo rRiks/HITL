@@ -67,6 +67,13 @@ class SprintSessionManager:
         self.stage_attempts_count = 0
         self._init_current_stage_candidate()
 
+    def purge_hallucination(self) -> bool:
+        if self.active_incident:
+            self.active_incident["purged"] = True
+            self.active_incident = None
+            return True
+        return False
+
     def _init_current_stage_candidate(self) -> None:
         """Samples a new proposal candidate for the active stage."""
         stage_num = self.current_stage_index + 1

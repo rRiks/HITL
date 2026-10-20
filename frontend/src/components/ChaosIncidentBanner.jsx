@@ -6,6 +6,7 @@ export default function ChaosIncidentBanner({
   roomId = 'default',
   incident,
   sound,
+  onPurge,
   onPurgeSuccess,
 }) {
   const [purging, setPurging] = useState(false);
@@ -32,7 +33,11 @@ export default function ChaosIncidentBanner({
     return null;
   }
 
-  const handlePurge = async () => {
+  const handlePurge = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (purging) return;
     setPurging(true);
     if (sound?.playGlitch) {
@@ -41,7 +46,11 @@ export default function ChaosIncidentBanner({
       } catch {}
     }
     try {
-      await api.purgeHallucination(roomId);
+      if (onPurge) {
+        await onPurge();
+      } else {
+        await api.purgeHallucination(roomId);
+      }
       if (sound?.playSuccess) {
         sound.playSuccess();
       }
@@ -54,8 +63,6 @@ export default function ChaosIncidentBanner({
   };
 
   const isRogueAI = incident.type === 'rogue_ai';
-  const isFriday = incident.type === 'friday_deploy';
-  const isLeak = incident.type === 'memory_leak';
 
   return (
     <>
@@ -63,7 +70,7 @@ export default function ChaosIncidentBanner({
       <div className="fixed inset-0 pointer-events-none z-30 border-4 border-rose-600/70 animate-pulse shadow-[inset_0_0_35px_rgba(225,29,72,0.4)]" />
 
       {/* Emergency Alert Banner */}
-      <div className="relative z-30 bg-rose-950/95 border-y-2 border-rose-500 text-rose-100 py-1.5 px-3 sm:px-4 flex items-center justify-between gap-3 shadow-2xl backdrop-blur-md animate-fadeIn select-none">
+      <div className="relative z-40 bg-rose-950/95 border-y-2 border-rose-500 text-rose-100 py-1.5 px-3 sm:px-4 flex items-center justify-between gap-3 shadow-2xl backdrop-blur-md animate-fadeIn select-none">
         <div className="flex items-center gap-2.5 truncate">
           <div className="p-1 bg-rose-500 text-white rounded-lg animate-bounce">
             <Siren className="w-4 h-4" />
@@ -89,7 +96,7 @@ export default function ChaosIncidentBanner({
             type="button"
             disabled={purging}
             onClick={handlePurge}
-            className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-[11px] font-black uppercase flex items-center gap-1.5 shadow-lg shadow-amber-500/30 cursor-pointer active:scale-95 transition-all shrink-0 animate-pulse"
+            className="relative z-50 pointer-events-auto px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-mono text-[11px] font-black uppercase flex items-center gap-1.5 shadow-lg shadow-amber-500/30 cursor-pointer active:scale-95 transition-all shrink-0 hover:brightness-110"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${purging ? 'animate-spin' : ''}`} />
             <span>{purging ? 'SCRUBBING...' : 'PURGE HALLUCINATION'}</span>
