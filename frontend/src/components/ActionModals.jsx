@@ -244,10 +244,22 @@ export function ResultModal({
   const [animatingRoll, setAnimatingRoll] = useState(false);
   const [displayedRoll, setDisplayedRoll] = useState(0);
 
+  const rawRoll =
+    actionResult?.roll_value ??
+    actionResult?.roll ??
+    actionResult?.roll_val;
+
+  const rawThreshold =
+    actionResult?.roll_threshold ??
+    actionResult?.threshold ??
+    0.4;
+
+  const hasRoll = rawRoll !== null && rawRoll !== undefined;
+
   useEffect(() => {
-    if (isOpen && actionResult?.roll_value !== null && actionResult?.roll_value !== undefined) {
+    if (isOpen && hasRoll) {
       setAnimatingRoll(true);
-      const targetRoll = Math.round(actionResult.roll_value * 100);
+      const targetRoll = Math.round(Number(rawRoll) * 100);
       let step = 0;
       const interval = setInterval(() => {
         setDisplayedRoll(Math.floor(Math.random() * 100));
@@ -260,11 +272,15 @@ export function ResultModal({
       }, 45);
       return () => clearInterval(interval);
     }
-  }, [isOpen, actionResult]);
+  }, [isOpen, hasRoll, rawRoll]);
 
   if (!isOpen || !actionResult) return null;
 
-  const isAcceptAsIs = actionResult.action_type === 'accept_as_is';
+  const isAcceptAsIs =
+    actionResult.action_type === 'accept_as_is' ||
+    actionResult.method === 'accept_as_is' ||
+    actionResult.action_type === 'timeout' ||
+    hasRoll;
   const isFailure =
     actionResult.outcome === 'failure' || actionResult.outcome === 'timeout_failure';
   const isTimeout =
@@ -339,7 +355,7 @@ export function ResultModal({
         </div>
 
         {/* Dice roll percentage graphic */}
-        {isAcceptAsIs && actionResult.roll_value !== null && (
+        {hasRoll && (
           <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-3 mb-3 text-center rounded-xl shadow-xs">
             <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] mb-0.5">
               <Dice5 className={`w-3.5 h-3.5 ${animatingRoll ? 'animate-spin' : 'text-amber-700 dark:text-amber-400'}`} />
@@ -349,7 +365,7 @@ export function ResultModal({
               {displayedRoll}%
             </div>
             <p className="text-xs text-[var(--text-muted)] font-medium">
-              Threshold: <strong className="text-[var(--text-primary)] font-bold">{Math.round((actionResult.roll_threshold || 0.4) * 100)}%</strong> (Roll below = Clean Pass)
+              Threshold: <strong className="text-[var(--text-primary)] font-bold">{Math.round(Number(rawThreshold) * 100)}%</strong> (Roll below = Clean Pass)
             </p>
           </div>
         )}

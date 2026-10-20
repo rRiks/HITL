@@ -710,7 +710,11 @@ class GameStateManager:
 
         # Hot Potato Blame Assignment (Post-Mortem Incident Retrospective)
         if health_delta < 0 or jenga_pulls > 0:
-            potential_blamed = [pdata.get("player_name", "Teammate") for pid, act in self.votes.items() if act == action_type]
+            potential_blamed = [
+                self.players[pid].get("player_name", "Teammate")
+                for pid, act in self.votes.items()
+                if act == action_type and pid in self.players
+            ]
             if not potential_blamed:
                 potential_blamed = [pdata.get("player_name", "Teammate") for pdata in self.players.values()]
             if potential_blamed:

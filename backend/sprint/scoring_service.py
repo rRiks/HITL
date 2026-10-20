@@ -22,12 +22,16 @@ class ScoringService:
         if is_success:
             return {
                 "success": True,
+                "action_type": "accept_as_is",
+                "action_label": "Accept AI As-Is",
                 "outcome": "success",
                 "health_delta": 6,
                 "jenga_pulls": 0,
                 "debt_delta": 0,
                 "roll": roll,
+                "roll_value": roll,
                 "threshold": hidden_risk,
+                "roll_threshold": hidden_risk,
                 "feedback": (
                     f"✅ AI Proposal Merged Cleanly! [{candidate_label}] passed automated integration tests "
                     f"(Risk threshold: {int(hidden_risk * 100)}% | Roll: {int(roll * 100)}%)."
@@ -36,12 +40,16 @@ class ScoringService:
         else:
             return {
                 "success": False,
+                "action_type": "accept_as_is",
+                "action_label": "Accept AI As-Is",
                 "outcome": "failure",
                 "health_delta": -25,
                 "jenga_pulls": 3,
                 "debt_delta": 1,
                 "roll": roll,
+                "roll_value": roll,
                 "threshold": hidden_risk,
+                "roll_threshold": hidden_risk,
                 "feedback": (
                     f"💥 Production Build Failure! Latent architectural defect in [{candidate_label}] triggered "
                     f"runtime governor exception (Risk threshold: {int(hidden_risk * 100)}% | Roll: {int(roll * 100)}%). "
