@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { RefreshCw, X } from 'lucide-react';
-import * as api from '../services/api';
+import { X, Info } from 'lucide-react';
 
 const ROLES_INFO = {
   architect: {
@@ -35,55 +34,25 @@ const ROLES_INFO = {
   },
 };
 
-const ROLE_KEYS = ['architect', 'intern', 'sre'];
-
 export default function RoleBadgeHUD({
-  roomId = 'default',
   currentRole = 'architect',
-  onRoleChange,
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const activeRole = ROLES_INFO[currentRole] || ROLES_INFO.architect;
 
-  const handleSelectRole = async (roleKey) => {
-    api.setPlayerRoleLocal(roleKey);
-    try {
-      await api.setPlayerRoleRemote(roomId, roleKey);
-    } catch {}
-    if (onRoleChange) onRoleChange(roleKey);
-    setModalOpen(false);
-  };
-
-  const handleCycleRole = async (e) => {
-    e.stopPropagation();
-    const currentIdx = ROLE_KEYS.indexOf(currentRole);
-    const nextRole = ROLE_KEYS[(currentIdx + 1) % ROLE_KEYS.length];
-    await handleSelectRole(nextRole);
-  };
-
   return (
-    <div className="inline-flex items-center gap-1 shrink-0">
+    <>
       <button
         type="button"
         onClick={() => setModalOpen(true)}
-        title="View your Assigned Role & Duties (Click to inspect or change)"
+        title="View Assigned Role & Duties (Read-Only)"
         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-[10px] font-mono font-bold tracking-wider cursor-pointer shadow-xs hover:scale-102 active:scale-95 transition-all ${activeRole.badgeClass}`}
       >
         <span>{activeRole.icon}</span>
         <span>ROLE: {activeRole.label}</span>
       </button>
 
-      {/* 1-Click Role Swapper */}
-      <button
-        type="button"
-        onClick={handleCycleRole}
-        title="Quick Swap: Rotate to next team role (Architect ➔ Engineer ➔ SRE)"
-        className="p-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer transition-colors flex items-center justify-center"
-      >
-        <RefreshCw className="w-3 h-3 hover:rotate-180 transition-transform duration-300" />
-      </button>
-
-      {/* Role Selection & Mission Modal */}
+      {/* Role Specification Modal (Read-Only) */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 dark:bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 select-none animate-fadeIn">
           <div className="w-full max-w-lg p-5 sm:p-6 bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl relative max-h-[85vh] overflow-y-auto">
@@ -91,6 +60,7 @@ export default function RoleBadgeHUD({
               type="button"
               onClick={() => setModalOpen(false)}
               className="absolute top-4 right-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-1 cursor-pointer rounded-lg"
+              title="Close"
             >
               <X className="w-5 h-5" />
             </button>
@@ -102,7 +72,7 @@ export default function RoleBadgeHUD({
                   TEAM ROLES & RESPONSIBILITIES
                 </h3>
                 <span className="text-xs text-[var(--text-secondary)] font-medium">
-                  Dynamic Asymmetric Roles • Auto-rotates each stage or swap anytime!
+                  Asymmetric Team Duties • Auto-rotated each stage across squad members
                 </span>
               </div>
             </div>
@@ -113,11 +83,10 @@ export default function RoleBadgeHUD({
                 return (
                   <div
                     key={r.id}
-                    onClick={() => handleSelectRole(r.id)}
-                    className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                    className={`p-3 rounded-xl border transition-all ${
                       isSelected
                         ? 'bg-[var(--bg-elevated)] border-amber-500/80 shadow-md ring-1 ring-amber-500/30'
-                        : 'bg-[var(--bg-card)] border-[var(--border-subtle)] hover:bg-[var(--bg-elevated)]'
+                        : 'bg-[var(--bg-card)] border-[var(--border-subtle)] opacity-75'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
@@ -130,11 +99,11 @@ export default function RoleBadgeHUD({
                       </div>
                       {isSelected ? (
                         <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
-                          ACTIVE ROLE
+                          YOUR CURRENT ROLE
                         </span>
                       ) : (
-                        <span className="text-[9px] font-mono font-bold text-sky-600 dark:text-sky-400">
-                          SWAP TO THIS ROLE
+                        <span className="text-[9px] font-mono font-bold text-[var(--text-muted)]">
+                          SQUAD ROLE
                         </span>
                       )}
                     </div>
@@ -157,20 +126,21 @@ export default function RoleBadgeHUD({
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)]">
-              <span className="text-[11px] font-mono text-[var(--text-muted)]">
-                💡 Roles auto-rotate between stages in co-op.
+              <span className="text-[11px] font-mono text-[var(--text-muted)] flex items-center gap-1">
+                <Info className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span>Roles auto-rotate between team members upon stage progression.</span>
               </span>
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
                 className="px-4 py-2 text-xs font-bold font-mono rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 cursor-pointer shadow-sm hover:opacity-90"
               >
-                DONE
+                CLOSE
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
