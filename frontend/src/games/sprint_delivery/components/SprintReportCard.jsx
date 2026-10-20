@@ -22,31 +22,31 @@ export default function SprintReportCard({
   const aiRatio = stageRecords.length > 0 ? Math.round((aiCleared / stageRecords.length) * 100) : 0;
 
   return (
-    <div className="min-h-screen w-full bg-[#14161a] text-white flex flex-col justify-center items-center p-3 sm:p-6 select-none animate-fadeIn">
-      <div className="mc-panel-dark max-w-3xl w-full p-5 sm:p-7 shadow-2xl border-4 border-[#ffd700] space-y-5">
+    <div className="min-h-screen w-full bg-[var(--bg-app)] text-[var(--text-primary)] flex flex-col justify-center items-center p-3 sm:p-6 select-none animate-fadeIn">
+      <div className="w-full max-w-3xl p-5 sm:p-7 shadow-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl space-y-5 text-[var(--text-primary)]">
         {/* Banner Header */}
-        <div className="flex items-center justify-between border-b-2 border-[#554411] pb-4">
+        <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-[#2d2208] border-2 border-[#ffd700] flex items-center justify-center">
-              <Trophy className="w-7 h-7 text-[#ffd700]" />
+            <div className="w-12 h-12 bg-amber-500/15 border border-amber-500/35 rounded-xl flex items-center justify-center shadow-xs">
+              <Trophy className="w-6 h-6 text-amber-500" />
             </div>
             <div>
-              <h1 className="text-base sm:text-xl font-bold text-[#ffd700] mc-font uppercase tracking-wide">
+              <h1 className="text-lg sm:text-2xl font-bold text-[var(--text-primary)] font-theme-heading tracking-tight">
                 SPRINT DELIVERY AUDIT
               </h1>
-              <span className="text-[10px] mc-font text-[#aaa] block mt-0.5">
-                Squad: <strong className="text-white">{teamName}</strong> • 11/11 User Stories Deployed
+              <span className="text-xs text-[var(--text-secondary)] font-medium block mt-1">
+                Squad: <strong className="text-[var(--text-primary)] font-bold">{teamName}</strong> • 11/11 User Stories Deployed
               </span>
             </div>
           </div>
 
           <div className="text-right">
             {isOvertime ? (
-              <span className="px-2.5 py-1 bg-[#4a0808] border border-[#ff3333] text-[#ff5555] text-[9.5px] mc-font">
+              <span className="px-3 py-1 bg-rose-500/15 border border-rose-500/35 text-rose-700 dark:text-rose-400 text-xs font-bold font-mono rounded-full">
                 LATE SPRINT DELIVERY
               </span>
             ) : (
-              <span className="px-2.5 py-1 bg-[#0e2a14] border border-[#55ff55] text-[#55ff55] text-[9.5px] mc-font">
+              <span className="px-3 py-1 bg-emerald-500/15 border border-emerald-500/35 text-emerald-700 dark:text-emerald-400 text-xs font-bold font-mono rounded-full">
                 SPRINT DELIVERED ON TIME!
               </span>
             )}
@@ -54,43 +54,51 @@ export default function SprintReportCard({
         </div>
 
         {/* Top Telemetry KPI Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center mc-font">
-          <div className="bg-[#181818] border border-[#444] p-3">
-            <span className="text-[8px] text-[#aaa] block mb-1">TOTAL SPRINT TIME</span>
-            <span className="text-base sm:text-lg font-bold text-[#ffd700]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-3 rounded-xl shadow-xs">
+            <span className="text-[10px] sm:text-[11px] font-bold text-[var(--text-muted)] block mb-1 uppercase tracking-wider font-mono">
+              TOTAL SPRINT TIME
+            </span>
+            <span className="text-base sm:text-xl font-black text-amber-700 dark:text-amber-300 font-mono">
               {totalMins}m {totalSecs}s
             </span>
-            <span className="text-[8px] text-[#777] block mt-0.5">
+            <span className="text-[11px] text-[var(--text-secondary)] block mt-0.5 font-medium font-sans">
               {isOvertime ? `Overtime: +${overtimeSeconds}s` : `Remaining: ${formattedTimeRemaining}`}
             </span>
           </div>
 
-          <div className="bg-[#181818] border border-[#444] p-3">
-            <span className="text-[8px] text-[#aaa] block mb-1">FINAL STABILITY</span>
-            <span className="text-base sm:text-lg font-bold text-[#55ff55]">
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-3 rounded-xl shadow-xs">
+            <span className="text-[10px] sm:text-[11px] font-bold text-[var(--text-muted)] block mb-1 uppercase tracking-wider font-mono">
+              FINAL STABILITY
+            </span>
+            <span className="text-base sm:text-xl font-black text-emerald-700 dark:text-emerald-400 font-mono">
               {health}% HP
             </span>
-            <span className="text-[8px] text-[#777] block mt-0.5">
+            <span className="text-[11px] text-[var(--text-secondary)] block mt-0.5 font-medium font-sans">
               {totalPulls} Blocks Mined
             </span>
           </div>
 
-          <div className="bg-[#181818] border border-[#444] p-3">
-            <span className="text-[8px] text-[#aaa] block mb-1">AI RELIANCE INDEX</span>
-            <span className="text-base sm:text-lg font-bold text-[#48d1cc]">
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-3 rounded-xl shadow-xs">
+            <span className="text-[10px] sm:text-[11px] font-bold text-[var(--text-muted)] block mb-1 uppercase tracking-wider font-mono">
+              AI RELIANCE INDEX
+            </span>
+            <span className="text-base sm:text-xl font-black text-sky-700 dark:text-sky-300 font-mono">
               {aiRatio}% AI
             </span>
-            <span className="text-[8px] text-[#777] block mt-0.5">
+            <span className="text-[11px] text-[var(--text-secondary)] block mt-0.5 font-medium font-sans">
               {manualCleared} Manual / {aiCleared} AI
             </span>
           </div>
 
-          <div className="bg-[#181818] border border-[#444] p-3">
-            <span className="text-[8px] text-[#aaa] block mb-1">TECHNICAL DEBT</span>
-            <span className={`text-base sm:text-lg font-bold ${debt > 2 ? 'text-[#ff5555]' : 'text-[#ffd700]'}`}>
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-3 rounded-xl shadow-xs">
+            <span className="text-[10px] sm:text-[11px] font-bold text-[var(--text-muted)] block mb-1 uppercase tracking-wider font-mono">
+              TECHNICAL DEBT
+            </span>
+            <span className={`text-base sm:text-xl font-black font-mono ${debt > 2 ? 'text-rose-700 dark:text-rose-400' : 'text-amber-700 dark:text-amber-300'}`}>
               {debt} Units
             </span>
-            <span className="text-[8px] text-[#777] block mt-0.5">
+            <span className="text-[11px] text-[var(--text-secondary)] block mt-0.5 font-medium font-sans">
               {debt <= 2 ? 'Clean Architecture' : 'Architectural Debt'}
             </span>
           </div>
@@ -98,46 +106,46 @@ export default function SprintReportCard({
 
         {/* Stage-by-Stage Burndown Records Table */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-[9px] mc-font text-[#aaa] px-1">
+          <div className="flex items-center justify-between text-xs font-mono font-bold text-[var(--text-secondary)] px-1">
             <span>STAGE DELIVERY BREAKDOWN & PACING</span>
-            <span>PACING: ~2m 16s TARGET</span>
+            <span className="text-[var(--text-muted)]">PACING: ~2m 16s TARGET</span>
           </div>
 
-          <div className="max-h-56 overflow-y-auto border border-[#333] bg-[#101010]">
+          <div className="max-h-56 overflow-y-auto border border-[var(--border-subtle)] rounded-xl bg-[var(--bg-elevated)]">
             <table className="w-full text-left text-xs font-sans">
-              <thead className="bg-[#1a1a1a] text-[9px] mc-font text-[#ffd700] border-b border-[#333]">
+              <thead className="bg-[var(--bg-card)] text-xs font-mono font-bold text-[var(--text-secondary)] border-b border-[var(--border-subtle)] sticky top-0 z-10">
                 <tr>
-                  <th className="p-2">Stage</th>
-                  <th className="p-2">Title</th>
-                  <th className="p-2">Pacing</th>
-                  <th className="p-2">Resolution Method</th>
-                  <th className="p-2">Tries</th>
+                  <th className="p-2.5">Stage</th>
+                  <th className="p-2.5">Title</th>
+                  <th className="p-2.5">Pacing</th>
+                  <th className="p-2.5">Resolution Method</th>
+                  <th className="p-2.5">Tries</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#222]">
+              <tbody className="divide-y divide-[var(--border-subtle)]">
                 {stageRecords.map((r, i) => (
-                  <tr key={i} className="hover:bg-[#181818]">
-                    <td className="p-2 font-mono text-[#888]">#{r.stage_id}</td>
-                    <td className="p-2 font-medium text-white">{r.stage_title}</td>
-                    <td className="p-2 font-mono text-[#ffd700]">
+                  <tr key={i} className="hover:bg-[var(--bg-card)] transition-colors">
+                    <td className="p-2.5 font-mono text-[var(--text-muted)] font-semibold">#{r.stage_id}</td>
+                    <td className="p-2.5 font-medium text-[var(--text-primary)]">{r.stage_title}</td>
+                    <td className="p-2.5 font-mono text-amber-700 dark:text-amber-300 font-bold">
                       {Math.floor(r.time_spent_seconds / 60)}m {r.time_spent_seconds % 60}s
                     </td>
-                    <td className="p-2">
+                    <td className="p-2.5">
                       <span
-                        className={`text-[8px] mc-font px-1.5 py-0.5 border ${
+                        className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${
                           r.method_used === 'manual_override'
-                            ? 'bg-[#0d2a2a] border-[#48d1cc] text-[#48d1cc]'
+                            ? 'bg-sky-500/15 border-sky-500/35 text-sky-700 dark:text-sky-300'
                             : r.method_used === 'steer_prompt'
-                            ? 'bg-[#2a2208] border-[#ffaa00] text-[#ffddaa]'
+                            ? 'bg-amber-500/15 border-amber-500/35 text-amber-800 dark:text-amber-300'
                             : r.method_used === 'guardrail'
-                            ? 'bg-[#102030] border-[#38bdf8] text-[#38bdf8]'
-                            : 'bg-[#2a1010] border-[#ff5555] text-[#ffaaaa]'
+                            ? 'bg-indigo-500/15 border-indigo-500/35 text-indigo-700 dark:text-indigo-300'
+                            : 'bg-rose-500/15 border-rose-500/35 text-rose-700 dark:text-rose-400'
                         }`}
                       >
                         {r.method_used.replace('_', ' ').toUpperCase()}
                       </span>
                     </td>
-                    <td className="p-2 font-mono text-[#aaa]">{r.attempts_count}</td>
+                    <td className="p-2.5 font-mono text-[var(--text-muted)] font-bold">{r.attempts_count}</td>
                   </tr>
                 ))}
               </tbody>
@@ -146,11 +154,11 @@ export default function SprintReportCard({
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-end gap-3 pt-3 border-t-2 border-[#333]">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--border-subtle)]">
           <button
             type="button"
             onClick={onExit}
-            className="mc-btn px-4 py-2.5 text-[10px] mc-font text-[#aaa] hover:text-white flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2.5 rounded-xl text-xs font-bold border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-2 cursor-pointer transition-colors"
           >
             <Home className="w-4 h-4 pointer-events-none" />
             <span className="pointer-events-none">Mode Selector</span>
@@ -158,7 +166,7 @@ export default function SprintReportCard({
           <button
             type="button"
             onClick={onPlayAgain}
-            className="mc-btn mc-btn-green px-5 py-2.5 text-[10px] mc-font text-white flex items-center gap-1.5 cursor-pointer shadow-xl"
+            className="px-6 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 cursor-pointer shadow-lg hover:shadow-xl transition-all"
           >
             <RotateCcw className="w-4 h-4 pointer-events-none" />
             <span className="pointer-events-none">New Sprint Run [25m]</span>

@@ -37,9 +37,9 @@ export default function LiveLeaderboardTicker({
   }, [currentRoomId]);
 
   return (
-    <div className="bg-[#151515] border-b-2 border-[#252525] px-3 py-1 flex items-center gap-3 overflow-hidden text-[9px] mc-font select-none text-white">
+    <div className="bg-[#151515] border-b-2 border-[#252525] px-3 py-1 flex items-center gap-3 overflow-hidden text-[10px] sm:text-xs font-mono select-none text-white">
       {/* Fixed label */}
-      <div className="flex items-center gap-1.5 shrink-0 text-[#ffd700] bg-[#222] px-2 py-0.5 border border-[#444] shadow-xs">
+      <div className="flex items-center gap-1.5 shrink-0 text-[#ffd700] bg-[#222] px-2 py-0.5 border border-[#444] rounded shadow-xs font-bold">
         <Trophy className="w-3 h-3 text-[#ffd700]" />
         <span className="tracking-wider">REALM TICKER</span>
       </div>

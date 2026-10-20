@@ -85,9 +85,12 @@ export default function SprintDeliveryScreen({
 
   if (session.initialLoading && !sprintState) {
     return (
-      <div className="min-h-screen w-full bg-[#14161a] flex items-center justify-center text-white mc-font">
-        <div className="p-4 border-2 border-[#ffd700] bg-[#1b1b1b] text-center space-y-2 animate-pulse">
-          <span>INITIALIZING SPRINT DELIVERY SESSION...</span>
+      <div className="min-h-screen w-full bg-[var(--bg-app)] flex items-center justify-center text-[var(--text-primary)] font-sans">
+        <div className="p-6 border border-[var(--border-subtle)] bg-[var(--bg-card)] rounded-2xl shadow-2xl text-center space-y-3 animate-pulse max-w-sm w-full mx-4">
+          <div className="w-8 h-8 mx-auto border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-mono font-bold tracking-wider uppercase block text-[var(--text-primary)]">
+            INITIALIZING SPRINT DELIVERY SESSION...
+          </span>
         </div>
       </div>
     );
@@ -171,7 +174,7 @@ export default function SprintDeliveryScreen({
   };
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden w-full bg-slate-950 text-slate-100 flex flex-col justify-between select-none">
+    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden w-full bg-[var(--bg-app)] text-[var(--text-primary)] flex flex-col justify-between select-none transition-colors duration-200">
       {/* 1. Top Telemetry Navbar (Exact 1:1 Unified 3-Cluster Navbar) */}
       <Navbar
         roomId={roomId}
@@ -194,6 +197,7 @@ export default function SprintDeliveryScreen({
         theme={theme}
         onToggleTheme={onToggleTheme}
         isTimerPaused={false}
+        gameTitle="SPRINT DELIVERY"
       />
 
       {/* 2. Reused StageArena (Direct flex-1 child, exact Game 1 replica) */}

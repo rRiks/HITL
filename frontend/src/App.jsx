@@ -1134,10 +1134,10 @@ export default function App() {
         <div className="bg-[#3a0808] border-b-2 border-[#ff3333] px-3 py-1 flex items-center justify-between text-xs text-white z-20 shadow-md">
           <div className="flex items-center gap-2 mx-auto">
             <Radio className="w-3.5 h-3.5 text-[#ff5555] animate-pulse shrink-0" />
-            <span className="text-[9.5px] mc-font text-[#ffd700] uppercase font-bold">
+            <span className="text-xs font-mono text-[#ffd700] uppercase font-bold">
               FACILITATOR BROADCAST:
             </span>
-            <span className="text-[11px] font-mono text-white font-bold">{activeBroadcast}</span>
+            <span className="text-xs font-mono text-white font-bold">{activeBroadcast}</span>
           </div>
         </div>
       )}

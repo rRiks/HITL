@@ -68,7 +68,7 @@ export default function GameOverModal({
                 e.stopPropagation();
                 onRetryStage();
               }}
-              className="mc-btn mc-btn-green py-3 px-3 text-[10px] mc-font text-white cursor-pointer flex items-center justify-center gap-1.5 shadow-lg"
+              className="py-3 px-3 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg transition-all"
             >
               <Wrench className="w-3.5 h-3.5 pointer-events-none" />
               <span className="pointer-events-none">Hotfix & Retry</span>
@@ -82,8 +82,9 @@ export default function GameOverModal({
               e.stopPropagation();
               onRestart();
             }}
-            className={`mc-btn py-3 px-3 text-[10px] mc-font text-white cursor-pointer flex items-center justify-center gap-1.5 shadow-lg ${!onRetryStage ? 'sm:col-span-2' : ''
-              }`}
+            className={`py-3 px-3 text-xs font-bold rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:bg-[var(--bg-card)] cursor-pointer flex items-center justify-center gap-1.5 shadow-sm transition-all ${
+              !onRetryStage ? 'sm:col-span-2' : ''
+            }`}
           >
             <RotateCcw className="w-3.5 h-3.5 pointer-events-none" />
             <span className="pointer-events-none">New Run [Stage 1]</span>
@@ -97,9 +98,9 @@ export default function GameOverModal({
                 e.stopPropagation();
                 onExitToLobby();
               }}
-              className="mc-btn py-3 px-3 text-[10px] mc-font text-[#ffd700] hover:text-white cursor-pointer flex items-center justify-center gap-1.5 shadow-lg"
+              className="py-3 px-3 text-xs font-bold rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-amber-700 dark:text-amber-300 hover:text-[var(--text-primary)] cursor-pointer flex items-center justify-center gap-1.5 shadow-sm transition-all"
             >
-              <Home className="w-3.5 h-3.5 text-[#ffd700] pointer-events-none" />
+              <Home className="w-3.5 h-3.5 pointer-events-none" />
               <span className="pointer-events-none">Title Screen</span>
             </button>
           )}

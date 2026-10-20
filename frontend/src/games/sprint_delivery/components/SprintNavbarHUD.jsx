@@ -60,40 +60,40 @@ export default function SprintNavbarHUD({
   };
 
   return (
-    <header className="mc-panel-dark px-3 py-2 border-b-2 border-[#333] flex flex-wrap items-center justify-between gap-3 text-white select-none z-30">
+    <header className="px-3 py-2 border-b border-[var(--border-subtle)] bg-[var(--bg-panel)] backdrop-blur flex flex-wrap items-center justify-between gap-3 text-[var(--text-primary)] select-none z-30 transition-colors">
       {/* Left: Squad & Stage */}
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onExit}
-          className="mc-btn px-2.5 py-1 text-[9px] mc-font text-[#aaa] hover:text-white flex items-center gap-1 cursor-pointer"
+          className="px-2.5 py-1 text-xs font-bold font-mono text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
           title="Exit to Mode Selection"
         >
           <Home className="w-3.5 h-3.5 pointer-events-none" />
           <span className="hidden sm:inline pointer-events-none">Lobby</span>
         </button>
 
-        <div className="border-l border-[#444] pl-3">
+        <div className="border-l border-[var(--border-subtle)] pl-3">
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] sm:text-xs font-bold text-[#ffd700] mc-font">
+            <span className="text-xs sm:text-sm font-bold text-amber-700 dark:text-amber-300 font-theme-heading">
               {teamName || 'Sprint Squad'}
             </span>
-            <span className="text-[9px] text-[#888] font-mono">[{roomCode}]</span>
+            <span className="text-[10px] text-[var(--text-muted)] font-mono">[{roomCode}]</span>
           </div>
-          <span className="text-[9px] mc-font text-[#aaa] block">
+          <span className="text-[10px] font-mono text-[var(--text-secondary)] block font-semibold">
             STAGE {stageNumber} OF {totalStages}
           </span>
         </div>
       </div>
 
       {/* Center: 25-Minute Master Sprint Clock */}
-      <div className="flex items-center gap-2.5 mx-auto bg-[#111] px-3.5 py-1 border-2 border-[#444] shadow-inner">
+      <div className="flex items-center gap-2.5 mx-auto bg-[var(--bg-elevated)] px-3.5 py-1 border border-[var(--border-subtle)] rounded-full shadow-inner">
         <Clock className={`w-4 h-4 ${getClockColor()}`} />
         <div className="text-center">
-          <div className={`text-base sm:text-lg font-bold mc-font tracking-wider ${getClockColor()}`}>
+          <div className={`text-base sm:text-lg font-bold font-mono tracking-wider ${getClockColor()}`}>
             {formattedClock}
           </div>
-          <div className="text-[8px] mc-font text-[#777] uppercase tracking-wider">
+          <div className="text-[9px] font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider">
             SPRINT DEADLINE
           </div>
         </div>
@@ -104,17 +104,17 @@ export default function SprintNavbarHUD({
       <div className="flex items-center gap-3">
         {/* Senior Dev Override Tokens */}
         <div
-          className="px-2.5 py-1 bg-[#1a1c24] border border-[#48d1cc] text-[#48d1cc] text-[9.5px] mc-font flex items-center gap-1.5 shadow-sm"
+          className="px-2.5 py-1 bg-sky-500/15 border border-sky-500/35 text-sky-700 dark:text-sky-300 text-xs font-mono font-bold rounded-lg flex items-center gap-1.5 shadow-sm"
           title="Senior Dev Manual Override Tokens remaining"
         >
           <span>👨‍💻 TOKENS:</span>
-          <span className="font-bold text-white text-xs">{seniorDevTokens}/2</span>
+          <span className="font-bold text-[var(--text-primary)]">{seniorDevTokens}/2</span>
         </div>
 
         {/* Health */}
-        <div className="flex items-center gap-1.5 bg-[#1a0e0e] border border-[#ff5555] px-2.5 py-1">
-          <Heart className="w-3.5 h-3.5 text-[#ff5555] fill-[#ff3333]" />
-          <span className="text-[10px] mc-font font-bold text-white">{health}%</span>
+        <div className="flex items-center gap-1.5 bg-rose-500/15 border border-rose-500/35 px-2.5 py-1 rounded-lg">
+          <Heart className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 fill-rose-500" />
+          <span className="text-xs font-mono font-bold text-[var(--text-primary)]">{health}%</span>
         </div>
 
         {/* Audio Toggles */}
@@ -122,18 +122,18 @@ export default function SprintNavbarHUD({
           <button
             type="button"
             onClick={onToggleSound}
-            className="mc-btn p-1.5 text-[#aaa] hover:text-white cursor-pointer"
+            className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-lg cursor-pointer transition-colors"
             title={soundEnabled ? 'Mute SFX' : 'Enable SFX'}
           >
-            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 text-[#ff5555]" />}
+            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 text-rose-500" />}
           </button>
           <button
             type="button"
             onClick={onToggleMusic}
-            className="mc-btn p-1.5 text-[#aaa] hover:text-white cursor-pointer"
+            className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-lg cursor-pointer transition-colors"
             title={musicEnabled ? 'Mute Music' : 'Enable Music'}
           >
-            <Music className={`w-3.5 h-3.5 ${musicEnabled ? 'text-[#55ff55]' : 'text-[#888]'}`} />
+            <Music className={`w-3.5 h-3.5 ${musicEnabled ? 'text-emerald-500' : 'text-[var(--text-muted)]'}`} />
           </button>
         </div>
       </div>

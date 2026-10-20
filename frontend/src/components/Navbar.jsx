@@ -109,6 +109,7 @@ function Navbar({
   onToggleTheme,
   isTimerPaused = false,
   formattedClock = null,
+  gameTitle = 'HITL MINECRAFT',
 }) {
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -155,7 +156,7 @@ function Navbar({
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
               <span className="font-bold text-[var(--text-primary)] text-[11px] sm:text-xs tracking-wider font-mono shrink-0">
-                HITL MINECRAFT
+                {gameTitle}
               </span>
               <span className="hidden md:inline-flex items-center text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--bg-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
                 {teamName}

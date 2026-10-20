@@ -295,17 +295,87 @@
   background-color: var(--theme-bg) !important;
 }
 
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-panel,
 [data-theme-family]:not([data-theme-family="minecraft"]) .mc-panel-dark {
+  background: var(--theme-surface-card, var(--bg-card)) !important;
+  border-top: var(--theme-panel-border, 1px solid var(--border-subtle)) !important;
+  border-left: var(--theme-panel-border, 1px solid var(--border-subtle)) !important;
+  border-right: var(--theme-panel-border, 1px solid var(--border-subtle)) !important;
+  border-bottom: var(--theme-panel-border, 1px solid var(--border-subtle)) !important;
+  box-shadow: var(--theme-panel-shadow, 0 12px 32px rgba(0, 0, 0, 0.4)) !important;
   border-radius: var(--theme-radius-card, 16px) !important;
   backdrop-filter: blur(var(--theme-backdrop-blur, 16px)) !important;
   -webkit-backdrop-filter: blur(var(--theme-backdrop-blur, 16px)) !important;
+  color: var(--theme-text, var(--text-primary)) !important;
+}
+
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-font {
+  font-family: var(--theme-font-body, var(--font-theme-heading, system-ui, sans-serif)) !important;
+  letter-spacing: var(--theme-letter-spacing, normal) !important;
+  text-transform: var(--theme-text-transform, none) !important;
+  line-height: var(--theme-line-height, 1.5) !important;
+}
+
+[data-theme-family]:not([data-theme-family="minecraft"]) h1.mc-font,
+[data-theme-family]:not([data-theme-family="minecraft"]) h2.mc-font,
+[data-theme-family]:not([data-theme-family="minecraft"]) h3.mc-font,
+[data-theme-family]:not([data-theme-family="minecraft"]) h4.mc-font,
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-font-display {
+  font-family: var(--theme-font-display, var(--font-theme-heading, system-ui, sans-serif)) !important;
+  letter-spacing: var(--theme-letter-spacing, normal) !important;
+  text-transform: var(--theme-text-transform, none) !important;
+}
+
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-pixel,
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-label,
+[data-theme-family]:not([data-theme-family="minecraft"]) .font-theme-badge {
+  font-family: var(--theme-font-body, var(--font-theme-heading, system-ui, sans-serif)) !important;
+  letter-spacing: var(--theme-letter-spacing, normal) !important;
+  text-transform: var(--theme-text-transform, none) !important;
+}
+
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-mono {
+  font-family: var(--theme-font-mono, 'JetBrains Mono', monospace) !important;
+}
+
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-btn,
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-btn-green,
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-btn-red {
+  border-radius: var(--theme-radius-btn, 12px) !important;
+  font-family: var(--theme-font-display, var(--font-theme-heading, system-ui, sans-serif)) !important;
+  letter-spacing: var(--theme-letter-spacing, normal) !important;
+  text-transform: var(--theme-text-transform, none) !important;
+  text-shadow: none !important;
+  border-top: var(--theme-btn-border, 1px solid var(--border-subtle)) !important;
+  border-left: var(--theme-btn-border, 1px solid var(--border-subtle)) !important;
+  border-right: var(--theme-btn-border, 1px solid var(--border-subtle)) !important;
+  border-bottom: var(--theme-btn-border, 1px solid var(--border-subtle)) !important;
+  box-shadow: var(--theme-btn-shadow, 0 4px 14px rgba(0, 0, 0, 0.25)) !important;
 }
 
 [data-theme-family]:not([data-theme-family="minecraft"]) .mc-btn {
-  border-radius: var(--theme-radius-btn, 12px) !important;
-  font-family: var(--theme-font-display) !important;
-  letter-spacing: var(--theme-letter-spacing, normal) !important;
-  text-transform: var(--theme-text-transform, none) !important;
+  background: var(--theme-btn-bg, var(--bg-elevated)) !important;
+  color: var(--theme-text, var(--text-primary)) !important;
+}
+
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-btn:hover:not(:disabled) {
+  background: var(--theme-btn-hover-bg, var(--bg-elevated)) !important;
+  color: var(--theme-text-heading, #ffffff) !important;
+}
+
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-btn-green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+}
+
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-btn-green:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  color: #ffffff !important;
+}
+
+[data-theme-family]:not([data-theme-family="minecraft"]) .mc-btn-red {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important;
+  color: #ffffff !important;
 }
 
 [data-theme-family]:not([data-theme-family="minecraft"]) .mc-slot,
