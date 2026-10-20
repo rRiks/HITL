@@ -358,14 +358,28 @@ export function ResultModal({
         {hasRoll && (
           <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-3 mb-3 text-center rounded-xl shadow-xs">
             <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] mb-0.5">
-              <Dice5 className={`w-3.5 h-3.5 ${animatingRoll ? 'animate-spin' : 'text-amber-700 dark:text-amber-400'}`} />
-              <span className="uppercase tracking-wider">RISK PROBABILITY ROLL</span>
+              <Dice5 className={`w-3.5 h-3.5 ${animatingRoll ? 'animate-spin' : isFailure ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`} />
+              <span className="uppercase tracking-wider">
+                {animatingRoll
+                  ? 'EVALUATING ARCHITECTURAL RISK...'
+                  : isFailure
+                  ? '🎲 DICE ROLL: DEFECT TRIGGERED'
+                  : '🎲 DICE ROLL: CLEAN PASS'}
+              </span>
             </div>
-            <div className="text-3xl sm:text-4xl font-black font-mono tracking-wider text-amber-700 dark:text-amber-300 my-1">
+            <div
+              className={`text-3xl sm:text-4xl font-black font-mono tracking-wider my-1 ${
+                isFailure ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-300'
+              }`}
+            >
               {displayedRoll}%
             </div>
             <p className="text-xs text-[var(--text-muted)] font-medium">
-              Threshold: <strong className="text-[var(--text-primary)] font-bold">{Math.round(Number(rawThreshold) * 100)}%</strong> (Roll below = Clean Pass)
+              Success Threshold: <strong className="text-[var(--text-primary)] font-bold">{Math.round(Number(rawThreshold) * 100)}%</strong>
+              <span className="font-sans ml-1 text-[var(--text-secondary)]">
+                (Roll ≤ {Math.round(Number(rawThreshold) * 100)}% to Pass
+                {actionResult?.risk_pct !== undefined ? ` • Defect Risk: ${actionResult.risk_pct}%` : ''})
+              </span>
             </p>
           </div>
         )}

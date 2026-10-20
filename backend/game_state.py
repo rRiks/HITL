@@ -601,17 +601,20 @@ class GameStateManager:
             roll_val = round(random.random(), 3)
             roll_threshold = 0.15 if self.technical_debt >= 5 else cfg["success_rate"]
 
-            if roll_val < roll_threshold:
+            if roll_val <= roll_threshold:
                 outcome = "success"
                 health_delta = cfg.get("success_health_delta", 5)
                 jenga_pulls = cfg.get("success_pulls", 0)
                 feedback = (
-                    f"🎲 Roll {int(roll_val*100)}% (Threshold: {int(roll_threshold*100)}%): SUCCESS! "
+                    f"🎲 Roll {int(roll_val*100)}% ≤ {int(roll_threshold*100)}% Success Threshold: SUCCESS! "
                     f"{cfg['success_feedback']} (+{health_delta}% Health gained for rapid velocity delivery!)"
                 )
             else:
                 outcome = "failure"
-                feedback = f"🎲 Roll {int(roll_val*100)}% (Threshold: {int(roll_threshold*100)}%): HALLUCINATION DETECTED! {cfg['failure_feedback']}"
+                feedback = (
+                    f"🎲 Roll {int(roll_val*100)}% > {int(roll_threshold*100)}% Success Threshold: DEFECT DETECTED! "
+                    f"{cfg['failure_feedback']}"
+                )
                 health_delta = cfg["failure_health_delta"]
                 jenga_pulls = cfg["failure_pulls"]
                 adds_debt = True
