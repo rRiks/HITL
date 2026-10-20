@@ -285,3 +285,113 @@ export async function fetchGlobalTheme() {
   }
 }
 
+// -------------------------------------------------------------
+// Sprint Delivery Mode Endpoints (Game 2)
+// -------------------------------------------------------------
+export async function fetchSprintState(roomId = getRoomId()) {
+  const res = await fetch(`${API_BASE}/sprint/${roomId}/state`);
+  if (!res.ok) throw new Error(`Failed to fetch sprint state: ${res.statusText}`);
+  return res.json();
+}
+
+export async function startSprintGame(arg1, arg2, arg3, arg4) {
+  // Supports both startSprintGame(roomId, teamName) and startSprintGame(teamName, playerCount, roomId, playerName)
+  let roomId, teamName, playerCount, playerName;
+  if (typeof arg2 === 'number') {
+    teamName = arg1 || 'Sprint Squad';
+    playerCount = arg2;
+    roomId = arg3 || getRoomId();
+    playerName = arg4 || getPlayerName();
+  } else {
+    roomId = arg1 || getRoomId();
+    teamName = arg2 || 'Sprint Squad';
+    playerCount = 4;
+    playerName = getPlayerName();
+  }
+  const res = await fetch(`${API_BASE}/sprint/${roomId}/start`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ team_name: teamName, room_id: roomId, player_count: playerCount }),
+  });
+  if (!res.ok) throw new Error(`Failed to start sprint game: ${res.statusText}`);
+  return res.json();
+}
+
+export async function submitSprintAcceptAsIs(roomId = getRoomId()) {
+  const res = await fetch(`${API_BASE}/sprint/${roomId}/accept-as-is`, {
+    method: 'POST',
+  });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.detail || `Failed to accept as-is: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function submitSprintManualOverride(roomId = getRoomId(), playerId = getPlayerId(), playerName = getPlayerName()) {
+  const res = await fetch(`${API_BASE}/sprint/${roomId}/manual-override`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ player_id: playerId, player_name: playerName }),
+  });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.detail || `Failed manual override: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function submitSprintSteerTurn(roomId = getRoomId(), userPrompt = '', playerId = getPlayerId(), playerName = getPlayerName()) {
+  const res = await fetch(`${API_BASE}/sprint/${roomId}/steer-turn`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ player_id: playerId, player_name: playerName, user_prompt: userPrompt }),
+  });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.detail || `Failed steer turn: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function commitSprintSteeredCode(roomId = getRoomId()) {
+  const res = await fetch(`${API_BASE}/sprint/${roomId}/commit-steer`, {
+    method: 'POST',
+  });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.detail || `Failed to commit steered code: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function submitSprintGuardrail(roomId = getRoomId(), ruleId = 'rule_1', ruleTitle = 'Architectural Guardrail') {
+  const res = await fetch(`${API_BASE}/sprint/${roomId}/guardrail`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rule_id: ruleId, rule_title: ruleTitle }),
+  });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.detail || `Failed to enforce guardrail: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function advanceSprintStage(roomId = getRoomId()) {
+  const res = await fetch(`${API_BASE}/sprint/${roomId}/advance`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error(`Failed to advance sprint stage: ${res.statusText}`);
+  return res.json();
+}
+
+export async function resetSprintGame(roomId = getRoomId()) {
+  const res = await fetch(`${API_BASE}/sprint/${roomId}/reset`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error(`Failed to reset sprint game: ${res.statusText}`);
+  return res.json();
+}
+
+

@@ -34,6 +34,29 @@ function StageScenarioViewer({
 
   if (!stage) return null;
 
+  const parseDiffFileName = (diff) => {
+    if (!diff) return null;
+    const match = diff.match(/^\+\+\+\s+b\/(.+)$/m);
+    if (match) return match[1].trim();
+    const fallbackMatch = diff.match(/^---\s+a\/(.+)$/m);
+    return fallbackMatch ? fallbackMatch[1].trim() : null;
+  };
+
+  const cleanFile = (f) => (f && f !== '—' && f.trim() !== '') ? f.trim() : null;
+  const cleanText = (t) => (t && t.trim() !== '') ? t.trim() : null;
+
+  const parsedDiffFile = parseDiffFileName(stage.code_diff);
+  const fileName = cleanFile(stage.file_name) || cleanFile(stage.file_path) || cleanFile(parsedDiffFile) || 'force-app/main/default/classes/ContactService.cls';
+  const phaseName = cleanText(stage.phase_name) || cleanText(stage.phase) || cleanText(stage.category) || cleanText(stage.domain) || 'APEX GOVERNOR LIMITS';
+  
+  const rawTitle = cleanText(stage.ticket_title) || cleanText(stage.title) || 'The Governor Limit Trap';
+  const ticketTitle = (rawTitle.includes('CSC-') || rawTitle.includes('PR-') || rawTitle.includes('TASK-'))
+    ? rawTitle
+    : `CSC-10${stage.id || 1}: ${rawTitle}`;
+
+  const storyText = cleanText(stage.story) || cleanText(stage.scenario_text) || cleanText(stage.context) || cleanText(stage.description) || cleanText(stage.business_requirement) || cleanText(stage.prompt) || 'When an Account phone number is updated, propagate changes to child Contacts while respecting bulkification and Apex governor limits.';
+  const aiProposalSummary = cleanText(stage.ai_proposal_summary) || cleanText(stage.ai_proposal) || cleanText(stage.proposal) || 'Optimize query selectors and bulkify trigger context to prevent governor limit exceptions.';
+
   const diffLines = stage.code_diff ? stage.code_diff.split('\n') : [];
   const isHintRevealed = Array.isArray(revealedHints) && revealedHints.includes(stage.id);
 
@@ -59,7 +82,7 @@ function StageScenarioViewer({
               <span>PR #{stage.id}</span>
             </span>
             <span className="text-xs xl:text-sm font-semibold text-[var(--text-secondary)] truncate">
-              PHASE: <strong className="text-[var(--text-primary)] font-bold">{stage.phase_name}</strong>
+              PHASE: <strong className="text-[var(--text-primary)] font-bold">{phaseName}</strong>
             </span>
           </div>
 
@@ -78,10 +101,10 @@ function StageScenarioViewer({
 
         {/* User Story Title & Summary */}
         <h2 className="font-theme-heading text-[clamp(0.95rem,1.6vh,1.25rem)] font-bold tracking-tight text-[var(--text-primary)] mb-1 leading-tight">
-          {stage.ticket_title || stage.title}
+          {ticketTitle}
         </h2>
         <p className="text-xs [@media(min-height:860px)]:text-[13.5px] leading-relaxed text-[var(--text-secondary)] font-sans select-text line-clamp-2 font-medium">
-          {stage.story}
+          {storyText}
         </p>
       </div>
 
@@ -95,11 +118,11 @@ function StageScenarioViewer({
             </span>
           </div>
           <code className="text-emerald-800 dark:text-emerald-300 font-mono text-xs bg-[var(--bg-elevated)] px-2 py-0.5 rounded border border-[var(--border-subtle)] select-all truncate max-w-[320px] font-bold">
-            {stage.file_name}
+            {fileName}
           </code>
         </div>
         <p className="text-xs [@media(min-height:860px)]:text-[13.5px] text-[var(--text-primary)] italic font-sans select-text leading-relaxed font-medium">
-          "{stage.ai_proposal_summary}"
+          "{aiProposalSummary}"
         </p>
       </div>
 
@@ -109,7 +132,7 @@ function StageScenarioViewer({
         <div className="px-3.5 py-2 border-b border-[var(--border-subtle)] bg-[var(--bg-panel)] flex items-center justify-between text-xs xl:text-sm text-[var(--text-secondary)] shrink-0">
           <div className="flex items-center gap-2">
             <FileCode className="w-4 h-4 text-[var(--text-muted)]" />
-            <span className="font-mono text-xs xl:text-sm text-[var(--text-primary)] font-bold">{stage.file_name}</span>
+            <span className="font-mono text-xs xl:text-sm text-[var(--text-primary)] font-bold">{fileName}</span>
             <span className="text-[11px] xl:text-xs text-[var(--text-muted)] font-sans font-medium">(git diff)</span>
           </div>
           <button
@@ -258,7 +281,7 @@ function StageScenarioViewer({
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-[var(--border-subtle)] shrink-0">
               <div className="flex items-center gap-2.5">
                 <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
-                  QUEST WAVE {stage.id}: {stage.phase_name}
+                  QUEST WAVE {stage.id}: {phaseName}
                 </span>
                 <span className="text-sm font-bold text-[var(--text-primary)] hidden sm:inline">
                   Architectural PR Inspection Console
@@ -283,10 +306,10 @@ function StageScenarioViewer({
                     📋 Business Requirement (User Story)
                   </span>
                   <h3 className="text-base font-bold text-[var(--text-primary)] leading-snug">
-                    {stage.ticket_title || stage.title}
+                    {ticketTitle}
                   </h3>
                   <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-sans select-text font-medium">
-                    {stage.story}
+                    {storyText}
                   </p>
                 </div>
 
@@ -298,12 +321,12 @@ function StageScenarioViewer({
                         AI Golem Proposal:
                       </span>
                       <span className="text-xs text-[var(--text-primary)] italic font-sans leading-relaxed block font-medium">
-                        "{stage.ai_proposal_summary}"
+                        "{aiProposalSummary}"
                       </span>
                     </div>
                   </div>
                   <code className="text-emerald-800 dark:text-emerald-300 font-mono text-[10px] bg-[var(--bg-elevated)] px-2 py-0.5 rounded border border-[var(--border-subtle)] self-start select-all font-bold">
-                    {stage.file_name}
+                    {fileName}
                   </code>
                 </div>
 
@@ -361,7 +384,7 @@ function StageScenarioViewer({
                 <div className="bg-[var(--bg-panel)] px-4 py-2 border-b border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--text-muted)] shrink-0">
                   <div className="flex items-center gap-2">
                     <FileCode className="w-4 h-4 text-[var(--text-muted)]" />
-                    <span className="font-mono text-xs text-[var(--text-primary)]">{stage.file_name}</span>
+                    <span className="font-mono text-xs text-[var(--text-primary)] font-bold">{fileName}</span>
                   </div>
                   <span className="text-[10px] text-[var(--text-muted)]">UNIFIED DIFF</span>
                 </div>

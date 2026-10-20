@@ -1,5 +1,5 @@
 import React from 'react';
-import { Terminal, Wrench, RotateCcw, Home, AlertOctagon } from 'lucide-react';
+import { Terminal, Wrench, RotateCcw, Home } from 'lucide-react';
 
 export default function GameOverModal({
   reason = 'Catastrophic Outage',

@@ -845,8 +845,10 @@
 /* =============================================================
  * TEXT ACCENT CONTRAST SYSTEM (WARM WCAG AAA READABLE)
  * =========================================================== */
-[data-theme-family="minecraft"][data-theme="light"] .text-white:not(.mc-btn-green):not(.mc-btn-green *):not(.mc-btn-red):not(.mc-btn-red *):not(.badge-white-text):not(.text-white-forced) {
-  color: #1e1b18 !important;
+/* Keep text-white crisp white on dark badges and action buttons across both themes */
+[data-theme="light"] .text-white,
+[data-theme-family="minecraft"][data-theme="light"] .text-white {
+  color: #ffffff !important;
 }
 
 [data-theme-family="minecraft"][data-theme="light"] .mc-btn-green,

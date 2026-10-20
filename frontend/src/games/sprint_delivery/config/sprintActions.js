@@ -1,0 +1,43 @@
+export const SPRINT_ACTIONS = [
+  {
+    id: 'accept_as_is',
+    slot: 1,
+    title: 'Accept AI As-Is',
+    desc: 'Instant merge, zero review. Free sprint time but risk is hidden!',
+    badge: 'AUTOPILOT (0s)',
+    icon: 'Zap',
+    themeColor: 'rose',
+    riskLevel: 'hidden',
+  },
+  {
+    id: 'manual_override',
+    slot: 2,
+    title: 'Manual Override',
+    desc: 'Senior dev hand-crafts fix. Guaranteed pass, costs sprint time.',
+    badge: 'SENIOR DEV',
+    icon: 'Wrench',
+    themeColor: 'emerald',
+    riskLevel: 'zero',
+  },
+  {
+    id: 'steer_prompt',
+    slot: 3,
+    title: 'Prompt Steer',
+    desc: 'Collaborate with AI Copilot via chat to iteratively refine diff.',
+    badge: 'COPILOT CHAT',
+    icon: 'MessageSquareCode',
+    themeColor: 'amber',
+    riskLevel: 'scalable',
+  },
+  {
+    id: 'guardrail',
+    slot: 4,
+    title: 'Enforce Guardrail',
+    desc: 'Apply verified architectural rule patch. +8% HP, +15s review.',
+    badge: 'GUARDRAIL (+15s)',
+    icon: 'ShieldCheck',
+    themeColor: 'sky',
+    riskLevel: 'controlled',
+  },
+];
+

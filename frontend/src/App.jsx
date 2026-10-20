@@ -18,36 +18,43 @@ import { useSound } from './hooks/useSound';
 import * as api from './services/api';
 import AdminDashboard from './admin/AdminDashboard';
 import themeEngine from './themes/themeEngine';
+import SprintDeliveryScreen from './games/sprint_delivery/SprintDeliveryScreen';
 import { ArrowRight, Rotate3d, CheckCircle2, AlertTriangle, Layers, Zap, Radio } from 'lucide-react';
 
 function getRouteInfo() {
   if (typeof window === 'undefined') {
-    return { route: 'home', roomId: null, isSpectator: false };
+    return { route: 'home', roomId: null, isSpectator: false, gameMode: 'gatekeeper' };
   }
   const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
   const params = new URLSearchParams(window.location.search);
   const roomParam = params.get('code') || params.get('pin') || params.get('table') || params.get('roomId') || params.get('roomid') || params.get('room');
   const isSpectator = params.get('spectate') === 'true' || params.get('spectate') === '1';
+  const storedMode = typeof window !== 'undefined' ? sessionStorage.getItem('hitl_game_mode') : null;
+  const modeParam = (params.get('mode') || params.get('game') || storedMode || '').toLowerCase();
+  const gameMode = modeParam === 'sprint' || modeParam === 'sprint_delivery' ? 'sprint' : 'gatekeeper';
 
   if (pathname === '/admin') {
-    return { route: 'admin', roomId: null, isSpectator: false };
+    return { route: 'admin', roomId: null, isSpectator: false, gameMode };
   }
   if (pathname === '/guide') {
-    return { route: 'guide', roomId: roomParam || api.getRoomId(), isSpectator };
+    return { route: 'guide', roomId: roomParam || api.getRoomId(), isSpectator, gameMode };
   }
   if (roomParam) {
     const cleanRoom = roomParam.toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'default';
-    return { route: 'game', roomId: cleanRoom, isSpectator };
+    return { route: 'game', roomId: cleanRoom, isSpectator, gameMode };
   }
   if (pathname === '/home') {
-    return { route: 'home', roomId: null, isSpectator: false };
+    return { route: 'home', roomId: null, isSpectator: false, gameMode };
   }
-  return { route: 'home', roomId: null, isSpectator: false };
+  return { route: 'home', roomId: null, isSpectator: false, gameMode };
 }
 
 export default function App() {
   const [routeInfo, setRouteInfo] = useState(() => getRouteInfo());
   const isSpectator = Boolean(routeInfo.isSpectator);
+  const [gameMode, setGameMode] = useState(() => {
+    return routeInfo.gameMode || (typeof window !== 'undefined' ? sessionStorage.getItem('hitl_game_mode') : null) || 'gatekeeper';
+  });
   const [walkthroughLaunch, setWalkthroughLaunch] = useState(null);
 
   const [gameStarted, setGameStarted] = useState(() => {
@@ -86,6 +93,7 @@ export default function App() {
     const handlePopState = () => {
       const info = getRouteInfo();
       setRouteInfo(info);
+      setGameMode(info.gameMode);
       if (info.route === 'game' && info.roomId) {
         api.setRoomId(info.roomId);
         setRoomIdState(info.roomId);
@@ -148,9 +156,10 @@ export default function App() {
   });
 
   // Centralized URL Router Navigation
-  const navigateTo = useCallback((destination, targetRoomId = null) => {
+  const navigateTo = useCallback((destination, targetRoomId = null, targetMode = null) => {
+    const effectiveMode = targetMode || gameMode;
     if (destination === 'admin') {
-      setRouteInfo({ route: 'admin', roomId: null, isSpectator: false });
+      setRouteInfo({ route: 'admin', roomId: null, isSpectator: false, gameMode: effectiveMode });
       window.history.pushState({}, '', '/admin');
     } else if (destination === 'spectate') {
       const room = targetRoomId || roomId || api.getRoomId();
@@ -158,28 +167,32 @@ export default function App() {
       setRoomIdState(room);
       sessionStorage.removeItem('hitl_in_game');
       setGameStarted(true);
-      setRouteInfo({ route: 'game', roomId: room, isSpectator: true });
-      window.history.pushState({}, '', `/?roomId=${room}&spectate=true`);
+      setRouteInfo({ route: 'game', roomId: room, isSpectator: true, gameMode: effectiveMode });
+      window.history.pushState({}, '', `/?roomId=${room}&spectate=true&mode=${effectiveMode}`);
     } else if (destination === 'home') {
       sessionStorage.removeItem('hitl_in_game');
+      sessionStorage.removeItem('hitl_game_mode');
+      setGameMode('gatekeeper');
       setGameStarted(false);
       setIsTimerRunning(false);
       setWalkthroughLaunch(null);
-      setRouteInfo({ route: 'home', roomId: null, isSpectator: false });
+      setRouteInfo({ route: 'home', roomId: null, isSpectator: false, gameMode: 'gatekeeper' });
       window.history.pushState({}, '', '/home');
     } else if (destination === 'guide') {
-      setRouteInfo((prev) => ({ route: 'guide', roomId: targetRoomId || prev.roomId || roomId, from: prev.route, isSpectator: prev.isSpectator }));
-      window.history.pushState({}, '', '/guide');
+      setRouteInfo((prev) => ({ route: 'guide', roomId: targetRoomId || prev.roomId || roomId, from: prev.route, isSpectator: prev.isSpectator, gameMode: effectiveMode }));
+      window.history.pushState({}, '', `/guide?mode=${effectiveMode}`);
     } else if (destination === 'game') {
       const room = targetRoomId || roomId || api.getRoomId();
       api.setRoomId(room);
       setRoomIdState(room);
       sessionStorage.setItem('hitl_in_game', 'true');
+      sessionStorage.setItem('hitl_game_mode', effectiveMode);
+      setGameMode(effectiveMode);
       setGameStarted(true);
-      setRouteInfo({ route: 'game', roomId: room, isSpectator: false });
-      window.history.pushState({}, '', `/?roomId=${room}`);
+      setRouteInfo({ route: 'game', roomId: room, isSpectator: false, gameMode: effectiveMode });
+      window.history.pushState({}, '', `/?roomId=${room}&mode=${effectiveMode}`);
     }
-  }, [roomId]);
+  }, [roomId, gameMode]);
 
   // Load initial state
   const refreshState = useCallback(async () => {
@@ -520,11 +533,33 @@ export default function App() {
   ]);
 
   // Start / Reset Game
-  const handleStartGame = async (teamName, playerCount, chosenRoomId, playerName) => {
+  const handleStartGame = async (teamName, playerCount, chosenRoomId, playerName, chosenMode = 'gatekeeper') => {
     try {
       setLoading(true);
-      let state;
+      const effectiveMode = chosenMode || 'gatekeeper';
+      setGameMode(effectiveMode);
+      sessionStorage.setItem('hitl_game_mode', effectiveMode);
+
       let room = chosenRoomId;
+
+      if (effectiveMode === 'sprint') {
+        if (!room || room === 'create') {
+          const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+          room = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+        }
+        const state = await api.startSprintGame(teamName, playerCount, room, playerName);
+        setRoomIdState(room);
+        api.setRoomId(room);
+        if (playerName) api.setPlayerName(playerName);
+        sessionStorage.setItem('hitl_in_game', 'true');
+        setGameState(state);
+        setGameStarted(true);
+        navigateTo('game', room, 'sprint');
+        sound.playSuccess();
+        return;
+      }
+
+      let state;
       if (!room || room === 'create') {
         state = await api.createTableGame(teamName, playerCount);
         room = state.room_code || state.room_id;
@@ -544,7 +579,7 @@ export default function App() {
       setResultModalOpen(false);
       setIsWatchingRemoval(false);
       setMyVote(null);
-      navigateTo('game', room);
+      navigateTo('game', room, 'gatekeeper');
       sound.playSuccess();
     } catch (err) {
       alert(`Backend connection error: ${err.message}`);
@@ -554,13 +589,27 @@ export default function App() {
   };
 
   // Join already active room without resetting
-  const handleJoinLiveTable = async (chosenRoomId, playerName) => {
+  const handleJoinLiveTable = async (chosenRoomId, playerName, detectedMode = 'gatekeeper') => {
     try {
       setLoading(true);
       const room = chosenRoomId || roomId;
+      const effectiveMode = detectedMode || 'gatekeeper';
+      setGameMode(effectiveMode);
+      sessionStorage.setItem('hitl_game_mode', effectiveMode);
       api.setRoomId(room);
       setRoomIdState(room);
       if (playerName) api.setPlayerName(playerName);
+
+      if (effectiveMode === 'sprint') {
+        const state = await api.fetchSprintState(room);
+        sessionStorage.setItem('hitl_in_game', 'true');
+        setGameState(state);
+        setGameStarted(true);
+        navigateTo('game', room, 'sprint');
+        sound.playSuccess();
+        return;
+      }
+
       await api.joinPlayer(api.getPlayerId(), api.getPlayerName(), room);
       const state = await api.fetchGameState(room);
       sessionStorage.setItem('hitl_in_game', 'true');
@@ -568,7 +617,7 @@ export default function App() {
       setGameStarted(true);
       setTimeLeft(120);
       setIsTimerRunning(true);
-      navigateTo('game', room);
+      navigateTo('game', room, 'gatekeeper');
       sound.playSuccess();
     } catch (err) {
       alert(`Failed to join live table: ${err.message}`);
@@ -580,6 +629,8 @@ export default function App() {
   // Exit back to Welcome Screen / Table Lobby
   const handleExitToLobby = () => {
     sessionStorage.removeItem('hitl_in_game');
+    sessionStorage.removeItem('hitl_game_mode');
+    setGameMode('gatekeeper');
     setShowGameOverModal(false);
     setResultModalOpen(false);
     setActionResult(null);
@@ -908,12 +959,12 @@ export default function App() {
           }
           if (walkthroughLaunch) {
             if (walkthroughLaunch.isJoin) {
-              handleJoinLiveTable(walkthroughLaunch.room, walkthroughLaunch.player);
+              handleJoinLiveTable(walkthroughLaunch.room, walkthroughLaunch.player, walkthroughLaunch.gameMode);
             } else {
-              handleStartGame(walkthroughLaunch.team, walkthroughLaunch.count, walkthroughLaunch.room, walkthroughLaunch.player);
+              handleStartGame(walkthroughLaunch.team, walkthroughLaunch.count, walkthroughLaunch.room, walkthroughLaunch.player, walkthroughLaunch.gameMode);
             }
           } else if (gameStarted) {
-            navigateTo('game', roomId);
+            navigateTo('game', roomId, gameMode);
           } else {
             navigateTo('home');
           }
@@ -938,13 +989,28 @@ export default function App() {
         onToggleTheme={toggleTheme}
         onOpenGuide={(launchData) => {
           setWalkthroughLaunch(launchData);
-          navigateTo('guide', launchData.room);
+          navigateTo('guide', launchData.room, launchData.gameMode);
         }}
       />
     );
   }
 
-  // Victory Screen
+  // 3. Sprint Delivery Mode Screen (Game 2)
+  if (gameMode === 'sprint') {
+    return (
+      <SprintDeliveryScreen
+        roomId={roomId}
+        sound={sound}
+        onExitToLobby={handleExitToLobby}
+        onOpenFieldGuide={() => navigateTo('guide')}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        isSpectator={isSpectator}
+      />
+    );
+  }
+
+  // Victory Screen (Gatekeeper)
   if (gameState?.is_victory) {
     return (
       <VictoryScreen

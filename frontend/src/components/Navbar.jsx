@@ -108,6 +108,7 @@ function Navbar({
   theme = 'dark',
   onToggleTheme,
   isTimerPaused = false,
+  formattedClock = null,
 }) {
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -126,7 +127,8 @@ function Navbar({
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
-  const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  const calculatedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  const displayTime = formattedClock || calculatedTime;
 
   const isUrgent = timeLeft <= 30 && timeLeft > 0;
   const isZero = timeLeft === 0;
@@ -176,7 +178,7 @@ function Navbar({
           </div>
         </div>
 
-        {/* 2. Center Cluster: Unified Stakes & Urgency (Wave + Health + Timer) */}
+        {/* 2. Center Cluster: Unified Stakes & Urgency (Wave + Health + Timer + Tokens) */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 md:gap-3 bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-inner shrink-0 text-[var(--text-primary)]">
           {/* Wave Progress */}
           <div className="flex items-center gap-1 font-mono text-[11px] sm:text-xs font-bold text-amber-800 dark:text-amber-300">
@@ -220,7 +222,7 @@ function Navbar({
             title={isTimerPaused ? 'Game Master paused the countdown timer' : 'Stage countdown timer'}
           >
             <Clock className={`w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 ${isTimerPaused ? 'text-amber-600 dark:text-amber-400' : isUrgent ? 'text-rose-600 dark:text-rose-400 animate-pulse' : 'text-[var(--text-secondary)]'}`} />
-            <span>{formattedTime}</span>
+            <span>{displayTime}</span>
             {isTimerPaused && (
               <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40 hidden xs:inline font-bold">
                 PAUSED

@@ -24,6 +24,7 @@ from models import (
 from game_state import room_manager, GameStateManager
 from stages_data import STAGES
 from admin_router import admin_router, verify_admin_auth
+from sprint.sprint_router import sprint_router, _sprint_rooms
 
 # ---------------------------------------------------------------------------
 # Production-safe configuration
@@ -66,6 +67,9 @@ app.add_middleware(
 
 # Register isolated Admin Router
 app.include_router(admin_router)
+
+# Register isolated Sprint Delivery (Game 2) Router
+app.include_router(sprint_router)
 
 # Fix H2: Apply strict brute-force rate limit to the /verify auth endpoint (5 attempts/min per IP)
 # This must be done after include_router so the route object exists in app.routes
@@ -121,7 +125,31 @@ def lookup_table_by_code(code: str):
             "has_started": r.has_started,
             "is_game_over": r.is_game_over,
             "is_victory": r.is_victory,
+            "game_mode": "gatekeeper",
         }
+
+    # Check Sprint Delivery active sessions
+    clean_lower = clean.lower()
+    for sid, s_manager in _sprint_rooms.items():
+        s = s_manager.get_state()
+        if sid.upper() == clean or s.room_code == clean or sid == clean_lower:
+            return {
+                "found": True,
+                "room_id": s.room_id,
+                "room_code": s.room_code or clean,
+                "team_name": s.team_name,
+                "current_stage": s.current_stage_index + 1,
+                "total_stages": len(STAGES),
+                "stage_title": s.stage_title,
+                "health": s.health,
+                "technical_debt": s.technical_debt,
+                "active_players": len(s.active_players),
+                "has_started": s.has_started,
+                "is_game_over": s.is_game_over,
+                "is_victory": s.is_victory,
+                "game_mode": "sprint",
+            }
+
     return {"found": False, "message": f"No active table found for PIN '{code}'"}
 
 @app.post("/api/game/{room_id}/start", response_model=GameStateResponse)

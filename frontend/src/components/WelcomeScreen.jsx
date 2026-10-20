@@ -204,6 +204,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
   // Create Mode state
   const [teamName, setTeamName] = useState('Alpha Devs');
   const [playerCount, setPlayerCount] = useState(4);
+  const [gameMode, setGameMode] = useState('gatekeeper'); // 'gatekeeper' | 'sprint'
 
   // Join Mode state: strictly do NOT pre-fill cloud-titans or default
   const [joinPin, setJoinPin] = useState(() => {
@@ -275,6 +276,7 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
       room: 'create', // signals backend to generate new unique PIN
       player: finalPlayer,
       isJoin: false,
+      gameMode,
     };
 
     if (onOpenGuide) {
@@ -288,19 +290,20 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
   const handleProceedJoin = () => {
     const finalPlayer = (playerName || '').trim() || 'Riks';
     const targetRoom = pinLookup.data?.room_id || joinPin.trim().toLowerCase();
+    const detectedMode = pinLookup.data?.game_mode || 'gatekeeper';
     setPlayerName(finalPlayer);
 
     if (onJoinLiveTable) {
-      onJoinLiveTable(targetRoom, finalPlayer);
+      onJoinLiveTable(targetRoom, finalPlayer, detectedMode);
     }
   };
 
   const handleLaunchGame = () => {
     if (!pendingLaunch) return;
     if (pendingLaunch.isJoin && onJoinLiveTable) {
-      onJoinLiveTable(pendingLaunch.room, pendingLaunch.player);
+      onJoinLiveTable(pendingLaunch.room, pendingLaunch.player, pendingLaunch.gameMode);
     } else {
-      onStartGame(pendingLaunch.team, pendingLaunch.count, pendingLaunch.room, pendingLaunch.player);
+      onStartGame(pendingLaunch.team, pendingLaunch.count, pendingLaunch.room, pendingLaunch.player, pendingLaunch.gameMode);
     }
   };
 
@@ -474,6 +477,77 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                 />
               </div>
 
+              {/* Simulation Game Mode */}
+              <div>
+                <label className="block text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-1 flex items-center justify-between">
+                  <span>Simulation Mode</span>
+                  <span className="text-[10px] text-slate-500 font-normal">Choose Format</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setGameMode('gatekeeper')}
+                    className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                      gameMode === 'gatekeeper'
+                        ? 'bg-slate-900 text-white border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-white shadow-md'
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-950/60 dark:hover:bg-slate-800 dark:text-slate-300 dark:border-slate-800'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[11px] font-bold font-mono flex items-center gap-1">
+                          <span>🛡️</span>
+                          <span>GATEKEEPER</span>
+                        </span>
+                        <span className={`text-[8.5px] font-mono px-1 py-0.2 rounded font-bold ${
+                          gameMode === 'gatekeeper'
+                            ? 'bg-white/20 text-white dark:bg-slate-900/20 dark:text-slate-900'
+                            : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-400'
+                        }`}>
+                          2m/STAGE
+                        </span>
+                      </div>
+                      <p className={`text-[10px] font-sans leading-tight ${
+                        gameMode === 'gatekeeper' ? 'text-slate-200 dark:text-slate-800' : 'text-slate-500 dark:text-slate-400'
+                      }`}>
+                        Tactical per-stage timer & skip.
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setGameMode('sprint')}
+                    className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                      gameMode === 'sprint'
+                        ? 'bg-slate-900 text-white border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-white shadow-md'
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-950/60 dark:hover:bg-slate-800 dark:text-slate-300 dark:border-slate-800'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[11px] font-bold font-mono flex items-center gap-1">
+                          <span>⚡</span>
+                          <span>SPRINT</span>
+                        </span>
+                        <span className={`text-[8.5px] font-mono px-1 py-0.2 rounded font-bold ${
+                          gameMode === 'sprint'
+                            ? 'bg-amber-400/30 text-amber-200 dark:text-amber-900'
+                            : 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
+                        }`}>
+                          25m SPRINT
+                        </span>
+                      </div>
+                      <p className={`text-[10px] font-sans leading-tight ${
+                        gameMode === 'sprint' ? 'text-slate-200 dark:text-slate-800' : 'text-slate-500 dark:text-slate-400'
+                      }`}>
+                        Master 25m clock, Copilot & override.
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               {/* Table Size */}
               <div>
                 <label className="block text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-1">
@@ -526,8 +600,8 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                   type="text"
                   value={joinPin}
                   onChange={(e) => setJoinPin(e.target.value.toUpperCase().slice(0, 6))}
-                  placeholder="e.g. 7B2K"
-                  className="w-full bg-slate-50 dark:bg-slate-950/80 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-center text-lg sm:text-xl font-mono font-bold py-2 tracking-[0.3em] uppercase rounded-xl focus:outline-none focus:border-slate-800 dark:focus:border-slate-400 focus:bg-white dark:focus:bg-slate-950 focus:ring-2 focus:ring-slate-400/20 dark:focus:ring-slate-500/20 transition-all shadow-inner"
+                  placeholder="TYPE PIN (e.g. 7B2K)"
+                  className="w-full bg-slate-50 dark:bg-slate-950/80 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:font-normal placeholder:tracking-normal text-center text-lg sm:text-xl font-mono font-bold py-2 tracking-[0.25em] uppercase rounded-xl focus:outline-none focus:border-slate-800 dark:focus:border-slate-400 focus:bg-white dark:focus:bg-slate-950 focus:ring-2 focus:ring-slate-400/20 dark:focus:ring-slate-500/20 transition-all shadow-inner"
                   autoFocus
                   required
                 />
@@ -546,7 +620,14 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                     <div className="flex items-center gap-2 truncate">
                       <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <div className="truncate">
-                        <strong className="text-slate-900 dark:text-white block truncate">{pinLookup.data.team_name}</strong>
+                        <div className="flex items-center gap-1.5">
+                          <strong className="text-slate-900 dark:text-white block truncate">{pinLookup.data.team_name}</strong>
+                          <span className={`text-[9px] font-mono px-1 py-0.2 rounded font-bold ${
+                            pinLookup.data.game_mode === 'sprint' ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300' : 'bg-sky-500/20 text-sky-700 dark:text-sky-300'
+                          }`}>
+                            {pinLookup.data.game_mode === 'sprint' ? '⚡ SPRINT' : '🛡️ GATEKEEPER'}
+                          </span>
+                        </div>
                         <span className="text-[10px] text-slate-500 dark:text-slate-400">
                           Stage {pinLookup.data.current_stage}/11 • {pinLookup.data.active_players} online
                         </span>
@@ -565,6 +646,12 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
                       {pinLookup.message}. Ask your teammate for their screen PIN.
                     </span>
                   </div>
+                )}
+
+                {!pinLookup.loading && !pinLookup.found && joinPin.trim().length < 3 && (
+                  <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">
+                    💡 Ask your table host for their 4-character screen PIN
+                  </span>
                 )}
               </div>
 
@@ -585,14 +672,29 @@ export default function WelcomeScreen({ onStartGame, onJoinLiveTable, defaultRoo
               </div>
 
               <div className="pt-1">
-                <button
-                  type="submit"
-                  disabled={!pinLookup.found || !playerName.trim()}
-                  className="w-full py-2.5 sm:py-3 text-xs sm:text-sm font-bold rounded-xl bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-white dark:text-slate-950 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-slate-900/10 dark:shadow-black/30 tracking-wider transition-all active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <Users className="w-4 h-4" />
-                  <span>ENTER TABLE ({pinLookup.data?.team_name || joinPin || 'SQUAD'}) ➔</span>
-                </button>
+                {(() => {
+                  const isJoinDisabled = !pinLookup.found || !playerName.trim();
+                  return (
+                    <button
+                      type="submit"
+                      disabled={isJoinDisabled}
+                      className={`w-full py-2.5 sm:py-3 text-xs sm:text-sm font-mono font-bold rounded-xl flex items-center justify-center gap-2 tracking-wider transition-all select-none ${
+                        isJoinDisabled
+                          ? 'bg-slate-200 text-slate-500 border border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 cursor-not-allowed shadow-none'
+                          : 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer shadow-lg shadow-emerald-600/20 active:scale-[0.99]'
+                      }`}
+                    >
+                      <Users className="w-4 h-4" />
+                      <span>
+                        {pinLookup.found
+                          ? `JOIN TABLE: ${(pinLookup.data?.team_name || joinPin).toUpperCase()} ➔`
+                          : joinPin.trim().length > 0
+                          ? 'VERIFYING GAME PIN... ➔'
+                          : 'ENTER 4-DIGIT PIN TO JOIN ➔'}
+                      </span>
+                    </button>
+                  );
+                })()}
               </div>
             </form>
           )}

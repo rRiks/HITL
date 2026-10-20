@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List, Optional, Dict, Any, Literal
 from pydantic import BaseModel, Field
 
@@ -194,4 +195,84 @@ class RoomControlRequest(BaseModel):
     delta: Optional[int] = Field(default=0, ge=-100, le=100)
     pulls: Optional[int] = Field(default=1, ge=1, le=10)
     reason: Optional[str] = Field(default="Admin Intervention", max_length=200)
+
+# -------------------------------------------------------------
+# Sprint Delivery Mode Models (Game 2)
+# -------------------------------------------------------------
+class GameMode(str, Enum):
+    GATEKEEPER = "gatekeeper"
+    SPRINT_DELIVERY = "sprint_delivery"
+
+class ChatMessage(BaseModel):
+    sender: str  # "player" | "copilot"
+    player_name: Optional[str] = None
+    text: str
+    timestamp: float
+    risk_level: Optional[str] = None
+
+class SteerTurnRequest(BaseModel):
+    player_id: str
+    player_name: str
+    user_prompt: str = Field(..., min_length=2, max_length=1000)
+
+class SteerTurnResponse(BaseModel):
+    reply_text: str
+    updated_code_diff: str
+    hidden_risk_probability: float
+    turn_count: int
+    is_hardened: bool
+    chat_history: List[ChatMessage]
+
+class ManualOverrideRequest(BaseModel):
+    player_id: str
+    player_name: str
+
+class StageTimeRecord(BaseModel):
+    stage_id: int
+    stage_title: str
+    time_spent_seconds: int
+    method_used: str  # "accept_as_is" | "manual_override" | "steer_prompt" | "guardrail"
+    attempts_count: int
+    cleared: bool
+
+class SprintStateResponse(BaseModel):
+    room_id: str
+    room_code: str
+    team_name: str
+    game_mode: str = "sprint_delivery"
+    current_stage_index: int
+    total_stages: int = 11
+    health: int
+    technical_debt: int
+    total_jenga_pulls: int
+    tower_instability_pct: int
+    is_game_over: bool
+    game_over_reason: Optional[str] = None
+    is_victory: bool
+
+    # Sprint Delivery Master Clock & Overtime
+    sprint_time_left_seconds: int
+    is_sprint_timer_running: bool
+    is_overtime: bool
+    overtime_seconds: int
+    senior_dev_tokens_remaining: int
+
+    # Active Candidate (Hidden Risk not serialized to client)
+    active_candidate_id: str
+    active_candidate_label: str
+    active_code_diff: str
+    scenario_text: Optional[str] = None
+    story: Optional[str] = None
+    file_path: Optional[str] = None
+    file_name: Optional[str] = None
+    stage_title: Optional[str] = None
+    ticket_title: Optional[str] = None
+    phase_name: Optional[str] = None
+    ai_proposal_summary: Optional[str] = None
+
+    # Multi-turn Chat & Telemetry
+    chat_history: List[ChatMessage] = []
+    stage_time_records: List[StageTimeRecord] = []
+    history: List[StageSummaryRecord] = []
+
 

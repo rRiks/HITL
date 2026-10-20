@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   Users,
   Check,
@@ -8,11 +8,91 @@ import {
 } from 'lucide-react';
 import { getPlayerName, getPlayerId } from '../services/api';
 
-const ACTION_SLOT_MAP = {
-  accept_as_is: '[1]',
-  deny_and_move_on: '[2]',
-  custom_prompt: '[3]',
-  suggest_change: '[4]',
+const DEFAULT_ACTIONS = [
+  {
+    id: 'accept_as_is',
+    slot: 1,
+    title: 'Accept as-is',
+    desc: 'Rapid merge, zero review. High risk!',
+    badge: 'RAW SPEED',
+    emoji: '🍏',
+    themeColor: 'rose',
+  },
+  {
+    id: 'deny_and_move_on',
+    slot: 2,
+    title: 'Bypass & Skip',
+    desc: 'Reject commit to safeguard health.',
+    badge: 'SAFE SKIP',
+    emoji: '🛡️',
+    themeColor: 'sky',
+  },
+  {
+    id: 'custom_prompt',
+    slot: 3,
+    title: 'Human Guidance',
+    desc: 'Draft steering prompt in Book & Quill.',
+    badge: 'COLLAB',
+    emoji: '🪶',
+    themeColor: 'emerald',
+  },
+  {
+    id: 'suggest_change',
+    slot: 4,
+    title: 'AI Suggestions',
+    desc: 'Review 3 AI-proposed technical fixes.',
+    badge: 'PROPOSALS',
+    emoji: '🤖',
+    themeColor: 'indigo',
+  },
+];
+
+const THEME_STYLES = {
+  rose: {
+    active: 'border-rose-500/60 bg-rose-500/10 ring-1 ring-rose-500/40',
+    hover: 'border-[var(--border-subtle)] hover:border-rose-500/50 hover:bg-rose-500/10',
+    headerHover: 'group-hover:text-rose-700 dark:group-hover:text-rose-300 group-hover:border-rose-500/30',
+    badgeText: 'text-rose-700 dark:text-rose-400',
+    arrowHover: 'group-hover:text-rose-600',
+  },
+  sky: {
+    active: 'border-sky-500/60 bg-sky-500/10 ring-1 ring-sky-500/40',
+    hover: 'border-[var(--border-subtle)] hover:border-sky-500/50 hover:bg-sky-500/10',
+    headerHover: 'group-hover:text-sky-700 dark:group-hover:text-sky-300 group-hover:border-sky-500/30',
+    badgeText: 'text-sky-700 dark:text-sky-400',
+    arrowHover: 'group-hover:text-sky-600',
+  },
+  emerald: {
+    active: 'border-emerald-500/60 bg-emerald-500/10 ring-1 ring-emerald-500/40',
+    hover: 'border-[var(--border-subtle)] hover:border-emerald-500/50 hover:bg-emerald-500/10',
+    headerHover: 'group-hover:text-emerald-700 dark:group-hover:text-emerald-300 group-hover:border-emerald-500/30',
+    badgeText: 'text-emerald-700 dark:text-emerald-400',
+    arrowHover: 'group-hover:text-emerald-600',
+  },
+  indigo: {
+    active: 'border-indigo-500/60 bg-indigo-500/10 ring-1 ring-indigo-500/40',
+    hover: 'border-[var(--border-subtle)] hover:border-indigo-500/50 hover:bg-indigo-500/10',
+    headerHover: 'group-hover:text-indigo-700 dark:group-hover:text-indigo-300 group-hover:border-indigo-500/30',
+    badgeText: 'text-indigo-700 dark:text-indigo-400',
+    arrowHover: 'group-hover:text-indigo-600',
+  },
+  amber: {
+    active: 'border-amber-500/60 bg-amber-500/10 ring-1 ring-amber-500/40',
+    hover: 'border-[var(--border-subtle)] hover:border-amber-500/50 hover:bg-amber-500/10',
+    headerHover: 'group-hover:text-amber-700 dark:group-hover:text-amber-300 group-hover:border-amber-500/30',
+    badgeText: 'text-amber-700 dark:text-amber-400',
+    arrowHover: 'group-hover:text-amber-600',
+  },
+};
+
+const ICON_EMOJI_MAP = {
+  Zap: '⚡',
+  Wrench: '🛠️',
+  MessageSquareCode: '💬',
+  ShieldCheck: '🛡️',
+  deny_and_move_on: '🛡️',
+  custom_prompt: '🪶',
+  suggest_change: '🤖',
 };
 
 function StageDecisionConsole({
@@ -33,7 +113,23 @@ function StageDecisionConsole({
   onOpenDraftPrompt,
   onOpenDraftRule,
   isTimerPaused = false,
+  actionsConfig = null,
 }) {
+  const resolvedActions = useMemo(() => {
+    if (Array.isArray(actionsConfig) && actionsConfig.length >= 4) {
+      return actionsConfig.slice(0, 4);
+    }
+    return DEFAULT_ACTIONS;
+  }, [actionsConfig]);
+
+  const actionSlotMap = useMemo(() => {
+    const map = {};
+    resolvedActions.forEach((act, idx) => {
+      map[act.id] = `[${idx + 1}]`;
+    });
+    return map;
+  }, [resolvedActions]);
+
   const totalActivePlayers = Math.max(activePlayers.length, 1);
   const totalVotesCast = Object.values(votesTally).reduce((a, b) => a + b, 0);
   const consensusPct = Math.min(100, Math.round((totalVotesCast / totalActivePlayers) * 100));
@@ -69,24 +165,24 @@ function StageDecisionConsole({
 
       if (disabled || isTimerPaused || stageActionTaken) return;
 
-      if (e.key === '1') {
+      if (e.key === '1' && resolvedActions[0]) {
         e.preventDefault();
-        onSelectAction('accept_as_is');
-      } else if (e.key === '2') {
+        onSelectAction(resolvedActions[0].id);
+      } else if (e.key === '2' && resolvedActions[1]) {
         e.preventDefault();
-        onSelectAction('deny_and_move_on');
-      } else if (e.key === '3') {
+        onSelectAction(resolvedActions[1].id);
+      } else if (e.key === '3' && resolvedActions[2]) {
         e.preventDefault();
-        onSelectAction('custom_prompt');
-      } else if (e.key === '4') {
+        onSelectAction(resolvedActions[2].id);
+      } else if (e.key === '4' && resolvedActions[3]) {
         e.preventDefault();
-        onSelectAction('suggest_change');
+        onSelectAction(resolvedActions[3].id);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [disabled, isTimerPaused, stageActionTaken, onSelectAction]);
+  }, [disabled, isTimerPaused, stageActionTaken, onSelectAction, resolvedActions]);
 
   return (
     <div className="flex flex-col gap-2.5 select-none">
@@ -183,7 +279,7 @@ function StageDecisionConsole({
             const isMe = (player.player_id && player.player_id === localPlayerId) || player.player_name === localPlayerName;
             const hasVoted = player.has_voted || (isMe && Boolean(myVote));
             const votedAction = player.voted_action || (isMe ? myVote : null);
-            const slotBadge = votedAction ? ACTION_SLOT_MAP[votedAction] : null;
+            const slotBadge = votedAction ? actionSlotMap[votedAction] : null;
 
             return (
               <div
@@ -219,221 +315,97 @@ function StageDecisionConsole({
 
       {/* 3. 2x2 Decision Engine Grid */}
       <div className={`grid grid-cols-2 gap-2 [@media(min-height:860px)]:gap-3 shrink-0 ${stageActionTaken || isTimerPaused ? 'opacity-60 pointer-events-none' : ''}`}>
-        {/* Slot 1: Accept as-is (High Risk) */}
-        <button
-          type="button"
-          disabled={disabled || isTimerPaused}
-          onClick={() => onSelectAction('accept_as_is')}
-          className={`group relative text-left transition-all duration-150 hover:-translate-y-0.5 p-2.5 [@media(min-height:860px)]:p-3.5 rounded-xl border bg-[var(--bg-card)] shadow-sm flex flex-col justify-between cursor-pointer ${
-            myVote === 'accept_as_is'
-              ? 'border-rose-500/60 bg-rose-500/10 ring-1 ring-rose-500/40'
-              : 'border-[var(--border-subtle)] hover:border-rose-500/50 hover:bg-rose-500/10'
-          }`}
-        >
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="font-theme-badge text-[10px] xl:text-[11px] font-bold px-2 py-0.5 rounded bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] group-hover:text-rose-700 dark:group-hover:text-rose-300 group-hover:border-rose-500/30 transition-colors">
-                [1]
-              </span>
-              <div className="flex items-center gap-1.5">
-                {(votesTally['accept_as_is'] || 0) > 0 && (
-                  <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
-                    +{votesTally['accept_as_is']}
-                  </span>
-                )}
-                <span className="text-sm xl:text-base">🍏</span>
-              </div>
-            </div>
-            <h4 className="font-theme-heading text-[clamp(0.875rem,1.5vh,1.05rem)] font-bold text-[var(--text-primary)] mb-0.5 flex items-center justify-between leading-tight">
-              <span>Accept as-is</span>
-              {myVote === 'accept_as_is' && (
-                <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold">[VOTED]</span>
-              )}
-            </h4>
-            <p className="text-[11px] xl:text-xs text-[var(--text-secondary)] mt-0.5 [@media(min-height:860px)]:mt-1 line-clamp-1 [@media(min-height:860px)]:line-clamp-2 font-sans leading-relaxed font-medium">
-              Rapid merge, zero review. High risk!
-            </p>
-          </div>
-          <div className="text-[10.5px] xl:text-xs font-bold tracking-wider mt-1.5 [@media(min-height:860px)]:mt-2.5 pt-1.5 border-t border-[var(--border-subtle)] flex items-center justify-between">
-            <span className="text-rose-700 dark:text-rose-400 font-bold">
-              RAW SPEED
-            </span>
-            <ArrowRight className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-rose-600 group-hover:translate-x-0.5 transition-all" />
-          </div>
-        </button>
+        {resolvedActions.map((action, index) => {
+          const slotNum = index + 1;
+          const isSelected = myVote === action.id;
+          const voteCount = votesTally[action.id] || 0;
+          const theme = THEME_STYLES[action.themeColor] || THEME_STYLES.rose;
+          const emojiIcon = action.emoji || ICON_EMOJI_MAP[action.icon] || ICON_EMOJI_MAP[action.id] || '⚡';
 
-        {/* Slot 2: Bypass & Skip (Safe Skip) */}
-        <button
-          type="button"
-          disabled={disabled || isTimerPaused}
-          onClick={() => onSelectAction('deny_and_move_on')}
-          className={`group relative text-left transition-all duration-150 hover:-translate-y-0.5 p-2.5 [@media(min-height:860px)]:p-3.5 rounded-xl border bg-[var(--bg-card)] shadow-sm flex flex-col justify-between cursor-pointer ${
-            myVote === 'deny_and_move_on'
-              ? 'border-sky-500/60 bg-sky-500/10 ring-1 ring-sky-500/40'
-              : 'border-[var(--border-subtle)] hover:border-sky-500/50 hover:bg-sky-500/10'
-          }`}
-        >
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="font-theme-badge text-[10px] xl:text-[11px] font-bold px-2 py-0.5 rounded bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] group-hover:text-sky-700 dark:group-hover:text-sky-300 group-hover:border-sky-500/30 transition-colors">
-                [2]
-              </span>
-              <div className="flex items-center gap-1.5">
-                {(votesTally['deny_and_move_on'] || 0) > 0 && (
-                  <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
-                    +{votesTally['deny_and_move_on']}
+          return (
+            <button
+              key={action.id}
+              type="button"
+              disabled={disabled || isTimerPaused}
+              onClick={() => onSelectAction(action.id)}
+              className={`group relative text-left transition-all duration-150 hover:-translate-y-0.5 p-2.5 [@media(min-height:860px)]:p-3 rounded-xl border bg-[var(--bg-card)] shadow-sm flex flex-col justify-between cursor-pointer ${
+                isSelected ? theme.active : theme.hover
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`font-theme-badge text-[10px] xl:text-[11px] font-bold px-2 py-0.5 rounded bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] ${theme.headerHover} transition-colors`}>
+                    [{slotNum}]
                   </span>
-                )}
-                <span className="text-sm xl:text-base">🛡️</span>
-              </div>
-            </div>
-            <h4 className="font-theme-heading text-[clamp(0.875rem,1.5vh,1.05rem)] font-bold text-[var(--text-primary)] mb-0.5 flex items-center justify-between leading-tight">
-              <span>Bypass & Skip</span>
-              {myVote === 'deny_and_move_on' && (
-                <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold">[VOTED]</span>
-              )}
-            </h4>
-            <p className="text-[11px] xl:text-xs text-[var(--text-secondary)] mt-0.5 [@media(min-height:860px)]:mt-1 line-clamp-1 [@media(min-height:860px)]:line-clamp-2 font-sans leading-relaxed font-medium">
-              Reject commit to safeguard health.
-            </p>
-          </div>
-          <div className="text-[10.5px] xl:text-xs font-bold tracking-wider mt-1.5 [@media(min-height:860px)]:mt-2.5 pt-1.5 border-t border-[var(--border-subtle)] flex items-center justify-between">
-            <span className="text-sky-700 dark:text-sky-400 font-bold">
-              SAFE SKIP
-            </span>
-            <ArrowRight className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-sky-600 group-hover:translate-x-0.5 transition-all" />
-          </div>
-        </button>
-
-        {/* Slot 3: Human Guidance (Collab) */}
-        <button
-          type="button"
-          disabled={disabled || isTimerPaused}
-          onClick={() => onSelectAction('custom_prompt')}
-          className={`group relative text-left transition-all duration-150 hover:-translate-y-0.5 p-2.5 [@media(min-height:860px)]:p-3.5 rounded-xl border bg-[var(--bg-card)] shadow-sm flex flex-col justify-between cursor-pointer ${
-            myVote === 'custom_prompt'
-              ? 'border-emerald-500/60 bg-emerald-500/10 ring-1 ring-emerald-500/40'
-              : 'border-[var(--border-subtle)] hover:border-emerald-500/50 hover:bg-emerald-500/10'
-          }`}
-        >
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="font-theme-badge text-[10px] xl:text-[11px] font-bold px-2 py-0.5 rounded bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] group-hover:text-emerald-700 dark:group-hover:text-emerald-300 group-hover:border-emerald-500/30 transition-colors">
-                [3]
-              </span>
-              <div className="flex items-center gap-1.5">
-                {(votesTally['custom_prompt'] || 0) > 0 && (
-                  <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
-                    +{votesTally['custom_prompt']}
-                  </span>
-                )}
-                <span className="text-sm xl:text-base">🪶</span>
-              </div>
-            </div>
-
-            <h4 className="font-theme-heading text-[clamp(0.875rem,1.5vh,1.05rem)] font-bold text-[var(--text-primary)] mb-0.5 flex items-center justify-between leading-tight">
-              <span>Human Guidance</span>
-              {myVote === 'custom_prompt' && (
-                <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold">[VOTED]</span>
-              )}
-            </h4>
-
-            {customPromptDraft?.text ? (
-              <div className="bg-[var(--bg-elevated)] border border-emerald-500/30 rounded-lg p-1.5 my-1 text-xs text-emerald-800 dark:text-emerald-200">
-                <div className="flex items-center justify-between mb-0.5 text-[10px] text-emerald-700 dark:text-emerald-400 font-bold">
-                  <span className="font-mono">BY {customPromptDraft.player_name}:</span>
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (!disabled && !isTimerPaused && onOpenDraftPrompt) onOpenDraftPrompt();
-                    }}
-                    className="text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1 cursor-pointer font-bold"
-                  >
-                    <Edit3 className="w-2.5 h-2.5" />
-                    <span>EDIT</span>
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {voteCount > 0 && (
+                      <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
+                        +{voteCount}
+                      </span>
+                    )}
+                    <span className="text-sm xl:text-base">{emojiIcon}</span>
+                  </div>
                 </div>
-                <p className="line-clamp-1 [@media(min-height:860px)]:line-clamp-2 italic font-sans leading-relaxed font-medium">"{customPromptDraft.text}"</p>
-              </div>
-            ) : (
-              <p className="text-[11px] xl:text-xs text-[var(--text-secondary)] mt-0.5 [@media(min-height:860px)]:mt-1 line-clamp-1 [@media(min-height:860px)]:line-clamp-2 font-sans leading-relaxed font-medium">
-                Draft steering prompt in Book & Quill.
-              </p>
-            )}
-          </div>
 
-          <div className="text-[10.5px] xl:text-xs font-bold tracking-wider mt-1.5 [@media(min-height:860px)]:mt-2.5 pt-1.5 border-t border-[var(--border-subtle)] flex items-center justify-between">
-            <span className="text-emerald-700 dark:text-emerald-400 font-bold">
-              COLLAB
-            </span>
-            <ArrowRight className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" />
-          </div>
-        </button>
+                <h4 className="font-theme-heading text-[clamp(0.875rem,1.5vh,1.05rem)] font-bold text-[var(--text-primary)] mb-0.5 flex items-center justify-between leading-tight">
+                  <span>{action.title}</span>
+                  {isSelected && (
+                    <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold">[VOTED]</span>
+                  )}
+                </h4>
 
-        {/* Slot 4: AI Suggestions (Proposals) */}
-        <button
-          type="button"
-          disabled={disabled || isTimerPaused}
-          onClick={() => onSelectAction('suggest_change')}
-          className={`group relative text-left transition-all duration-150 hover:-translate-y-0.5 p-2.5 [@media(min-height:860px)]:p-3.5 rounded-xl border bg-[var(--bg-card)] shadow-sm flex flex-col justify-between cursor-pointer ${
-            myVote === 'suggest_change'
-              ? 'border-indigo-500/60 bg-indigo-500/10 ring-1 ring-indigo-500/40'
-              : 'border-[var(--border-subtle)] hover:border-indigo-500/50 hover:bg-indigo-500/10'
-          }`}
-        >
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="font-theme-badge text-[10px] xl:text-[11px] font-bold px-2 py-0.5 rounded bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] group-hover:text-indigo-700 dark:group-hover:text-indigo-300 group-hover:border-indigo-500/30 transition-colors">
-                [4]
-              </span>
-              <div className="flex items-center gap-1.5">
-                {(votesTally['suggest_change'] || 0) > 0 && (
-                  <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
-                    +{votesTally['suggest_change']}
-                  </span>
+                {/* Slot 3 Draft Bubble (if custom_prompt has draft) */}
+                {action.id === 'custom_prompt' && customPromptDraft?.text ? (
+                  <div className="bg-[var(--bg-elevated)] border border-emerald-500/30 rounded-lg p-1.5 my-1 text-xs text-emerald-800 dark:text-emerald-200">
+                    <div className="flex items-center justify-between mb-0.5 text-[10px] text-emerald-700 dark:text-emerald-400 font-bold">
+                      <span className="font-mono">BY {customPromptDraft.player_name}:</span>
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!disabled && !isTimerPaused && onOpenDraftPrompt) onOpenDraftPrompt();
+                        }}
+                        className="text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1 cursor-pointer font-bold"
+                      >
+                        <Edit3 className="w-2.5 h-2.5" />
+                        <span>EDIT</span>
+                      </span>
+                    </div>
+                    <p className="line-clamp-2 text-xs leading-snug italic font-sans font-medium">"{customPromptDraft.text}"</p>
+                  </div>
+                ) : action.id === 'suggest_change' && guardrailRuleDraft?.title ? (
+                  /* Slot 4 Rule Draft Bubble (if suggest_change has draft) */
+                  <div className="bg-[var(--bg-elevated)] border border-indigo-500/30 rounded-lg p-1.5 my-1 text-xs text-indigo-800 dark:text-indigo-200">
+                    <div className="flex items-center justify-between mb-0.5 text-[10px] text-indigo-700 dark:text-indigo-400 font-bold">
+                      <span className="font-mono">BY {guardrailRuleDraft.player_name}:</span>
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!disabled && !isTimerPaused && onOpenDraftRule) onOpenDraftRule();
+                        }}
+                        className="text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1 cursor-pointer font-bold"
+                      >
+                        <Edit3 className="w-2.5 h-2.5" />
+                        <span>EDIT</span>
+                      </span>
+                    </div>
+                    <p className="line-clamp-2 text-xs leading-snug font-semibold font-sans">{guardrailRuleDraft.title}</p>
+                  </div>
+                ) : (
+                  <p className="text-xs leading-snug text-[var(--text-secondary)] mt-0.5 line-clamp-2 font-sans font-medium">
+                    {action.desc}
+                  </p>
                 )}
-                <span className="text-sm xl:text-base">🤖</span>
               </div>
-            </div>
 
-            <h4 className="font-theme-heading text-[clamp(0.875rem,1.5vh,1.05rem)] font-bold text-[var(--text-primary)] mb-0.5 flex items-center justify-between leading-tight">
-              <span>AI Suggestions</span>
-              {myVote === 'suggest_change' && (
-                <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold">[VOTED]</span>
-              )}
-            </h4>
-
-            {guardrailRuleDraft?.title ? (
-              <div className="bg-[var(--bg-elevated)] border border-indigo-500/30 rounded-lg p-1.5 my-1 text-xs text-indigo-800 dark:text-indigo-200">
-                <div className="flex items-center justify-between mb-0.5 text-[10px] text-indigo-700 dark:text-indigo-400 font-bold">
-                  <span className="font-mono">BY {guardrailRuleDraft.player_name}:</span>
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (!disabled && !isTimerPaused && onOpenDraftRule) onOpenDraftRule();
-                    }}
-                    className="text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1 cursor-pointer font-bold"
-                  >
-                    <Edit3 className="w-2.5 h-2.5" />
-                    <span>EDIT</span>
-                  </span>
-                </div>
-                <p className="line-clamp-1 [@media(min-height:860px)]:line-clamp-2 font-semibold font-sans leading-relaxed">{guardrailRuleDraft.title}</p>
+              <div className="text-[10.5px] xl:text-xs font-bold tracking-wider mt-1.5 pt-1.5 border-t border-[var(--border-subtle)] flex items-center justify-between">
+                <span className={`${theme.badgeText} font-bold`}>
+                  {action.badge || 'ACTION'}
+                </span>
+                <ArrowRight className={`w-3.5 h-3.5 text-[var(--text-muted)] ${theme.arrowHover} group-hover:translate-x-0.5 transition-all`} />
               </div>
-            ) : (
-              <p className="text-[11px] xl:text-xs text-[var(--text-secondary)] mt-0.5 [@media(min-height:860px)]:mt-1 line-clamp-1 [@media(min-height:860px)]:line-clamp-2 font-sans leading-relaxed font-medium">
-                Review 3 AI-proposed technical fixes.
-              </p>
-            )}
-          </div>
-
-          <div className="text-[10.5px] xl:text-xs font-bold tracking-wider mt-1.5 [@media(min-height:860px)]:mt-2.5 pt-1.5 border-t border-[var(--border-subtle)] flex items-center justify-between">
-            <span className="text-indigo-700 dark:text-indigo-400 font-bold">
-              PROPOSALS
-            </span>
-            <ArrowRight className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all" />
-          </div>
-        </button>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

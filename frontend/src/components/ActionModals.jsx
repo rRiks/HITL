@@ -304,7 +304,7 @@ export function ResultModal({
           </div>
 
           <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] block mb-0.5 font-bold">
-            {actionResult.action_label}
+            {actionResult.action_label || (actionResult.action_type ? actionResult.action_type.replace(/_/g, ' ').toUpperCase() : 'DECISION EVALUATED')}
           </span>
           <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)] font-theme-heading tracking-wide">
             {isGameOver
@@ -325,7 +325,7 @@ export function ResultModal({
                   50/50 TOSS TIE-BREAKER
                 </span>
                 <p className="text-xs text-[var(--text-secondary)] font-medium">
-                  Party split evenly! Random toss selected <strong>{actionResult.action_label}</strong>.
+                  Party split evenly! Random toss selected <strong>{actionResult.action_label || 'Action'}</strong>.
                 </p>
               </div>
             </div>
@@ -357,7 +357,7 @@ export function ResultModal({
         {/* Feedback Narrative */}
         <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-3 mb-3 rounded-xl shadow-xs">
           <p className="text-xs sm:text-[13px] text-[var(--text-primary)] font-medium leading-relaxed font-sans select-text">
-            {actionResult.feedback_message}
+            {actionResult.feedback_message || actionResult.feedback || 'Action evaluated and verified against architectural requirements.'}
           </p>
         </div>
 
@@ -372,7 +372,9 @@ export function ResultModal({
             >
               {actionResult.health_delta >= 0 ? `+${actionResult.health_delta}%` : `${actionResult.health_delta}%`}
             </span>
-            <span className="text-[10px] text-[var(--text-secondary)] block mt-0.5 font-medium font-mono">Now: {actionResult.new_health}%</span>
+            <span className="text-[10px] text-[var(--text-secondary)] block mt-0.5 font-medium font-mono">
+              Now: {actionResult.new_health ?? actionResult.health ?? actionResult.health_after ?? 100}%
+            </span>
           </div>
 
           <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-2.5 rounded-xl shadow-xs">

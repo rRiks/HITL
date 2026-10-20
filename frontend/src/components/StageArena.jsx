@@ -36,6 +36,7 @@ export default function StageArena({
   onOpenDraftPrompt,
   onOpenDraftRule,
   isTimerPaused = false,
+  actionsConfig = null,
 }) {
   const [mobileTab, setMobileTab] = useState('scenario'); // 'scenario' | 'tower' | 'decide'
 
@@ -126,6 +127,7 @@ export default function StageArena({
               onOpenDraftPrompt={onOpenDraftPrompt}
               onOpenDraftRule={onOpenDraftRule}
               isTimerPaused={isTimerPaused}
+              actionsConfig={actionsConfig}
             />
           </div>
         </div>
@@ -185,6 +187,7 @@ export default function StageArena({
               onOpenDraftPrompt={onOpenDraftPrompt}
               onOpenDraftRule={onOpenDraftRule}
               isTimerPaused={isTimerPaused}
+              actionsConfig={actionsConfig}
             />
           </div>
         </div>
@@ -248,6 +251,7 @@ export default function StageArena({
                 onOpenDraftPrompt={onOpenDraftPrompt}
                 onOpenDraftRule={onOpenDraftRule}
                 isTimerPaused={isTimerPaused}
+                actionsConfig={actionsConfig}
               />
             </div>
           )}
