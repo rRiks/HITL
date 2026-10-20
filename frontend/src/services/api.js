@@ -394,4 +394,84 @@ export async function resetSprintGame(roomId = getRoomId()) {
   return res.json();
 }
 
+// -------------------------------------------------------------
+// Chaos System & Soundboard API
+// -------------------------------------------------------------
+export function getPlayerRole() {
+  if (typeof window === 'undefined') return 'architect';
+  return localStorage.getItem('hitl_player_role') || 'architect';
+}
+
+export function setPlayerRoleLocal(role) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('hitl_player_role', role);
+  }
+  return role;
+}
+
+export async function broadcastReaction(roomId = getRoomId(), emoji = '🔥', label = '') {
+  const res = await fetch(`${API_BASE}/game/${roomId}/reaction`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      room_id: roomId,
+      player_id: getPlayerId(),
+      player_name: getPlayerName(),
+      emoji,
+      label,
+    }),
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function slapVote(roomId = getRoomId(), targetPlayerId, targetPlayerName) {
+  const res = await fetch(`${API_BASE}/game/${roomId}/slap-vote`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      room_id: roomId,
+      slapper_id: getPlayerId(),
+      slapper_name: getPlayerName(),
+      target_player_id: targetPlayerId,
+      target_player_name: targetPlayerName,
+    }),
+  });
+  if (!res.ok) throw new Error('Failed to slap vote');
+  return res.json();
+}
+
+export async function setPlayerRoleRemote(roomId = getRoomId(), role = 'architect') {
+  setPlayerRoleLocal(role);
+  const res = await fetch(`${API_BASE}/game/${roomId}/set-role`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      room_id: roomId,
+      player_id: getPlayerId(),
+      role,
+    }),
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function triggerChaosIncident(roomId = getRoomId(), incidentType = null) {
+  const q = incidentType ? `?incident_type=${encodeURIComponent(incidentType)}` : '';
+  const res = await fetch(`${API_BASE}/game/${roomId}/trigger-incident${q}`, {
+    method: 'POST',
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function purgeHallucination(roomId = getRoomId()) {
+  const res = await fetch(`${API_BASE}/game/${roomId}/purge-hallucination`, {
+    method: 'POST',
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+
 

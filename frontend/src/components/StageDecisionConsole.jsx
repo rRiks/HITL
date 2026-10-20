@@ -114,6 +114,7 @@ function StageDecisionConsole({
   onOpenDraftRule,
   isTimerPaused = false,
   actionsConfig = null,
+  onSlapVote = null,
 }) {
   const resolvedActions = useMemo(() => {
     if (Array.isArray(actionsConfig) && actionsConfig.length >= 4) {
@@ -280,6 +281,9 @@ function StageDecisionConsole({
             const hasVoted = player.has_voted || (isMe && Boolean(myVote));
             const votedAction = player.voted_action || (isMe ? myVote : null);
             const slotBadge = votedAction ? actionSlotMap[votedAction] : null;
+            const isBlamed = (player.incident_blame_count || 0) > 0;
+            const roleIcons = { architect: '🧠', intern: '🔨', sre: '🛡️', gremlin: '😈' };
+            const roleIcon = roleIcons[player.role] || '🧠';
 
             return (
               <div
@@ -290,20 +294,43 @@ function StageDecisionConsole({
                     : 'bg-[var(--bg-elevated)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
                 }`}
               >
+                <span title={`Role: ${player.role || 'architect'}`} className="text-[10px] leading-none select-none">
+                  {roleIcon}
+                </span>
                 <span
                   className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                     hasVoted ? 'bg-emerald-600 dark:bg-emerald-400' : 'bg-amber-500 animate-pulse'
                   }`}
                 />
                 <span className="truncate max-w-[110px]">{player.player_name}</span>
+                {isBlamed && (
+                  <span title={`On-Call Probation (Blamed for ${player.incident_blame_count} outages)`} className="text-[10px]">
+                    🤡
+                  </span>
+                )}
                 {hasVoted ? (
-                  slotBadge ? (
-                    <span className="font-mono text-[10px] xl:text-[11px] font-bold text-emerald-800 dark:text-emerald-400 bg-emerald-500/15 px-1 py-0.2 rounded border border-emerald-500/30">
-                      {slotBadge}
-                    </span>
-                  ) : (
-                    <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0 font-bold" />
-                  )
+                  <div className="flex items-center gap-1">
+                    {slotBadge ? (
+                      <span className="font-mono text-[10px] xl:text-[11px] font-bold text-emerald-800 dark:text-emerald-400 bg-emerald-500/15 px-1 py-0.2 rounded border border-emerald-500/30">
+                        {slotBadge}
+                      </span>
+                    ) : (
+                      <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0 font-bold" />
+                    )}
+                    {!isMe && onSlapVote && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSlapVote(player.player_id, player.player_name);
+                        }}
+                        title={`Slap ${player.player_name}'s vote! 👋`}
+                        className="hover:scale-135 transition-transform text-xs cursor-pointer leading-none ml-0.5 p-0.5"
+                      >
+                        👋
+                      </button>
+                    )}
+                  </div>
                 ) : (
                   <span className="text-[10px] text-[var(--text-muted)] font-sans italic">deciding</span>
                 )}

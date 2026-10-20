@@ -123,11 +123,49 @@ export default function App() {
   const isAdvancingStageRef = useRef(false);
   const isSubmittingVoteRef = useRef(false);
 
+  // Asymmetric Player Role State (Architect / Intern / SRE / Gremlin)
+  const [playerRole, setPlayerRole] = useState(() => api.getPlayerRole());
+
   // Tower 3D Ref
   const towerRef = useRef(null);
 
   // Sound Engine
   const sound = useSound();
+
+  const handleRoleChange = useCallback(async (newRole) => {
+    setPlayerRole(newRole);
+    api.setPlayerRoleLocal(newRole);
+    const room = roomId || api.getRoomId();
+    if (room) {
+      try {
+        await api.setPlayerRoleRemote(room, newRole);
+      } catch (e) {
+        console.warn('Set role failed:', e);
+      }
+    }
+  }, [roomId]);
+
+  const handleSlapVote = useCallback(async (targetId, targetName) => {
+    const room = roomId || api.getRoomId();
+    if (!room) return;
+    try {
+      sound?.playSlap?.();
+      await api.slapVote(room, targetId, targetName);
+    } catch (e) {
+      console.warn('Slap failed:', e);
+    }
+  }, [roomId, sound]);
+
+  const handlePurgeIncident = useCallback(async () => {
+    const room = roomId || api.getRoomId();
+    if (!room) return;
+    try {
+      sound?.playRubberStamp?.();
+      await api.purgeHallucination(room);
+    } catch (e) {
+      console.warn('Purge failed:', e);
+    }
+  }, [roomId, sound]);
 
   // Theme Engine Management: Supports custom themes with both dark & light options
   const [theme, setTheme] = useState(() => {
@@ -326,6 +364,14 @@ export default function App() {
             setIsTimerRunning(!remoteState.is_timer_paused);
             return remoteState;
           }
+          // Audio cue on newly detected chaos incident or slap
+          if (remoteState.active_incident && (!prev?.active_incident || prev.active_incident.id !== remoteState.active_incident.id)) {
+            sound?.playSiren?.();
+          }
+          if ((remoteState.slap_events?.length ?? 0) > (prev?.slap_events?.length ?? 0)) {
+            sound?.playSlap?.();
+          }
+
           if (
             prev.health !== remoteState.health ||
             prev.total_jenga_pulls !== remoteState.total_jenga_pulls ||
@@ -337,7 +383,10 @@ export default function App() {
             JSON.stringify(prev.votes_tally) !== JSON.stringify(remoteState.votes_tally) ||
             JSON.stringify(prev.custom_prompt_draft) !== JSON.stringify(remoteState.custom_prompt_draft) ||
             JSON.stringify(prev.guardrail_rule_draft) !== JSON.stringify(remoteState.guardrail_rule_draft) ||
-            (prev.active_players?.length ?? 0) !== (remoteState.active_players?.length ?? 0)
+            (prev.active_players?.length ?? 0) !== (remoteState.active_players?.length ?? 0) ||
+            prev.active_incident?.id !== remoteState.active_incident?.id ||
+            (prev.recent_reactions?.length ?? 0) !== (remoteState.recent_reactions?.length ?? 0) ||
+            (prev.slap_events?.length ?? 0) !== (remoteState.slap_events?.length ?? 0)
           ) {
             return remoteState;
           }
@@ -1129,6 +1178,15 @@ export default function App() {
         onOpenDraftPrompt={() => setPromptModalOpen(true)}
         onOpenDraftRule={() => setGuardrailsModalOpen(true)}
         isTimerPaused={isTimerPausedByAdmin}
+        sound={sound}
+        activeIncident={gameState?.active_incident}
+        recentReactions={gameState?.recent_reactions || []}
+        slapEvents={gameState?.slap_events || []}
+        onSlapVote={handleSlapVote}
+        playerRole={playerRole}
+        onRoleChange={handleRoleChange}
+        onPurgeIncident={handlePurgeIncident}
+        roomId={roomId || api.getRoomId()}
       />
 
       {/* Cinematic Extraction Floating HUD Bar */}

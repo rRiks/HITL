@@ -56,6 +56,12 @@ class SprintSessionManager:
         self.last_action_result: Optional[Dict[str, Any]] = None
         self.stage_action_taken = False
 
+        # Chaos & Social Mechanics
+        self.active_incident = None
+        self.recent_reactions = []
+        self.last_blamed_player = None
+        self.slap_events = []
+
         # Stage Timing & Candidate Initialization
         self.stage_start_timestamp = time.time()
         self.stage_attempts_count = 0
@@ -136,6 +142,10 @@ class SprintSessionManager:
             chat_history=self.chat_history,
             stage_time_records=self.stage_time_records,
             history=self.history,
+            active_incident=self.active_incident,
+            recent_reactions=self.recent_reactions[-12:] if hasattr(self, "recent_reactions") else [],
+            last_blamed_player=getattr(self, "last_blamed_player", None),
+            slap_events=self.slap_events[-10:] if hasattr(self, "slap_events") else [],
         )
 
     # ---------------------------------------------------------

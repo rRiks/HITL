@@ -8,6 +8,7 @@ import SprintReportCard from './components/SprintReportCard';
 import StageArena from '../../components/StageArena';
 import { ResultModal, GuardrailsModal } from '../../components/ActionModals';
 import GameOverModal from '../../components/GameOverModal';
+import * as api from '../../services/api';
 
 export default function SprintDeliveryScreen({
   roomId = 'default',
@@ -26,6 +27,41 @@ export default function SprintDeliveryScreen({
   const [manualModalOpen, setManualModalOpen] = useState(false);
   const [guardrailModalOpen, setGuardrailModalOpen] = useState(false);
   const [resultModalOpen, setResultModalOpen] = useState(false);
+
+  // Asymmetric Player Role State (Architect / Intern / SRE / Gremlin)
+  const [playerRole, setPlayerRole] = useState(() => api.getPlayerRole());
+
+  const handleRoleChange = async (newRole) => {
+    setPlayerRole(newRole);
+    api.setPlayerRoleLocal(newRole);
+    if (roomId) {
+      try {
+        await api.setPlayerRoleRemote(roomId, newRole);
+      } catch (e) {
+        console.warn('Set role failed:', e);
+      }
+    }
+  };
+
+  const handleSlapVote = async (targetId, targetName) => {
+    if (!roomId) return;
+    try {
+      sound?.playSlap?.();
+      await api.slapVote(roomId, targetId, targetName);
+    } catch (e) {
+      console.warn('Slap failed:', e);
+    }
+  };
+
+  const handlePurgeIncident = async () => {
+    if (!roomId) return;
+    try {
+      sound?.playRubberStamp?.();
+      await api.purgeHallucination(roomId);
+    } catch (e) {
+      console.warn('Purge failed:', e);
+    }
+  };
 
   const { sprintState, clock, dialogue, actions, advanceStage, resetSprint, activeCodeDiff } = session;
 
@@ -196,6 +232,15 @@ export default function SprintDeliveryScreen({
         onOpenDraftRule={() => setGuardrailModalOpen(true)}
         isTimerPaused={false}
         actionsConfig={dynamicSprintActions}
+        sound={sound}
+        activeIncident={sprintState?.active_incident}
+        recentReactions={sprintState?.recent_reactions || []}
+        slapEvents={sprintState?.slap_events || []}
+        onSlapVote={handleSlapVote}
+        playerRole={playerRole}
+        onRoleChange={handleRoleChange}
+        onPurgeIncident={handlePurgeIncident}
+        roomId={roomId}
       />
 
       {/* 3. Interactive Copilot Steer Chat Drawer */}

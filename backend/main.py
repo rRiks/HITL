@@ -20,6 +20,9 @@ from models import (
     DraftRequest,
     VoteRequest,
     RevealHintRequest,
+    ReactionBroadcastRequest,
+    SlapVoteRequest,
+    SetRoleRequest,
 )
 from game_state import room_manager, GameStateManager
 from stages_data import STAGES
@@ -179,7 +182,7 @@ def get_state_room(room_id: str, player_id: Optional[str] = Query(default=None),
 @limiter.limit("20/minute")
 def join_player_room(request: Request, room_id: str, req: JoinPlayerRequest):
     manager = room_manager.get_room(room_id)
-    manager.touch_player(req.player_id, req.player_name)
+    manager.touch_player(req.player_id, req.player_name, requested_role=req.role)
     return manager.get_state()
 
 @app.post("/api/game/{room_id}/draft", response_model=GameStateResponse)
@@ -259,6 +262,39 @@ def retry_stage_room(room_id: str):
 def reveal_hint_room(room_id: str, req: RevealHintRequest):
     manager = room_manager.get_room(room_id)
     return manager.reveal_hint(req.stage_id)
+
+# -------------------------------------------------------------
+# Chaos Mode & Soundboard Reaction Endpoints
+# -------------------------------------------------------------
+@app.post("/api/game/{room_id}/reaction")
+@limiter.limit("60/minute")
+def broadcast_reaction_room(request: Request, room_id: str, req: ReactionBroadcastRequest):
+    manager = room_manager.get_room(room_id)
+    return manager.broadcast_reaction(req.player_id, req.player_name, req.emoji, req.label)
+
+@app.post("/api/game/{room_id}/slap-vote")
+@limiter.limit("30/minute")
+def slap_vote_room(request: Request, room_id: str, req: SlapVoteRequest):
+    manager = room_manager.get_room(room_id)
+    return manager.slap_vote(req.slapper_id, req.slapper_name, req.target_player_id, req.target_player_name)
+
+@app.post("/api/game/{room_id}/set-role", response_model=GameStateResponse)
+def set_role_room(room_id: str, req: SetRoleRequest):
+    manager = room_manager.get_room(room_id)
+    manager.set_player_role(req.player_id, req.role)
+    return manager.get_state()
+
+@app.post("/api/game/{room_id}/trigger-incident", response_model=GameStateResponse)
+def trigger_incident_room(room_id: str, incident_type: Optional[str] = Query(default=None)):
+    manager = room_manager.get_room(room_id)
+    manager.trigger_chaos_incident(incident_type)
+    return manager.get_state()
+
+@app.post("/api/game/{room_id}/purge-hallucination", response_model=GameStateResponse)
+def purge_hallucination_room(room_id: str):
+    manager = room_manager.get_room(room_id)
+    manager.purge_hallucination()
+    return manager.get_state()
 
 # -------------------------------------------------------------
 # Backwards-Compatible Global Endpoints (Default Room)

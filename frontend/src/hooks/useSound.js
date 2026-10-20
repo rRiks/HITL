@@ -254,6 +254,174 @@ export function useSound() {
     } catch {}
   }, [soundEnabled, musicEnabled, getAudioContext]);
 
+  // 1. Emergency Klaxon Siren (Two-Tone High Urgency Warble)
+  const playSiren = useCallback(() => {
+    if (!soundEnabled) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      // Oscillate frequency 650Hz to 950Hz
+      for (let i = 0; i < 4; i++) {
+        const t = now + i * 0.25;
+        osc.frequency.setValueAtTime(650, t);
+        osc.frequency.linearRampToValueAtTime(950, t + 0.12);
+        osc.frequency.linearRampToValueAtTime(650, t + 0.24);
+      }
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 1.0);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 1.0);
+    } catch {}
+  }, [soundEnabled, getAudioContext]);
+
+  // 2. Creeper Hiss (White noise rising swell with punchy thud)
+  const playCreeper = useCallback(() => {
+    if (!soundEnabled) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.9, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.35;
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1800, now);
+      filter.frequency.linearRampToValueAtTime(3200, now + 0.8);
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.02, now);
+      gain.gain.exponentialRampToValueAtTime(0.35, now + 0.75);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.9);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start(now);
+    } catch {}
+  }, [soundEnabled, getAudioContext]);
+
+  // 3. Veto Slap / Whipcrack Slap
+  const playSlap = useCallback(() => {
+    if (!soundEnabled) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(2800, now);
+      osc.frequency.exponentialRampToValueAtTime(120, now + 0.08);
+      gain.gain.setValueAtTime(0.4, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    } catch {}
+  }, [soundEnabled, getAudioContext]);
+
+  // 4. Meme Airhorn Triplet (bwa-bwa-bwaaa!)
+  const playAirhorn = useCallback(() => {
+    if (!soundEnabled) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const notes = [
+        { freq: 466.16, start: 0, dur: 0.12 },    // Bb4
+        { freq: 466.16, start: 0.16, dur: 0.12 }, // Bb4
+        { freq: 466.16, start: 0.32, dur: 0.35 }, // Bb4 long
+      ];
+      notes.forEach(({ freq, start, dur }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, now + start);
+        gain.gain.setValueAtTime(0.25, now + start);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + start + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + start);
+        osc.stop(now + start + dur);
+      });
+    } catch {}
+  }, [soundEnabled, getAudioContext]);
+
+  // 5. Digital Glitch Static
+  const playGlitch = useCallback(() => {
+    if (!soundEnabled) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const freqs = [320, 880, 210, 1400, 480];
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        const t = now + idx * 0.03;
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(0.18, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.03);
+      });
+    } catch {}
+  }, [soundEnabled, getAudioContext]);
+
+  // 6. Heavy Rubber Stamp Thud
+  const playRubberStamp = useCallback(() => {
+    if (!soundEnabled) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.exponentialRampToValueAtTime(25, now + 0.2);
+      gain.gain.setValueAtTime(0.5, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.2);
+    } catch {}
+  }, [soundEnabled, getAudioContext]);
+
+  // 7. Discordant Blunder Buzzer
+  const playBuzzer = useCallback(() => {
+    if (!soundEnabled) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      [145, 154].forEach((f) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(f, now);
+        gain.gain.setValueAtTime(0.22, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      });
+    } catch {}
+  }, [soundEnabled, getAudioContext]);
+
   const toggleSound = useCallback(() => setSoundEnabled((prev) => !prev), []);
   const toggleMusic = useCallback(() => setMusicEnabled((prev) => !prev), []);
 
@@ -272,6 +440,13 @@ export function useSound() {
       playSlide,
       playBlockThud,
       playAmbientPulse,
+      playSiren,
+      playCreeper,
+      playSlap,
+      playAirhorn,
+      playGlitch,
+      playRubberStamp,
+      playBuzzer,
     }),
     [
       soundEnabled,
@@ -287,6 +462,13 @@ export function useSound() {
       playSlide,
       playBlockThud,
       playAmbientPulse,
+      playSiren,
+      playCreeper,
+      playSlap,
+      playAirhorn,
+      playGlitch,
+      playRubberStamp,
+      playBuzzer,
     ]
   );
 }

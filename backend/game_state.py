@@ -53,6 +53,12 @@ class GameStateManager:
         self.hints_remaining: int = 6
         self.revealed_hints: List[int] = []
 
+        # Chaos System State
+        self.active_incident: Optional[Dict[str, Any]] = None
+        self.recent_reactions: List[Dict[str, Any]] = []
+        self.last_blamed_player: Optional[str] = None
+        self.slap_events: List[Dict[str, Any]] = []
+
     def is_effective_timer_paused(self) -> bool:
         if getattr(self, "timer_override", None) is not None:
             return bool(self.timer_override)
@@ -89,6 +95,10 @@ class GameStateManager:
         self._shuffled_suggestions = {}
         self.hints_remaining = 6
         self.revealed_hints = []
+        self.active_incident = None
+        self.recent_reactions = []
+        self.last_blamed_player = None
+        self.slap_events = []
 
     def retry_current_stage(self, restore_health: int = 35):
         """
@@ -166,19 +176,124 @@ class GameStateManager:
         instability = max(health_instability, pull_instability)
         return min(100, max(0, instability))
 
-    def touch_player(self, player_id: str, player_name: str) -> None:
+    def touch_player(self, player_id: str, player_name: str, requested_role: Optional[str] = None) -> None:
         self.last_active = time.time()
         pid = player_id.strip() if player_id else "anonymous"
         pname = player_name.strip() if player_name else "Player"
+        ROLES = ["architect", "intern", "sre", "gremlin"]
         if pid not in self.players:
+            assigned_role = requested_role if requested_role in ROLES else ROLES[len(self.players) % len(ROLES)]
             self.players[pid] = {
                 "player_id": pid,
                 "player_name": pname,
                 "last_seen": time.time(),
+                "role": assigned_role,
+                "incident_blame_count": 0,
             }
         else:
             self.players[pid]["player_name"] = pname
             self.players[pid]["last_seen"] = time.time()
+            if requested_role and requested_role in ROLES:
+                self.players[pid]["role"] = requested_role
+            elif "role" not in self.players[pid]:
+                self.players[pid]["role"] = ROLES[len(self.players) % len(ROLES)]
+            if "incident_blame_count" not in self.players[pid]:
+                self.players[pid]["incident_blame_count"] = 0
+
+    def set_player_role(self, player_id: str, role: str) -> None:
+        if player_id in self.players:
+            self.players[player_id]["role"] = role
+
+    def broadcast_reaction(self, player_id: str, player_name: str, emoji: str, label: Optional[str] = None) -> Dict[str, Any]:
+        self.last_active = time.time()
+        item = {
+            "id": f"react_{int(time.time()*1000)}_{random.randint(100, 999)}",
+            "player_id": player_id,
+            "player_name": player_name,
+            "emoji": emoji,
+            "label": label or "",
+            "timestamp": time.time(),
+        }
+        self.recent_reactions.append(item)
+        if len(self.recent_reactions) > 20:
+            self.recent_reactions = self.recent_reactions[-20:]
+        return item
+
+    def slap_vote(self, slapper_id: str, slapper_name: str, target_id: str, target_name: str) -> Dict[str, Any]:
+        self.last_active = time.time()
+        slapped_action = self.votes.pop(target_id, None)
+        event = {
+            "id": f"slap_{int(time.time()*1000)}",
+            "slapper_name": slapper_name,
+            "target_name": target_name,
+            "slapped_action": slapped_action,
+            "timestamp": time.time(),
+        }
+        self.slap_events.append(event)
+        if len(self.slap_events) > 10:
+            self.slap_events = self.slap_events[-10:]
+        self.broadcast_reaction(slapper_id, slapper_name, "👋", f"SLAPPED {target_name}'s VOTE!")
+        return event
+
+    def trigger_chaos_incident(self, incident_type: Optional[str] = None) -> Dict[str, Any]:
+        INCIDENTS = [
+            {
+                "type": "friday_deploy",
+                "title": "🚨 FRIDAY 4:59 PM DEPLOY KLAXON",
+                "description": "Production emergency siren triggered! Clock ticking 2x faster, sprint stakes doubled!",
+                "duration_seconds": 35,
+            },
+            {
+                "type": "rogue_ai",
+                "title": "👾 ROGUE AI HALLUCINATION DETECTED",
+                "description": "AI Copilot entered hallucination loop and distorted code proposals! Click PURGE to reboot!",
+                "duration_seconds": 45,
+            },
+            {
+                "type": "vp_bridge",
+                "title": "👔 VP OF ENGINEERING JOINED BRIDGE",
+                "description": "Executive oversight active! All hints locked and manual override costs 1 extra token!",
+                "duration_seconds": 40,
+            },
+            {
+                "type": "memory_leak",
+                "title": "💥 APEX HEAP LIMIT LEAK CASCADE",
+                "description": "Active memory leak! Health dropping by 1% every 5s until an action is executed!",
+                "duration_seconds": 30,
+            },
+        ]
+        chosen = next((i for i in INCIDENTS if i["type"] == incident_type), None)
+        if not chosen:
+            chosen = random.choice(INCIDENTS)
+
+        incident = {
+            "id": f"inc_{int(time.time()*1000)}",
+            "type": chosen["type"],
+            "title": chosen["title"],
+            "description": chosen["description"],
+            "severity": "critical",
+            "started_at": time.time(),
+            "duration_seconds": chosen["duration_seconds"],
+            "purged": False,
+        }
+        self.active_incident = incident
+        return incident
+
+    def purge_hallucination(self) -> bool:
+        if self.active_incident and self.active_incident.get("type") == "rogue_ai":
+            self.active_incident["purged"] = True
+            self.active_incident = None
+            return True
+        return False
+
+    def check_incident_expiry(self) -> None:
+        if self.active_incident and not self.active_incident.get("purged", False):
+            started_at = self.active_incident.get("started_at", 0)
+            duration = self.active_incident.get("duration_seconds", 45)
+            if time.time() - started_at > duration:
+                if self.active_incident.get("type") == "memory_leak":
+                    self.health = max(10, self.health - 10)
+                self.active_incident = None
 
     def get_active_players(self, timeout_sec: float = 12.0) -> List[PlayerInfo]:
         now = time.time()
@@ -197,7 +312,9 @@ class GameStateManager:
                     player_name=pdata.get("player_name", "Player"),
                     has_voted=voted_act is not None,
                     voted_action=voted_act,
-                    last_seen=pdata.get("last_seen", 0)
+                    last_seen=pdata.get("last_seen", 0),
+                    role=pdata.get("role", "architect"),
+                    incident_blame_count=pdata.get("incident_blame_count", 0),
                 ))
         return active
 
@@ -377,6 +494,10 @@ class GameStateManager:
             max_hints=getattr(self, "max_hints", 6),
             hints_remaining=getattr(self, "hints_remaining", 6),
             revealed_hints=getattr(self, "revealed_hints", []),
+            active_incident=self.active_incident,
+            recent_reactions=self.recent_reactions[-15:] if hasattr(self, "recent_reactions") else [],
+            last_blamed_player=getattr(self, "last_blamed_player", None),
+            slap_events=self.slap_events[-5:] if hasattr(self, "slap_events") else [],
         )
 
     def reveal_hint(self, stage_id: int) -> GameStateResponse:
@@ -587,6 +708,19 @@ class GameStateManager:
         self.total_jenga_pulls += jenga_pulls
         self.pending_pulls = jenga_pulls
 
+        # Hot Potato Blame Assignment (Post-Mortem Incident Retrospective)
+        if health_delta < 0 or jenga_pulls > 0:
+            potential_blamed = [pdata.get("player_name", "Teammate") for pid, act in self.votes.items() if act == action_type]
+            if not potential_blamed:
+                potential_blamed = [pdata.get("player_name", "Teammate") for pdata in self.players.values()]
+            if potential_blamed:
+                blamed_name = random.choice(potential_blamed)
+                self.last_blamed_player = blamed_name
+                for pdata in self.players.values():
+                    if pdata.get("player_name") == blamed_name:
+                        pdata["incident_blame_count"] = pdata.get("incident_blame_count", 0) + 1
+                feedback += f"\n\n🚨 POST-MORTEM INCIDENT OWNER: {blamed_name} has been assigned 100% BLAME for this outage! 🤡 (Placed on On-Call Probation)"
+
         # Check for Health Outage Game Over with explicit, detailed failure reason
         if self.health <= 0:
             self.is_game_over = True
@@ -614,6 +748,7 @@ class GameStateManager:
                 "custom_prompt": req.custom_prompt_text,
                 "selected_rule_id": req.selected_rule_id,
                 "technical_debt": self.technical_debt,
+                "blamed_player": self.last_blamed_player,
             }
         )
         self.history.append(summary_rec)
@@ -680,6 +815,11 @@ class GameStateManager:
             self.guardrail_rule_draft = None
             self.tie_broken = False
             self.tied_options = None
+            # 35% chance of spontaneous Chaos Incident on stages 3, 5, 7, 9
+            if self.current_stage_index in [2, 4, 6, 8] and random.random() < 0.35:
+                self.trigger_chaos_incident()
+            else:
+                self.active_incident = None
             return True
         else:
             self.is_victory = True

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import StageScenarioViewer from './StageScenarioViewer';
 import Virtual3DTower from './Virtual3DTower';
 import StageDecisionConsole from './StageDecisionConsole';
+import ChaosIncidentBanner from './ChaosIncidentBanner';
+import SoundboardReactions from './SoundboardReactions';
 import { GitPullRequest, Layers, Zap } from 'lucide-react';
 
 export default function StageArena({
@@ -37,6 +39,15 @@ export default function StageArena({
   onOpenDraftRule,
   isTimerPaused = false,
   actionsConfig = null,
+  sound = null,
+  activeIncident = null,
+  recentReactions = [],
+  slapEvents = [],
+  onSlapVote = null,
+  playerRole = 'architect',
+  onRoleChange = null,
+  onPurgeIncident = null,
+  roomId = 'default',
 }) {
   const [mobileTab, setMobileTab] = useState('scenario'); // 'scenario' | 'tower' | 'decide'
 
@@ -72,7 +83,21 @@ export default function StageArena({
   const totalVotesCast = Object.values(votesTally).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="flex-1 min-h-0 w-full flex flex-col overflow-hidden bg-[var(--bg-app)] text-[var(--text-primary)] transition-colors duration-200">
+    <div className="flex-1 min-h-0 w-full flex flex-col overflow-hidden bg-[var(--bg-app)] text-[var(--text-primary)] transition-colors duration-200 relative">
+      {/* Soundboard Meme Floating Layer */}
+      <SoundboardReactions
+        roomId={roomId}
+        sound={sound}
+        recentReactions={recentReactions}
+      />
+
+      {/* Emergency Chaos Incident Banner */}
+      <ChaosIncidentBanner
+        incident={activeIncident}
+        onPurge={onPurgeIncident}
+        sound={sound}
+      />
+
       {/* 1. Desktop & Laptop Viewports (lg+ >= 1024px) */}
       <div className="hidden lg:grid lg:grid-cols-12 lg:gap-3 flex-1 min-h-0 w-full px-3 lg:px-5 py-2 lg:py-2.5 overflow-hidden">
         {/* Left Column (7 cols): Scenario & Diff Workspace */}
@@ -83,6 +108,10 @@ export default function StageArena({
             maxHints={maxHints}
             revealedHints={revealedHints}
             onRevealHint={onRevealHint}
+            playerRole={playerRole}
+            activeIncident={activeIncident}
+            onRoleChange={onRoleChange}
+            roomId={roomId}
           />
         </div>
 
@@ -128,6 +157,7 @@ export default function StageArena({
               onOpenDraftRule={onOpenDraftRule}
               isTimerPaused={isTimerPaused}
               actionsConfig={actionsConfig}
+              onSlapVote={onSlapVote}
             />
           </div>
         </div>
@@ -143,6 +173,10 @@ export default function StageArena({
             maxHints={maxHints}
             revealedHints={revealedHints}
             onRevealHint={onRevealHint}
+            playerRole={playerRole}
+            activeIncident={activeIncident}
+            onRoleChange={onRoleChange}
+            roomId={roomId}
           />
         </div>
 
@@ -188,6 +222,7 @@ export default function StageArena({
               onOpenDraftRule={onOpenDraftRule}
               isTimerPaused={isTimerPaused}
               actionsConfig={actionsConfig}
+              onSlapVote={onSlapVote}
             />
           </div>
         </div>
@@ -205,6 +240,10 @@ export default function StageArena({
                 maxHints={maxHints}
                 revealedHints={revealedHints}
                 onRevealHint={onRevealHint}
+                playerRole={playerRole}
+                activeIncident={activeIncident}
+                onRoleChange={onRoleChange}
+                roomId={roomId}
               />
             </div>
           )}
@@ -252,6 +291,7 @@ export default function StageArena({
                 onOpenDraftRule={onOpenDraftRule}
                 isTimerPaused={isTimerPaused}
                 actionsConfig={actionsConfig}
+                onSlapVote={onSlapVote}
               />
             </div>
           )}

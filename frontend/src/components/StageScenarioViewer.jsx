@@ -9,7 +9,10 @@ import {
   Lightbulb,
   Lock,
   Unlock,
+  Siren,
+  EyeOff,
 } from 'lucide-react';
+import RoleBadgeHUD from './RoleBadgeHUD';
 
 function StageScenarioViewer({
   stage,
@@ -17,6 +20,10 @@ function StageScenarioViewer({
   maxHints = 6,
   revealedHints = [],
   onRevealHint,
+  roomId = 'default',
+  playerRole = 'architect',
+  activeIncident = null,
+  onRoleChange = null,
 }) {
   const [isExpandedModalOpen, setIsExpandedModalOpen] = useState(false);
   const [isRevealing, setIsRevealing] = useState(false);
@@ -86,7 +93,8 @@ function StageScenarioViewer({
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
+            <RoleBadgeHUD currentRole={playerRole} onRoleChange={onRoleChange} />
             <button
               type="button"
               onClick={() => setIsExpandedModalOpen(true)}
@@ -150,11 +158,29 @@ function StageScenarioViewer({
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-[var(--bg-code)]">
           {/* Actual Diff Lines: Only scrolls if actual diff code + end footer exceeds viewport height */}
           <div className="p-2 font-mono text-[12.5px] [@media(min-height:860px)]:text-[14px] overflow-y-auto overflow-x-auto max-h-full leading-6 [@media(min-height:860px)]:leading-7 select-text">
+            {activeIncident?.type === 'rogue_ai' && (
+              <div className="mb-2 p-2 rounded-lg bg-rose-500/20 border border-rose-500/50 text-rose-900 dark:text-rose-200 text-xs flex items-center gap-2 animate-pulse font-mono font-bold">
+                <Siren className="w-4 h-4 text-rose-600 animate-spin shrink-0" />
+                <span>⚠️ ROGUE AI CORRUPTING DIFF STREAM: Injected hallucinations active!</span>
+              </div>
+            )}
             {diffLines.map((line, idx) => {
               const isAdd = line.startsWith('+') && !line.startsWith('+++');
               const isRemove = line.startsWith('-') && !line.startsWith('---');
               const isHeader = line.startsWith('@@');
               const isFileMeta = line.startsWith('---') || line.startsWith('+++');
+
+              // Asymmetric Intern handicap: redact SOQL/DML/limits lines
+              const isInternRedacted =
+                playerRole === 'intern' &&
+                (line.toLowerCase().includes('select') ||
+                  line.toLowerCase().includes('limit') ||
+                  line.toLowerCase().includes('for (') ||
+                  line.toLowerCase().includes('dml') ||
+                  line.toLowerCase().includes('insert') ||
+                  line.toLowerCase().includes('update') ||
+                  line.toLowerCase().includes('delete') ||
+                  line.toLowerCase().includes('trigger.'));
 
               let lineTextColor = 'text-[var(--text-primary)]';
               let lineBgColor = '';
@@ -181,9 +207,21 @@ function StageScenarioViewer({
                     {idx + 1}
                   </span>
                   {/* Diff line code content */}
-                  <span className={`flex-1 font-mono leading-6 [@media(min-height:860px)]:leading-7 whitespace-pre ${lineTextColor}`}>
-                    {line}
-                  </span>
+                  {isInternRedacted ? (
+                    <div className="flex-1 flex items-center gap-2 font-mono leading-6 [@media(min-height:860px)]:leading-7">
+                      <span className="blur-[4px] select-none text-[var(--text-muted)] opacity-60">
+                        {line}
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500/25 text-amber-900 dark:text-amber-200 border border-amber-500/40 select-none animate-pulse">
+                        <EyeOff className="w-3 h-3 text-amber-600 shrink-0" />
+                        <span>REDACTED FOR INTERN // ASK LEAD ARCHITECT</span>
+                      </span>
+                    </div>
+                  ) : (
+                    <span className={`flex-1 font-mono leading-6 [@media(min-height:860px)]:leading-7 whitespace-pre ${lineTextColor}`}>
+                      {line}
+                    </span>
+                  )}
                 </div>
               );
             })}

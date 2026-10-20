@@ -74,10 +74,42 @@ class PlayerInfo(BaseModel):
     has_voted: bool = False
     voted_action: Optional[str] = None
     last_seen: float
+    role: Optional[str] = "architect"  # "architect" | "intern" | "sre" | "gremlin"
+    incident_blame_count: int = 0
+
+class ChaosIncident(BaseModel):
+    id: str
+    type: Literal["friday_deploy", "rogue_ai", "vp_bridge", "memory_leak"]
+    title: str
+    description: str
+    severity: str = "critical"
+    started_at: float
+    duration_seconds: int = 45
+    purged: bool = False
+
+class ReactionBroadcastRequest(BaseModel):
+    room_id: str = Field(..., max_length=20)
+    player_id: str = Field(..., max_length=64)
+    player_name: str = Field(..., max_length=50)
+    emoji: str = Field(..., max_length=10)
+    label: Optional[str] = Field(default=None, max_length=50)
+
+class SlapVoteRequest(BaseModel):
+    room_id: str = Field(..., max_length=20)
+    slapper_id: str = Field(..., max_length=64)
+    slapper_name: str = Field(..., max_length=50)
+    target_player_id: str = Field(..., max_length=64)
+    target_player_name: str = Field(..., max_length=50)
+
+class SetRoleRequest(BaseModel):
+    room_id: str = Field(..., max_length=20)
+    player_id: str = Field(..., max_length=64)
+    role: Literal["architect", "intern", "sre", "gremlin"]
 
 class JoinPlayerRequest(BaseModel):
     player_id: str = Field(..., min_length=1, max_length=64)
     player_name: str = Field(..., min_length=1, max_length=50)
+    role: Optional[str] = "architect"
 
 class DraftRequest(BaseModel):
     player_id: str = Field(..., min_length=1, max_length=64)
@@ -123,6 +155,11 @@ class GameStateResponse(BaseModel):
     votes_tally: Dict[str, int] = {}
     custom_prompt_draft: Optional[Dict[str, Any]] = None
     guardrail_rule_draft: Optional[Dict[str, Any]] = None
+    # Chaos System Extensions
+    active_incident: Optional[ChaosIncident] = None
+    recent_reactions: List[Dict[str, Any]] = []
+    last_blamed_player: Optional[str] = None
+    slap_events: List[Dict[str, Any]] = []
     tie_broken: bool = False
     tied_options: Optional[List[str]] = None
     is_timer_paused: bool = False
@@ -274,5 +311,10 @@ class SprintStateResponse(BaseModel):
     chat_history: List[ChatMessage] = []
     stage_time_records: List[StageTimeRecord] = []
     history: List[StageSummaryRecord] = []
+    # Chaos System Extensions
+    active_incident: Optional[ChaosIncident] = None
+    recent_reactions: List[Dict[str, Any]] = []
+    last_blamed_player: Optional[str] = None
+    slap_events: List[Dict[str, Any]] = []
 
 
