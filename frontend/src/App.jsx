@@ -123,6 +123,13 @@ export default function App() {
   const isAdvancingStageRef = useRef(false);
   const isSubmittingVoteRef = useRef(false);
 
+  const [roomId, setRoomIdState] = useState(() => {
+    const info = getRouteInfo();
+    const clean = info.roomId || api.getRoomId();
+    if (clean) api.setRoomId(clean);
+    return clean;
+  });
+
   // Asymmetric Player Role State (Architect / Intern / SRE / Gremlin)
   const [playerRole, setPlayerRole] = useState(() => api.getPlayerRole());
 
@@ -185,13 +192,6 @@ export default function App() {
   const toggleTheme = useCallback(() => {
     themeEngine.toggleMode();
   }, []);
-
-  const [roomId, setRoomIdState] = useState(() => {
-    const info = getRouteInfo();
-    const clean = info.roomId || api.getRoomId();
-    if (clean) api.setRoomId(clean);
-    return clean;
-  });
 
   // Centralized URL Router Navigation
   const navigateTo = useCallback((destination, targetRoomId = null, targetMode = null) => {
