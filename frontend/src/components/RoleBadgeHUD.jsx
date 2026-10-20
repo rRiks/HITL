@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Brain, Hammer, ShieldCheck, Flame, X, UserCheck } from 'lucide-react';
+import { RefreshCw, X } from 'lucide-react';
 import * as api from '../services/api';
 
 const ROLES_INFO = {
@@ -9,19 +9,19 @@ const ROLES_INFO = {
     icon: '🧠',
     badgeClass: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-400/40',
     title: 'The Eyes & Strategist',
-    duty: 'Inspects SOQL traps and hidden governor risks. Must guide and instruct the team on what to merge.',
-    perk: 'Sees 100% of the code diff with syntax highlights and risk annotations.',
-    handicap: 'Cannot authorize merge directly—must instruct the Intern to execute.',
+    duty: 'Inspects SOQL traps, recursion hazards, and governor limit risks. Guides the team on architectural boundaries.',
+    perk: 'Sees 100% of the raw Git diff with syntax highlighting and risk annotations.',
+    handicap: 'Cannot authorize merges directly—must instruct the Software Engineer to execute.',
   },
   intern: {
     id: 'intern',
-    label: 'JUNIOR INTERN',
+    label: 'SOFTWARE ENGINEER',
     icon: '🔨',
     badgeClass: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-400/40',
     title: 'The Hands & PR Merger',
-    duty: 'Authorized to execute decisions and PR merges. Must listen closely to the Architect!',
-    perk: 'Holds the master submit button for all stage actions.',
-    handicap: 'Code diff lines are partially redacted—you rely strictly on team communication!',
+    duty: 'Executes commits and merges PR decisions. Must coordinate closely with the Lead Architect!',
+    perk: 'Holds the master submit and action execution trigger for stage decisions.',
+    handicap: 'Critical backend SOQL/DML diff lines are obscured—you rely on team communication.',
   },
   sre: {
     id: 'sre',
@@ -29,21 +29,13 @@ const ROLES_INFO = {
     icon: '🛡️',
     badgeClass: 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-400/40',
     title: 'The Tower Whisperer',
-    duty: 'Monitors 3D Jenga structural stress and prevents catastrophic collapses.',
-    perk: 'Equipped with the VETO SLAP 👋 to knock down dangerous votes.',
-    handicap: 'Takes full blame if the tower collapses under high instability.',
-  },
-  gremlin: {
-    id: 'gremlin',
-    label: 'CHAOS GREMLIN',
-    icon: '😈',
-    badgeClass: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-400/40',
-    title: 'The Secret Traitor',
-    duty: 'Secret mission: Incur at least 1 Technical Debt block during the sprint without toppling the tower!',
-    perk: 'Can subtly steer discussions toward quick-and-dirty patchwork solutions.',
-    handicap: 'If the tower collapses, you are unmasked and lose all points!',
+    duty: 'Monitors 3D Jenga structural stress, manages technical debt, and prevents catastrophic outages.',
+    perk: 'Equipped with the VETO SLAP 👋 to knock away risky, unreviewed votes.',
+    handicap: 'Takes full post-mortem blame if the tower collapses under high instability.',
   },
 };
+
+const ROLE_KEYS = ['architect', 'intern', 'sre'];
 
 export default function RoleBadgeHUD({
   roomId = 'default',
@@ -62,16 +54,33 @@ export default function RoleBadgeHUD({
     setModalOpen(false);
   };
 
+  const handleCycleRole = async (e) => {
+    e.stopPropagation();
+    const currentIdx = ROLE_KEYS.indexOf(currentRole);
+    const nextRole = ROLE_KEYS[(currentIdx + 1) % ROLE_KEYS.length];
+    await handleSelectRole(nextRole);
+  };
+
   return (
-    <>
+    <div className="inline-flex items-center gap-1 shrink-0">
       <button
         type="button"
         onClick={() => setModalOpen(true)}
-        title="View your Assigned Role & Duties"
-        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-[10px] font-mono font-bold tracking-wider cursor-pointer shadow-xs hover:scale-105 active:scale-95 transition-all ${activeRole.badgeClass}`}
+        title="View your Assigned Role & Duties (Click to inspect or change)"
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-[10px] font-mono font-bold tracking-wider cursor-pointer shadow-xs hover:scale-102 active:scale-95 transition-all ${activeRole.badgeClass}`}
       >
         <span>{activeRole.icon}</span>
         <span>ROLE: {activeRole.label}</span>
+      </button>
+
+      {/* 1-Click Role Swapper */}
+      <button
+        type="button"
+        onClick={handleCycleRole}
+        title="Quick Swap: Rotate to next team role (Architect ➔ Engineer ➔ SRE)"
+        className="p-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer transition-colors flex items-center justify-center"
+      >
+        <RefreshCw className="w-3 h-3 hover:rotate-180 transition-transform duration-300" />
       </button>
 
       {/* Role Selection & Mission Modal */}
@@ -81,7 +90,7 @@ export default function RoleBadgeHUD({
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="absolute top-4 right-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-1 cursor-pointer"
+              className="absolute top-4 right-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-1 cursor-pointer rounded-lg"
             >
               <X className="w-5 h-5" />
             </button>
@@ -90,10 +99,10 @@ export default function RoleBadgeHUD({
               <span className="text-2xl">{activeRole.icon}</span>
               <div>
                 <h3 className="text-base font-bold font-theme-heading text-[var(--text-primary)]">
-                  TEAM ROLE SPECIFICATION
+                  TEAM ROLES & RESPONSIBILITIES
                 </h3>
                 <span className="text-xs text-[var(--text-secondary)] font-medium">
-                  Asymmetric Information & Squad Responsibilities
+                  Dynamic Asymmetric Roles • Auto-rotates each stage or swap anytime!
                 </span>
               </div>
             </div>
@@ -120,19 +129,19 @@ export default function RoleBadgeHUD({
                         </span>
                       </div>
                       {isSelected ? (
-                        <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500 text-slate-950">
+                        <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
                           ACTIVE ROLE
                         </span>
                       ) : (
-                        <span className="text-[9px] font-mono text-[var(--text-muted)]">
-                          CLICK TO SWITCH
+                        <span className="text-[9px] font-mono font-bold text-sky-600 dark:text-sky-400">
+                          SWAP TO THIS ROLE
                         </span>
                       )}
                     </div>
                     <p className="text-xs text-[var(--text-secondary)] font-sans mb-1.5 leading-snug">
                       {r.duty}
                     </p>
-                    <div className="grid grid-cols-2 gap-2 text-[10px] font-mono pt-1 border-t border-[var(--border-subtle)]/50">
+                    <div className="grid grid-cols-2 gap-2 text-[10px] font-mono pt-1.5 border-t border-[var(--border-subtle)]/50">
                       <div>
                         <strong className="text-emerald-600 dark:text-emerald-400">PERK: </strong>
                         <span className="text-[var(--text-muted)]">{r.perk}</span>
@@ -147,18 +156,21 @@ export default function RoleBadgeHUD({
               })}
             </div>
 
-            <div className="flex items-center justify-end">
+            <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)]">
+              <span className="text-[11px] font-mono text-[var(--text-muted)]">
+                💡 Roles auto-rotate between stages in co-op.
+              </span>
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="px-4 py-2 text-xs font-bold font-mono rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 cursor-pointer"
+                className="px-4 py-2 text-xs font-bold font-mono rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 cursor-pointer shadow-sm hover:opacity-90"
               >
-                CLOSE SPECIFICATION
+                DONE
               </button>
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

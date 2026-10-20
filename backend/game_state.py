@@ -180,7 +180,7 @@ class GameStateManager:
         self.last_active = time.time()
         pid = player_id.strip() if player_id else "anonymous"
         pname = player_name.strip() if player_name else "Player"
-        ROLES = ["architect", "intern", "sre", "gremlin"]
+        ROLES = ["architect", "intern", "sre"]
         if pid not in self.players:
             assigned_role = requested_role if requested_role in ROLES else ROLES[len(self.players) % len(ROLES)]
             self.players[pid] = {
@@ -822,6 +822,13 @@ class GameStateManager:
             self.guardrail_rule_draft = None
             self.tie_broken = False
             self.tied_options = None
+            # Round-Robin Role Rotation: rotate roles among active teammates so no player is permanently restricted
+            if len(self.players) > 1:
+                pids = list(self.players.keys())
+                current_roles = [self.players[pid].get("role", "architect") for pid in pids]
+                shifted_roles = current_roles[1:] + current_roles[:1]
+                for i, pid in enumerate(pids):
+                    self.players[pid]["role"] = shifted_roles[i]
             # 35% chance of spontaneous Chaos Incident on stages 3, 5, 7, 9
             if self.current_stage_index in [2, 4, 6, 8] and random.random() < 0.35:
                 self.trigger_chaos_incident()

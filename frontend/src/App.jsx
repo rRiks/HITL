@@ -317,10 +317,14 @@ export default function App() {
           }
         }
 
-        // Sync local voter status (skip if spectator)
+        // Sync local voter and role status (skip if spectator)
         if (!isSpectator) {
           const myId = api.getPlayerId();
           const me = remoteState.active_players?.find((p) => p.player_id === myId);
+          if (me?.role && me.role !== playerRole) {
+            setPlayerRole(me.role);
+            api.setPlayerRoleLocal(me.role);
+          }
           if (me?.voted_action) {
             setMyVote(me.voted_action);
           } else if (!remoteState.stage_action_taken && !me?.voted_action && !isSubmittingVoteRef.current) {

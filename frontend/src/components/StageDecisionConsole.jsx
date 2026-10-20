@@ -282,7 +282,7 @@ function StageDecisionConsole({
             const votedAction = player.voted_action || (isMe ? myVote : null);
             const slotBadge = votedAction ? actionSlotMap[votedAction] : null;
             const isBlamed = (player.incident_blame_count || 0) > 0;
-            const roleIcons = { architect: '🧠', intern: '🔨', sre: '🛡️', gremlin: '😈' };
+            const roleIcons = { architect: '🧠', intern: '🔨', sre: '🛡️' };
             const roleIcon = roleIcons[player.role] || '🧠';
 
             return (

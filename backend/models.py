@@ -74,7 +74,7 @@ class PlayerInfo(BaseModel):
     has_voted: bool = False
     voted_action: Optional[str] = None
     last_seen: float
-    role: Optional[str] = "architect"  # "architect" | "intern" | "sre" | "gremlin"
+    role: Optional[str] = "architect"  # "architect" | "intern" | "sre"
     incident_blame_count: int = 0
 
 class ChaosIncident(BaseModel):
@@ -104,7 +104,7 @@ class SlapVoteRequest(BaseModel):
 class SetRoleRequest(BaseModel):
     room_id: str = Field(..., max_length=20)
     player_id: str = Field(..., max_length=64)
-    role: Literal["architect", "intern", "sre", "gremlin"]
+    role: Literal["architect", "intern", "sre"]
 
 class JoinPlayerRequest(BaseModel):
     player_id: str = Field(..., min_length=1, max_length=64)
