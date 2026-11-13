@@ -1,208 +1,112 @@
-# 🚀 HITL Jenga: Developer Setup & Local Run Guide
+# HITL Jenga developer setup
 
-Welcome to the **Human-in-the-Loop (HITL) Jenga: Salesforce HITL War-Room** project!
+This guide starts the current **Launch Day Sprint** locally and shows how to test a team with two browsers. The game consists of a FastAPI backend, a React/Vite frontend, and SQLite snapshots for Sprint rooms.
 
-This guide walks a new engineer through cloning the repository, setting up both backend and frontend environments, and running the simulation locally on **Windows (PowerShell)** or **macOS / Linux (Bash)**.
+## Prerequisites
 
----
+- Python 3.11 or newer
+- Node.js with npm compatible with the Vite version in frontend/package.json
+- Git for cloning the repository
+- A browser with WebGL for the 3D tower
 
-## 📋 System Prerequisites
+## Configure local development
 
-Before starting, ensure you have the following installed:
+Clone the repository and work from the HITL project root. Copy .env.example to .env, then set:
 
-| Tool | Minimum Version | Check Command |
-|---|---|---|
-| **Git** | 2.x+ | `git --version` |
-| **Python** | 3.10+ | `python --version` (or `python3 --version`) |
-| **Node.js** | 18.x or 20.x+ | `node --version` |
-| **npm** | 9.x+ | `npm --version` |
+| Variable | Local value or purpose |
+| --- | --- |
+| ENVIRONMENT | development, so the API explorer is available at /docs |
+| ADMIN_SECRET_KEY | A local secret for the admin dashboard; do not commit .env |
+| CORS_ORIGINS | http://localhost:5173,http://127.0.0.1:5173 |
+| SPRINT_CONTENT_PACK | launch_day for the current story, or classic for the alternate Salesforce pack |
+| ENABLE_GATEKEEPER_MODE | false to show only Sprint; true to enable the separate two-minute mode |
 
----
+The backend loads .env from its working directory. The commands below start it from the project root so it reads the root .env file. Without SPRINT_CONTENT_PACK, backend code defaults to classic. Switching packs requires a backend restart. Their saved Sprint rooms occupy separate tables in the same SQLite database.
 
-## ⚡ 5-Minute Quickstart
+## Start the backend
 
-### 1. Clone the Repository
-```bash
-git clone <REPO_URL>
-cd HITL
-```
+On macOS or Linux, from the project root:
 
----
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install -r backend/requirements.txt
+    python -m uvicorn main:app --app-dir backend --host 127.0.0.1 --port 8000 --reload
 
-### 2. Backend Setup (FastAPI Python)
+On Windows PowerShell, from the project root:
 
-Open a terminal in the project directory:
+    py -3.11 -m venv .venv
+    .\.venv\Scripts\Activate.ps1
+    pip install -r backend/requirements.txt
+    python -m uvicorn main:app --app-dir backend --host 127.0.0.1 --port 8000 --reload
 
-#### On Windows (PowerShell):
-```powershell
-cd backend
+The health endpoint is http://127.0.0.1:8000/api/health and returns a status of ok. In development, the API explorer is at http://127.0.0.1:8000/docs. The explorer is disabled when ENVIRONMENT=production.
 
-# Create virtual environment
-python -m venv .venv
+## Start the frontend
 
-# Activate virtual environment
-.\.venv\Scripts\Activate.ps1
-# (Note: If script execution is restricted, run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass)
+In a second terminal:
 
-# Install dependencies
-python -m pip install --upgrade pip
-pip install -r requirements.txt
+    cd frontend
+    npm install
+    npm run dev
 
-# Start backend server
-python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-```
+Open http://localhost:5173. Vite proxies /api to the backend at 127.0.0.1:8000. The default UI theme is light liquid glass; players can switch themes.
 
-#### On macOS / Linux (Bash / Zsh):
-```bash
-cd backend
+## Play a short local check
 
-# Create virtual environment
-python3 -m venv .venv
+1. On the home screen, choose **Create table**, enter a team name and your own name, choose **Sprint**, and start. The Sprint Field Guide appears before the game.
+2. The game opens ticket 1, a 54-block tower, the current AI diff, the four proposal cards, Team review, Review tests, and Merge.
+3. Note the four-character PIN in the game header. In an incognito window or different browser, open the home screen, choose **Join with PIN**, enter the PIN and a different player name.
+4. Open a secret note on one screen. Both screens should show the shared 10-second countdown and then the revealed note.
+5. Run a test. Both screens should show the shared 15-second countdown. One player can still inspect the diff or vote while it runs.
+6. Have each player vote Ready or Needs work. Their names and choices should appear in Team review. A strict Ready majority permits a normal Merge.
+7. After a revision, verify that current test results and votes reset. Open Review tests yourself to retest the new diff.
 
-# Activate virtual environment
-source .venv/bin/activate
+A table's state is isolated from other tables. The room uses a proposal token to reject stale actions when a teammate changes the proposal first; the client refreshes the latest room state on conflict.
 
-# Install dependencies
-python3 -m pip install --upgrade pip
-pip install -r requirements.txt
+## Useful URLs
 
-# Start backend server
-python3 -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-```
+| URL | Use |
+| --- | --- |
+| http://localhost:5173 | Player lobby and game |
+| http://localhost:5173/admin | Authenticated facilitator dashboard |
+| http://127.0.0.1:8000/api/health | Backend health |
+| http://127.0.0.1:8000/docs | API explorer in development only |
 
-> **Backend is running at:** `http://127.0.0.1:8000`  
-> **Interactive Swagger API Docs:** `http://127.0.0.1:8000/docs`
+The authenticated /api/leaderboard endpoint is for the facilitator. Players see their own score in the cockpit. The admin dashboard separates Sprint and Gatekeeper rooms, offers Sprint standings, and provides spectator and timer controls.
 
----
+## Verify changes
 
-### 3. Frontend Setup (React 19 + Vite + Three.js)
+From the project root, with the Python environment active:
 
-Open a **second terminal** in the `HITL` root directory:
+    python -m unittest discover -s backend/tests -q
+    python3 scripts/generate_launch_day_reference.py --check
+    python3 scripts/generate_sprint_stage_reference.py --check
 
-```bash
-cd frontend
+From frontend:
 
-# Install npm packages
-npm install
+    npm run build
 
-# Start Vite development server
-npm run dev
-```
+The stage reference scripts read authored content and verify the facilitator answer keys. To regenerate them after content edits, run each script without --check. The current Launch Day answer key is docs/SPRINT_STAGE_REFERENCE.md; the alternate Classic key is docs/CLASSIC_STAGE_REFERENCE.md.
 
-> **Frontend application is running at:** `http://localhost:5173`
+## Data and restarts
 
----
+By default, Sprint rooms are saved in backend/data/hitl.sqlite3. Set HITL_STATE_DB to move the SQLite file. A backend restart reloads Sprint progress and pending note/test countdowns. The current server uses one process with an in-memory room map and a lock; do not launch multiple workers against the same room state. Gatekeeper rooms remain in memory.
 
-## ✅ Verifying Your Local Setup
+A Hotfix after collapse stays on the same ticket with 35% health and a fresh proposal. It resets tests and votes, retains spent resources, bugs, pulls, and negative overtime, and gives no extra time. **New Run** starts at ticket 1. The first completed Sprint run stays the official competition entry for a room that is replayed.
 
-1. Open **[http://localhost:5173](http://localhost:5173)** in your browser.
-2. You will see the **Salesforce HITL Jenga HITL Challenge** Welcome Screen.
-3. Select a table preset (e.g. `Table 1`), enter your name (e.g. `Alice`), and click **"Start Mission & Initialize Tower"**.
-4. The 3D Cockpit Arena will load with:
-   - The interactive **3D Virtual Architecture Tower** (rendered via Three.js with full 360° mouse drag orbit and zoom).
-   - Stage 1: **"The Governor Limit Trap"** scenario with code diff and 4 decision buttons.
-   - The **120-second countdown timer** ticking in the top bar.
-   - The **Lobby** button in the top right navbar to return to the table selector at any time.
+## Docker alternative
 
----
+See [DOCKER_RUN.md](DOCKER_RUN.md). Compose builds both services, uses a named sprint_state volume for SQLite, and can start an optional Cloudflare tunnel profile. Use docker-compose.local.yml when a localhost port is needed.
 
-## 👥 How to Test Multi-Player Co-Op Locally (Single Laptop)
+## Troubleshooting
 
-The platform supports live co-op gameplay where multiple teammates at the same table vote together in real time. You can easily test this on a single machine:
-
-1. **Player 1 (Host):**
-   - Open [http://localhost:5173](http://localhost:5173) in a standard browser tab (e.g. Chrome).
-   - Enter Player Name: `Alice`, select `Table 1`, and click **Start Mission**.
-
-2. **Player 2 (Teammate):**
-   - Open [http://localhost:5173](http://localhost:5173) in an **Incognito / Private Window** (or a different browser like Edge / Firefox).
-   - The Welcome Screen will detect that `Table 1` is already live.
-   - Enter Player Name: `Bob`, select `Table 1`, and click **"Join Live Session as Bob"**.
-
-3. **Democratic Voting & Co-Op Features to Test:**
-   - **Roster Presence:** Both `Alice` and `Bob` appear in the Active Team Roster in the center console.
-   - **Voting:** When `Alice` clicks an option, `Bob` immediately sees Alice's vote indicator update.
-   - **Consensus:** Once all connected active players submit their vote, consensus resolves immediately without waiting for the timer!
-   - **Collaborative Drafting:** If either player clicks **"Discuss & Custom Prompt"** or **"Suggest Change"**, the draft is shared in real time with the teammate.
-   - **50/50 Tie-Breaker:** If Alice votes for Option 1 and Bob votes for Option 2, the backend executes an automatic 50/50 toss-up when all votes are in.
-
----
-
-## 🛠️ Useful Developer URLs & Flags
-
-| URL | Purpose |
-|---|---|
-| `http://localhost:5173` | Main app (auto-resumes your active in-game session) |
-| `http://localhost:5173/admin` | Game Master Facilitator Console (Protected via `ADMIN_SECRET_KEY`) |
-| `http://localhost:5173/?lobby=true` | Forces navigation directly to the Welcome Screen / Lobby |
-| `http://localhost:5173/?room=table-2` | Deep-links directly to Table 2 |
-| `http://127.0.0.1:8000/docs` | FastAPI Swagger documentation for all backend endpoints |
-| `http://127.0.0.1:8000/api/health` | Backend healthcheck (`status: healthy`) |
-| `http://127.0.0.1:8000/api/leaderboard` | Live cross-table scores and status |
-
----
-
-## 📂 Project Architecture Overview
-
-```
-HITL/
-├── backend/
-│   ├── main.py              # FastAPI application, route handlers & CORS
-│   ├── admin_router.py      # Game Master API (telemetry, pause, broadcast, reset)
-│   ├── game_state.py        # Multi-room state machine, voting consensus, tie-breakers
-│   ├── models.py            # Pydantic data schemas & request/response contracts
-│   ├── stages_data.py       # 11 Salesforce crisis stages, code diffs & risks
-│   └── requirements.txt     # Python dependencies (fastapi, uvicorn, pydantic)
-│
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx                  # Main coordinator, URL router & session state
-│   │   ├── admin/
-│   │   │   ├── AdminDashboard.jsx   # Game Master console, squad cards & timer controls
-│   │   │   └── adminApi.js          # Admin endpoints & persistent authentication
-│   │   ├── services/
-│   │   │   └── api.js               # REST client & player/room session persistence
-│   │   ├── components/
-│   │   │   ├── Virtual3DTower.jsx   # Three.js 18-layer 3D tower & top-down physics
-│   │   │   ├── StageArena.jsx       # Decision consoles, voting roster & collaborative drafting
-│   │   │   ├── WelcomeScreen.jsx    # Table lobby, player name input & room joiner
-│   │   │   ├── Navbar.jsx           # Cockpit bar, stage pipeline, timer & Lobby button
-│   │   │   ├── ActionModals.jsx     # Prompt drawer, Guardrails selector & Result popup
-│   │   │   ├── GameOverModal.jsx    # 3D collapse viewer, post-mortem debrief & restart
-│   │   │   └── VictoryScreen.jsx    # Release certificate, confetti & retrospective
-│   │   └── hooks/
-│   │       └── useSound.js          # Procedural Web Audio API sound synthesizer
-│   ├── vite.config.js               # Dev server configuration & /api proxy to port 8000
-│   └── package.json                 # Node dependencies (React 19, Three.js, Tailwind v4)
-```
-
----
-
-## ❓ Troubleshooting & FAQs
-
-### 1. `Port 8000` or `Port 5173` already in use
-- **Windows:** Check and kill the process:
-  ```powershell
-  Get-Process -Id (Get-NetTCPConnection -LocalPort 8000).OwningProcess | Stop-Process -Force
-  Get-Process -Id (Get-NetTCPConnection -LocalPort 5173).OwningProcess | Stop-Process -Force
-  ```
-- **macOS / Linux:**
-  ```bash
-  lsof -ti:8000 | xargs kill -9
-  lsof -ti:5173 | xargs kill -9
-  ```
-
-### 2. PowerShell execution policy error when activating `.venv`
-Run:
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\.venv\Scripts\Activate.ps1
-```
-
-### 3. Frontend cannot connect to Backend
-- Confirm backend is running at `http://127.0.0.1:8000/api/health`.
-- `frontend/vite.config.js` proxies `/api` requests to `http://127.0.0.1:8000`. If you change the backend port, update the proxy target in `vite.config.js`.
-
-### 4. How to reset a table to Stage 1
-- Click the **Reset HITL** icon (counter-clockwise arrow) in the top navigation bar.
-- Or visit the Welcome Screen (`?lobby=true`) and select another table (`table-1` through `table-5`).
+| Symptom | Check |
+| --- | --- |
+| Frontend says it cannot reach the backend | Verify /api/health on port 8000, then inspect the Vite /api proxy in frontend/vite.config.js. |
+| /docs returns 404 | Set ENVIRONMENT=development in root .env and restart the backend. |
+| The wrong tickets appear | Check SPRINT_CONTENT_PACK in .env and restart the backend. Create a new table for the selected pack. |
+| Gatekeeper is missing | ENABLE_GATEKEEPER_MODE=false hides and blocks it by design. Set true and restart to enable it. |
+| A second player cannot see the same game | Join with the exact four-character PIN and a different player name. Confirm both browsers use the same backend. |
+| A test or note button is disabled | The team already has one of that kind in progress; wait for the shared countdown. |
+| Port 8000 or 5173 is occupied | Stop the earlier backend or frontend process, or change both the server port and corresponding proxy configuration. |
+| Admin access fails | Check ADMIN_SECRET_KEY in the backend environment and use that value in the admin login. |

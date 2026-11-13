@@ -1,208 +1,94 @@
-# ⚡ Human-in-the-Loop (HITL) Jenga: AI-Paced Development
-> **Salesforce Enterprise Architecture Edition** — A 45-minute interactive Developer Day workshop simulation for 60+ engineers.
+# HITL Jenga
 
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI%200.110+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/Frontend-React%2019%20+%20Vite-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
-[![Three.js](https://img.shields.io/badge/3D%20Engine-Three.js%20WebGL-black?style=flat-square&logo=three.js&logoColor=white)](https://threejs.org)
-[![TailwindCSS](https://img.shields.io/badge/Styling-Tailwind%20CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
-[![Web Audio API](https://img.shields.io/badge/Audio-Synthesized%20Web%20Audio-orange?style=flat-square)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
+HITL Jenga is a multiplayer workshop game about the value of people in AI-assisted software delivery. Teammates review an AI proposal, bring in human context, test the behavior that matters, and decide together when to Merge. Their decisions affect a shared 54-block 3D tower.
 
----
+The current workshop configuration uses the **Launch Day Sprint** story: 11 fictional pull requests that follow a live team event from opening the lobby to announcing a winner. The separate **Classic Sprint** pack retains the original Salesforce scenarios. The optional two-minute **Gatekeeper** mode can be hidden and blocked with a configuration flag.
 
-## 🎯 Workshop Objective & Concept
+## Start here
 
-In modern AI-assisted engineering, coding agents generate code at blinding speed. But high velocity without **Human-in-the-Loop (HITL)** architectural verification rapidly destabilizes production systems—extracting critical foundational blocks until the architecture catastrophically collapses.
+| Reader | Document |
+| --- | --- |
+| Player | [Sprint Delivery player guide](docs/SPRINT_PLAYER_GUIDE.md) or the in-game Field Guide |
+| Facilitator | [Current Launch Day stage answer key](docs/SPRINT_STAGE_REFERENCE.md) and the authenticated admin dashboard |
+| Developer | [Setup guide](SETUP_GUIDE.md), [architecture](docs/ARCHITECTURE.md), and [low-level design](docs/LLD.md) |
+| Deploying the app | [Docker runbook](DOCKER_RUN.md) and [enterprise hosting request](ENTERPRISE_DEPLOYMENT_REQUEST.md) |
+| Evaluating the alternate pack | [Classic stage answer key](docs/CLASSIC_STAGE_REFERENCE.md) and [Launch Day design notes](docs/SPRINT_LAUNCH_DAY_DRAFT.md) |
 
-**HITL Jenga** simulates this dynamic. Teams of 3–4 developers navigate **11 sequential Salesforce HITL crisis stages** under high pressure. They must balance **Application Health (starting at 100%)** against **Virtual 3D Tower Structural Integrity** while making critical decisions within a **2-minute countdown timer per stage**.
+## Sprint Delivery at a glance
 
----
+- **11 tickets, one 30-minute team clock.** Time continues below zero. Every 90 seconds of overtime costs 5 tower health.
+- **Four proposal paths.** Accept the current AI diff; spend one of two senior tokens and 3 minutes 30 seconds on Manual Override; select ticket-specific changes in Claude chat; or spend one of four guardrail review credits and 15 seconds on Enforce Guardrail. Guardrail also starts one selected first test.
+- **People supply missing facts.** Each ticket has two secret notes from stakeholders or testers. A note reveals after 10 real seconds and syncs to the whole team. The shared Sprint has three hints.
+- **Tests show evidence.** Every test takes 15 real seconds. Passing regression checks give 70% ticket coverage. The key targeted test gives the final 30% only if the current code passes it; limited checks give 10% each. A failed test gives no coverage. A code change resets current results and votes.
+- **The team reviews the current diff.** Active teammates vote Ready to merge or Needs work in the cockpit. A strict Ready majority permits a normal Merge. The Merge confirmation allows an explicit override without a majority for one extra block pull. Incomplete tests or unread notes warn but do not hard-block Merge.
+- **A working Merge clears the ticket.** A faulty Merge leaves the ticket open, creates a bug, adds debt, costs 15 health plus three block pulls, and locks the same diff until it changes. Every block costs 3 health. The tower topples only at 0 health, not after a fixed number of pulls.
+- **Hotfix & Retry** returns to the same ticket with 35% health and a fresh proposal. Tests and votes reset; previously spent resources, bugs, pulls, and negative time remain.
+- **Score reflects delivery and human review.** A working Merge earns 5 points, verified 100% coverage and a passing key test earn 3 more, and qualifying human review earns 2 more. A faulty Merge costs 10 points. The maximum before penalties is 110.
 
-## 🏛️ Real-Time 3D Virtual Architecture Tower
+Players see their own score. Cross-team standings and sortable live squad controls live in the authenticated admin dashboard. The server puts every Sprint table in the **Bangalore** workshop; teammates use each table's four-character PIN, not a workshop code.
 
-Instead of a physical toy, the game renders a **real-time 3D enterprise architecture tower** in WebGL via Three.js.
+The scenarios, diffs, and test results are authored game content. Sprint does not execute those code excerpts against a real application, CI pipeline, or Salesforce org.
 
-### 54 Subsystem Blocks Across 18 Architectural Layers
-The tower represents critical components of a production Salesforce ecosystem across 6 categorized subsystems:
+## Run locally
 
-- 🛡️ **Security & Identity (Cyan):** `Apex Crypto Engine`, `OAuth 2.0 PKCE`, `Platform Encryption`, `FLS Stripping Core`, `Shield Event Monitor`, `Named Credentials Vault`.
-- ⚡ **Governor & Data Limits (Emerald):** `SOQL 100-Query Buffer`, `Heap Size Limiter (12MB)`, `DML 10k Row Lock`, `SOQL Aggregate Chunk`, `Platform Cache (Org)`, `Query Plan Optimizer`.
-- ⚙️ **Async & Concurrency (Indigo):** `FlexQueue Scheduler`, `Queueable Chain Buffer`, `Batch Apex Chunk (2k)`, `Future Method Router`, `EventBus Partition`, `Async Apex Limits`.
-- 🧩 **UI & Component Layer (Pink):** `LWC Shadow DOM Root`, `LMS Channel Router`, `Lightning Locker Engine`, `GraphQL Wire Adapter`, `Lightning Out Proxy`, `UI Event Synthesizer`.
-- 🔄 **Platform Events & Messaging (Amber):** `High-Volume Pub/Sub`, `EMP Connector Worker`, `Kafka Inbound Ingest`, `Event Replay Offset`, `Dead Letter SQS`, `Webhook Deduplicator`.
-- 🚀 **CI/CD & DevOps Pipeline (Purple):** `Scratch Org Pool`, `RunLocalTests Gating`, `SonarQube Static Linter`, `PMD Rule Engine`, `Production QuickDeploy`, `Salesforce CLI Deployer`.
+See the [setup guide](SETUP_GUIDE.md) for Windows, macOS, Linux, and multiplayer testing. In brief:
 
-### Realistic Physics & Persistent Degradation
-- **Targeted Block Removal:** On every risky decision or hallucination failure, the 3D camera orbits to spotlight the exact failing subsystem block.
-- **Physical Block Extraction:** The block slides out along its horizontal axis, tilts, and drops onto the cybernetic floor pedestal.
-- **Persistent Gaps:** Extracted blocks **stay missing** from the 3D tower matrix throughout the entire game session, creating visible architectural cavities.
-- **Dynamic Structural Wobble:** As blocks are lost, the tower physically tilts and oscillates based on calculated center-of-mass stress.
-- **Catastrophic 3D Physics Collapse:** If Health reaches 0% or the tower collapses, a dynamic physics simulation is triggered: all 54 blocks pop upward, explode outward with gravitational acceleration ($-34\,\text{m/s}^2$), bounce on the cyber pedestal, and scatter across the ground with pulsing red emergency alarm lights.
-- **Post-Mortem 3D Rubble Inspector:** Players can minimize the failure modal to orbit 360° around the scattered rubble or click **"Replay 3D Collapse 💥"** on demand.
+1. From the repository root, copy .env.example to .env. Set a development admin secret, ENVIRONMENT=development, and CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173.
+2. Start the backend with Python 3.11 or newer:
 
----
+       python3 -m venv .venv
+       source .venv/bin/activate
+       pip install -r backend/requirements.txt
+       python -m uvicorn main:app --app-dir backend --host 127.0.0.1 --port 8000 --reload
 
-## 📋 The 11 Salesforce HITL Stages
+3. In another terminal, start the frontend with Node.js and npm:
 
-Each stage presents real-world production code containing subtle, catastrophic traps typical of unverified AI code generation:
+       cd frontend
+       npm install
+       npm run dev
 
-| # | Stage Title | File Target | Architectural Hazard & Root Cause |
-|---|---|---|---|
-| **1** | **The Governor Limit Trap** | `AccountTriggerHandler.cls` | SOQL query nested inside a `for` loop (`System.LimitException: Too many SOQL queries: 101`). |
-| **2** | **The Security & FLS Bypass** | `CustomerPortalController.cls` | Global `without sharing` class with dynamic SOQL injection vulnerability allowing unauthenticated data exfiltration. |
-| **3** | **The Mixed DML Concurrency Trap** | `UserOnboardingService.cls` | Inserting Setup (`User`, `UserRole`) and Non-Setup (`Account`) records in the same synchronous transaction (`MIXED_DML_OPERATION`). |
-| **4** | **The Brittle LWC & Shadow DOM Break** | `quoteConfigurator.js` | Direct query selector bypassing Shadow DOM encapsulation (`this.template.querySelector('div')`) with hardcoded API names. |
-| **5** | **The Async Queueable Storm** | `ErpSyncQueueable.cls` | Recursive `System.enqueueJob()` without depth guard, exhausting the 250,000 daily async Apex execution limit. |
-| **6** | **The Hardcoded ID & Deprecated Namespace** | `LeadRoutingEngine.cls` | Hardcoded 18-character Sandbox RecordTypeId string (`01200000000ABCDAAA`) breaking in production deployment. |
-| **7** | **The Friday Production Deploy** | `salesforce-production-deploy.yml` | CI/CD pipeline configured with `testLevel: NoTestRun` directly to Production org, skipping all test coverage validations. |
-| **8** | **The Row Lock & Deadlock Collision** | `OpportunityLineItemTrigger.trigger` | Bulk updates without `FOR UPDATE` or account batching causing uncatchable `UNABLE_TO_LOCK_ROW` errors under concurrency. |
-| **9** | **The Apex CPU Time Limit Breach** | `InboundWebhookRestService.cls` | Catastrophic ReDoS regex pattern backtracking in JSON payload validation hitting the 10,000ms synchronous CPU limit. |
-| **10** | **The EventBus Infinite Recursive Storm** | `InventoryEventTrigger.trigger` | Platform Event trigger publishing new `InventoryUpdated__e` events on every receive, creating an infinite recursive storm. |
-| **11** | **The Plaintext Secret & Callout Leak** | `BankingPaymentService.cls` | Hardcoded API Bearer tokens in Apex HTTP headers dumped to standard logs via `System.debug()`. |
+4. Open http://localhost:5173. API documentation is at http://127.0.0.1:8000/docs.
 
----
+For containers, use the [Docker runbook](DOCKER_RUN.md). Docker Compose mounts a named volume for Sprint SQLite snapshots.
 
-## ⚡ The 4 Decision Paths
+## Configuration and content packs
 
-Teams evaluate the AI's proposal at each stage and choose one of four tactical actions:
+| Setting | Purpose |
+| --- | --- |
+| SPRINT_CONTENT_PACK=launch_day | Use the current fictional live-event story. The provided .env.example selects this pack. |
+| SPRINT_CONTENT_PACK=classic | Restore the original Salesforce Sprint questions. Without this setting, the backend code defaults to Classic. |
+| ENABLE_GATEKEEPER_MODE=false | Hide and block the two-minute Gatekeeper mode in the UI and backend. The provided .env.example uses false. |
+| ADMIN_SECRET_KEY | Required for the facilitator dashboard and cross-team leaderboard. |
+| HITL_STATE_DB | Optional path for the Sprint SQLite database. The Compose stack sets it to /app/data/hitl.sqlite3. |
+| CORS_ORIGINS | Browser origins permitted by the backend. |
+| ENVIRONMENT | Production or development backend behavior. |
 
-```mermaid
-graph TD
-    A[Stage Triggered] --> B{Team Decision}
-    B -->|Accept As-Is| C[🎲 Dice Roll: 40% Clean vs 60% Hallucination]
-    C -->|Clean Pass| C1[+4% Health, 0 Blocks Lost]
-    C -->|Hallucination| C2[-18% to -24% Health, 2-3 Blocks Extracted]
-    B -->|Deny & Move On| D[Conservative Bypass: -10% Health, 1 Block Extracted]
-    B -->|Suggest Change| E[Structured Guardrail: +10% Health, 0 Blocks Lost]
-    B -->|Custom HITL Prompt| F[Type Contextual Prompt: +8% Health, 0 Blocks Lost]
-    B -->|Timer Expires 00:00| G[🚨 Timeout Penalty: Force Accept + Extra -10% Health]
-```
+Changing the content pack requires a backend restart. Classic and Launch Day use **separate room tables** in the same SQLite file, so switching packs does not overwrite the other pack's saved rooms. Create a fresh table when trying a different pack.
 
-1. **Accept as-is:**
-   - High-stakes dice roll popup with real-time percentage animation.
-   - **40% Clean Pass:** AI got it right! Small health boost (+4%), zero blocks pulled.
-   - **60% Hallucination Trap:** Hidden bug strikes! Severe health penalty (-18% to -24%), 2 to 3 subsystem blocks extracted.
-2. **Deny and Move On (Bypass & Skip):**
-   - Low-risk skip. Avoids catastrophic bugs but accumulates technical debt (-10% health, 1 block extracted).
-3. **Discuss & Type Custom Prompt (Human-in-the-Loop Iteration):**
-   - Interactive prompt modal with keyword suggestions tailored to the current stage (e.g., `bulkify`, `without sharing`, `Named Credential`, `Queueable`).
-   - Typing targeted architectural instructions guides the AI to fix the flaw (+8% health restored, zero blocks pulled).
-4. **Suggest Change (Structured Architectural Guardrails):**
-   - Enforce institutional best practices and automated linter rules (+10% health restored, zero blocks pulled).
+## Multiplayer state and admin controls
 
----
+Each Sprint table has its own room ID, proposal token, clock, tower, notes, tests, votes, and activity log. Teammates in one room see the same state; independent tables do not share their game decisions. State changes are serialized under a backend room lock and saved to SQLite. If another teammate changes the proposal before an action is submitted, the server rejects the stale token and the browser refreshes the current state.
 
-## ⏱️ Timer & Audio Synthesis
+One note and one test can be in progress at the same time per room; two notes or two tests cannot. The countdowns use wall-clock time, survive a backend restart, and show who started them. The latest team action stays compact in the cockpit; the full non-vote log opens in a popup grouped by PR. Votes remain visible in the team review row.
 
-- **2-Minute Stage Countdown:** High-contrast digital timer in the navigation bar.
-- **Emergency Critical Phase:** Under 30 seconds, timer transitions to pulsing warning red with rapid audio heartbeat clicks.
-- **Zero-Dependency Sound System:** Uses the native Web Audio API to synthesize:
-  - Futuristic slide and lock tones when blocks are pulled.
-  - Arcade dice roll ratchets.
-  - Harmonic victory chords on clean passes.
-  - Low-frequency bass drops and glass shatter noise bursts during catastrophic collapse.
-  - Heartbeat pulses during critical timeouts.
+The admin dashboard separates Sprint and Gatekeeper rooms, offers authenticated Sprint standings and telemetry, and lets the facilitator spectate, pause, resume, or intervene in tables. Global pauses and announcements are also available. Sprint snapshots are designed for the current **single backend process**; multiple backend workers or replicas require a shared transactional room store and coordination.
 
----
+## Winner and report
 
-## 🛠️ Tech Stack & Architecture
+Completed teams rank ahead of incomplete teams. Standings then compare tickets merged, score, tower health, blocks remaining, and total time including deductions. Exact ties share the rank. A winner is announced only after at least two tables exist, all registered tables have finished or collapsed, and the leader finished all 11 tickets. Until then, standings show a live leader.
 
-```
-HITL/
-├── backend/                  # FastAPI Python Service
-│   ├── main.py               # REST API endpoints & CORS middleware
-│   ├── game_state.py         # Health, tension, scoring & collapse mechanics
-│   ├── stages_data.py        # 11 Salesforce HITL scenarios & solution rules
-│   └── requirements.txt      # fastapi, uvicorn, pydantic
-└── frontend/                 # React 19 + Vite Application
-    ├── src/
-    │   ├── App.jsx           # Main orchestrator, modal sequencing & audio triggers
-    │   ├── components/
-    │   │   ├── Virtual3DTower.jsx    # Three.js 18-tier WebGL tower & collapse physics
-    │   │   ├── StageArena.jsx        # Scenario viewer, code diff & decision cockpit
-    │   │   ├── DiceRollModal.jsx     # Probability roll animation
-    │   │   ├── CustomPromptModal.jsx # HITL guidance prompt input
-    │   │   ├── GameOverModal.jsx     # Post-mortem incident telemetry & rubble viewer
-    │   │   ├── VictoryModal.jsx      # Production deploy success debrief
-    │   │   ├── Navbar.jsx            # Stage progression circuit, health bar & timer
-    │   │   └── LiveLeaderboardTicker.jsx # Workshop team standings & event feed
-    │   └── hooks/
-    │       └── useSound.js           # Web Audio API procedural synthesizer
-    └── package.json
-```
+A team's first completed run stays its official workshop entry if it replays the same room. The final Sprint report lists the score, time, coverage and test contributors, human notes and revisions, Merge overrides, and every bug introduced by a faulty Merge, including who merged and later fixed it.
 
----
+## Code map
 
-## 🚀 Running Locally
-
-> 📖 **Full Setup & Multi-Player Guide:** See [SETUP_GUIDE.md](file:///c:/Users/saubh/Documents/GenAI/AI/HITL/SETUP_GUIDE.md) for detailed step-by-step instructions, troubleshooting, and co-op testing.
-
-### Prerequisites
-- Python 3.10+
-- Node.js 18+ (or 20+) & npm
-
-### 1. Start the Backend API (FastAPI)
-```bash
-cd backend
-
-# Create & activate virtual environment (Windows PowerShell)
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-
-# (Or macOS/Linux)
-# python3 -m venv .venv && source .venv/bin/activate
-
-pip install -r requirements.txt
-python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-```
-API docs available at: `http://127.0.0.1:8000/docs`
-
-### 2. Start the Frontend (React + Vite)
-In a separate terminal:
-```bash
-cd frontend
-npm install
-npm run dev
-```
-Open **[http://localhost:5173](http://localhost:5173)** in your browser.
-
----
-
-## 👥 Multi-User & Multi-Table Workshop Scaling (20–60+ Developers)
-
-The platform is designed to scale across full workshop rooms with 20–60+ participants:
-
-- **Isolated Table Sessions (`room_id`):**
-  Each table or subgroup registers with a unique Table / Room code (e.g., `Table 1`, `Table 2`, `Squad Alpha`). All game actions, health states, and 3D architectural towers are **100% isolated** on the backend in a concurrent `RoomManager` dictionary. One team's decisions or collapses never overwrite another team's progress.
-- **Teammate Co-Op Live Sync:**
-  Developers sitting at the same table can all open the same room link (e.g. `http://<host>:5173/?room=table-1` or via the **"Copy Link"** button in the navbar). The state synchronizes in near real-time across all their individual screens.
-- **Cross-Table Live Rivalry Leaderboard (`/api/leaderboard`):**
-  The ticker bar at the top of every screen dynamically aggregates real-time metrics across all active workshop tables, displaying live Health %, Stage Progression, and Collapse alerts as teams race to finish Stage 11.
-
----
-
-## 🕹️ Game Master Admin Console (`/admin`)
-
-The platform includes a dedicated **Facilitator Command Block Console** at `/admin` for workshop conductors:
-
-- **Security Gate:** Protected via passcode authentication (configured via the `ADMIN_SECRET_KEY` environment variable on the backend).
-- **Squad Telemetry & Live Grid:** View real-time stage progress, current health, technical debt, pull counts, and collapse alerts for every active workshop table.
-- **Global Event Controls:**
-  - **Master World Timer:** Freeze countdowns across all tables globally (e.g., during recap lectures or workshop breaks), with individual table controls cleanly locked during global pauses.
-  - **Global Facilitator Broadcasts:** Push high-priority red alert banners directly onto every participant's screen in real time.
-  - **Reset All Tables:** Simultaneously wipe and restart all tables for a fresh cohort session.
-- **Per-Table Interventions:**
-  - **Live Spectator Mode:** Jump straight into an in-app, read-only spectator view of any active squad's 3D tower and consensus voting.
-  - **Independent Timer Control:** Pause or resume countdown timers on specific tables when global lock is off.
-  - **Table Termination:** Safely delete obsolete or abandoned tables via a themed confirmation modal.
-  - **Stages Cheat Sheet:** Quick-reference architectural traps, AI prompt solutions, and mitigation notes for all 11 stages.
-
----
-
-## 🏆 Scoring & Workshop Debrief Lessons
-
-At the end of the simulation (Stage 11 victory or post-mortem incident debrief), teams receive a breakdown of their decisions:
-
-- **AI Velocity Score:** Ratio of stages completed vs time consumed.
-- **Architectural Debt Index:** Total subsystem blocks sacrificed.
-- **HITL Verification Ratio:** Percentage of stages resolved via human guidance vs blind acceptance.
-- **Key Takeaway:** Unchecked AI code generation is like pulling blocks from the foundation of a building. Sustainable development requires developers to act as **critical evaluators and architects**, not passive approvers.
+| Area | Source |
+| --- | --- |
+| Sprint APIs and serialized room actions | backend/sprint/sprint_router.py |
+| Sprint state, Merge rules, and Hotfix | backend/sprint/session_manager.py |
+| Clock and overtime | backend/sprint/clock_service.py |
+| Content pack selection | backend/sprint/content_pack.py |
+| Launch Day authoring | backend/sprint/launch_day.py |
+| Score and ranking | backend/sprint/competition_scoring.py |
+| SQLite room snapshots | backend/sprint/room_store.py |
+| Sprint game screen and player guide | frontend/src/games/sprint_delivery/ |
+| Facilitator dashboard | frontend/src/admin/AdminDashboard.jsx |

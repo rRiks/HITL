@@ -1,173 +1,75 @@
-# Enterprise Cloud Hosting Request: Human-in-the-Loop (HITL) Simulation
+# Enterprise hosting request: HITL Jenga
 
-**Document Version:** 1.0  
-**Target Audience:** Enterprise IT, Cloud Platform Engineering, DevOps & Security Architecture  
-**Application Name:** Human-in-the-Loop (HITL) Jenga – Interactive AI Architecture Simulation  
-**Classification:** Internal Developer Enablement Tool (Non-Production / Training Environment)  
+**Audience:** Enterprise IT, platform engineering, security, and workshop facilitators  
+**Workload:** Internal, time-limited multiplayer training game  
+**Current experience:** Launch Day Sprint Delivery, with optional Gatekeeper mode
 
----
+## Request summary
 
-## 1. Executive Summary & Business Justification
+Host HITL Jenga as an internal HTTPS web application for a workshop. Teams join separate tables by PIN and share live Sprint state. The facilitator uses an authenticated admin dashboard for standings, telemetry, and room controls. The backend stores Sprint progress in SQLite so a process restart does not erase a workshop run.
 
-| Field | Detail |
-|---|---|
-| **Project Sponsor** | Engineering Enablement / GenAI Center of Excellence |
-| **Tool Purpose** | Interactive co-op simulation for engineering teams to experience the risks of unverified AI code generation (speed vs. technical debt) using an interactive 3D Voxel Tower and real-time voting consensus. |
-| **Target Audience** | Internal engineers, tech leads, architects, and product managers. |
-| **Typical Session Size** | 20 to 100 concurrent participants (4 to 25 squad tables) per 90-minute workshop session. |
-| **Why Internal AWS Hosting?** | Public platforms (Netlify / Render) are blocked by corporate proxy/Zscaler/VPN policies. Hosting internally ensures full compliance with corporate data boundaries, internal DNS resolution, and seamless access from managed corporate laptops. |
+The current deployment design is **one backend process with persistent storage**. It is not a horizontally scaled, multi-worker service. If the hosting platform requires multiple replicas, a separate design is needed for transactional shared room state and cross-process action serialization.
 
----
+## Application components
 
-## 2. Technical Stack & Runtime Characteristics
+| Component | Current implementation | Hosting requirement |
+| --- | --- | --- |
+| Frontend | React 19/Vite static build served by Nginx; Three.js tower renders in each browser | HTTPS access, SPA fallback routing, /api reverse proxy |
+| Backend | Python 3.11, FastAPI, one Uvicorn worker | Private service access from the frontend proxy |
+| Sprint persistence | SQLite file, default backend/data/hitl.sqlite3; Compose uses /app/data/hitl.sqlite3 | Persistent writable volume, backed up if the workshop state matters |
+| Gatekeeper state | In-memory legacy mode | Optional; normally disabled for the current workshop |
+| Admin | ADMIN_SECRET_KEY protected routes and leaderboard | Secret injection and restricted facilitator access |
+| Player sync | REST polling, including about 2.5-second Sprint state polls | Capacity and network access for the planned number of browser clients |
 
-The application is lightweight, containerized, and stateless in terms of persistent storage:
+The app does not call a live LLM to generate Sprint proposals. Ticket code, notes, and test results are authored game scenarios. Browser assets may request third-party fonts according to the current frontend styling and Nginx content-security policy; review those requests if strict offline operation is required.
 
-```
-                      Corporate Managed Laptops
-                      (Zscaler / VPN / Office LAN)
-                                  │
-                                  ▼ [HTTPS 443]
-                     ┌──────────────────────────┐
-                     │ Internal ALB / Ingress   │
-                     │ (*.internal.corp.com)    │
-                     └────────────┬─────────────┘
-                                  │
-          ┌───────────────────────┴───────────────────────┐
-          │                                               │
-   [Path: /]                                       [Path: /api/*]
-          ▼                                               ▼
-┌───────────────────────────┐                   ┌───────────────────────────┐
-│ Frontend Container        │                   │ Backend Container         │
-│ Nginx 1.25 Alpine         │                   │ Python 3.11 / FastAPI     │
-│ React 18 + Vite SPA       │                   │ Uvicorn ASGI Server       │
-│ Three.js WebGL (Client)   │                   │ In-Memory Room Engine     │
-└───────────────────────────┘                   └───────────────────────────┘
-```
+## Recommended deployment shape
 
-| Component | Technology | Operational Profile |
-|---|---|---|
-| **Frontend** | React 18, Vite, Three.js, Vanilla CSS | Static single-page application (SPA). WebGL 3D rendering executes 100% client-side on the user's browser GPU. Served via Nginx. |
-| **Backend** | Python 3.11, FastAPI, Uvicorn, Pydantic | High-performance asynchronous REST API. Handles room creation, consensus voting, tie-breakers, and telemetry polling. |
-| **Persistence / DB** | In-Memory (`GameManager`) | **Zero external database dependencies.** Active room states and timers run in-memory within Python. No RDS, DynamoDB, or external caches required for standard workshop operations. |
-| **Network Traffic** | REST Polling over HTTP/HTTPS | Each active client polls room state every ~1.5s–2.0s during active rounds. Bandwidth per request is minuscule (~2KB JSON). |
-| **Health Check** | `GET /api/health` | Returns `{"status": "healthy", "timestamp": ...}` with HTTP 200. |
+For the present single-process implementation, use one host or task with:
 
----
+1. The provided frontend and backend containers.
+2. A persistent volume mounted to the backend's /app/data directory.
+3. An internal HTTPS ingress or approved tunnel routing requests to the frontend Nginx container.
+4. Nginx proxying /api to the backend on its private network.
+5. A secure source for ADMIN_SECRET_KEY and any tunnel token.
 
-## 3. Recommended AWS Deployment Options
+The repository includes backend/Dockerfile, frontend/Dockerfile, frontend/nginx.conf, docker-compose.yml, and a loopback-only local override in docker-compose.local.yml. The optional Compose tunnel profile is for a configured Cloudflare Tunnel. See [DOCKER_RUN.md](DOCKER_RUN.md) for run commands.
 
-We offer three flexible architecture options depending on your team's standard operating model. **Option A or Option B** is recommended for lowest operational overhead.
+ECS, Kubernetes, or a similar platform can host the containers, but a backend replica count greater than one is **not supported by the current room-state design**. Shared SQLite storage alone does not solve the in-memory manager and lock coordination problem. Use one backend replica or fund a shared transactional-state redesign before horizontal scaling.
 
-### Option A: Single EC2 Instance via Docker Compose (Fastest & Lowest Friction)
-*Best for rapid enablement or running dedicated training sandboxes.*
-- **Compute:** 1x EC2 `t3.small` (2 vCPU, 2 GB RAM) or `t4g.small` (AWS Graviton2).
-- **OS:** Amazon Linux 2023 or Ubuntu 22.04 LTS with Docker & Docker Compose.
-- **Routing:** Attached to an existing Internal Application Load Balancer (ALB) or private Route 53 record.
-- **Artifacts:** Pre-configured `docker-compose.yml`, `backend/Dockerfile`, and `frontend/Dockerfile` are already included in the repository.
+## Configuration
 
-### Option B: AWS ECS Fargate (Serverless & Managed)
-*Best for standard enterprise container platform compliance.*
-- **Cluster:** Existing or shared internal ECS Cluster.
-- **Task Definition:**
-  - `hitl-backend`: 0.5 vCPU, 1 GB RAM (Port 8000).
-  - `hitl-frontend`: 0.25 vCPU, 0.5 GB RAM (Port 80).
-- **Ingress:** Internal Application Load Balancer with path-based routing:
-  - `/api/*` -> Forward to `hitl-backend` target group.
-  - `/*` -> Forward to `hitl-frontend` target group.
+| Variable | Use |
+| --- | --- |
+| ADMIN_SECRET_KEY | Required admin passcode; store as a secret. |
+| CORS_ORIGINS | Comma-separated browser origins permitted by FastAPI. Use exact workshop origins. |
+| ENVIRONMENT=production | Disables the interactive API explorer and applies production configuration. |
+| SPRINT_CONTENT_PACK=launch_day | Current 11-ticket story. The alternate value classic restores Salesforce Sprint content. |
+| ENABLE_GATEKEEPER_MODE=false | Hides and rejects the optional two-minute Gatekeeper mode. |
+| HITL_STATE_DB | SQLite path; Compose sets /app/data/hitl.sqlite3. |
+| TUNNEL_TOKEN | Required only when starting the optional tunnel profile. |
 
-### Option C: S3 + CloudFront (Frontend) + ECS/App Runner (Backend)
-- Frontend deployed as static assets in a private S3 bucket fronted by CloudFront/Internal ALB.
-- Backend hosted on AWS ECS Fargate or AWS App Runner within the private VPC.
+The server assigns Sprint tables to the Bangalore workshop. Players need only a table PIN and a name. Switching content packs requires a backend restart; Classic and Launch Day use separate SQLite room tables.
 
----
+## Access and data handling
 
-## 4. Resource Bill of Materials (BOM) & Sizing
+- Participants join by a short table PIN. The PIN is a collaboration convenience, **not strong authentication**. Place the player app behind the workshop's approved network boundary.
+- The admin dashboard, cross-team leaderboard, and facilitator controls require ADMIN_SECRET_KEY. Avoid sharing this secret with players.
+- Sprint snapshots store team names, entered player names, chat choices, notes read, test history, votes, bug records, score history, and timestamps. Ask players to use gamer tags rather than sensitive personal data.
+- The backend database must be writable by its container process and retained across restarts. Decide a retention and deletion schedule for workshop data.
+- The frontend should be served over HTTPS for an off-machine workshop. Configure the exact CORS origin and ingress route. The current Nginx configuration includes security headers and an /api proxy; review its content-security policy against the chosen domain and font policy.
+- ENVIRONMENT=production disables /docs, /redoc, and /openapi.json. The /api/health endpoint returns a minimal status.
 
-For a workshop cohort of **up to 100 concurrent developers (25 active tables)**:
+## Operational checks before the workshop
 
-| AWS Resource | Specification / Size | Quantity | Notes |
-|---|---|---|---|
-| **Compute (CPU/RAM)** | 1.0 vCPU, 2.0 GB RAM total | 1 task / instance | Baseline memory usage is ~150MB for FastAPI and ~30MB for Nginx. |
-| **Storage (EBS / EFS)** | 20 GB gp3 root volume | 1 volume | Used solely for OS, container images, and temporary logs. |
-| **Container Registry (ECR)** | 2 repositories (`hitl-backend`, `hitl-frontend`) | ~500 MB total | Storing Docker image layers. |
-| **Load Balancer (ALB)** | AWS Application Load Balancer (Internal) | 1 (or share existing) | Terminates TLS; distributes traffic across private subnets. |
-| **DNS (Route 53)** | Private Hosted Zone record (`hitl.internal.<corp>`) | 1 CNAME / Alias | Maps internal domain to ALB DNS name. |
-| **TLS Certificate** | AWS Certificate Manager (ACM) | 1 certificate | Corporate wildcard cert (e.g. `*.corp.yourcompany.com`). |
-| **Secrets Manager / SSM** | AWS SSM Parameter Store (Standard) | 1 parameter | Stores `ADMIN_SECRET_KEY` (string). Zero cost. |
-| **Monitoring** | CloudWatch Logs | 1 Log Group | Container stdout/stderr logs with 7-day retention. |
+1. Start the stack with the intended environment and verify container health.
+2. Create a Sprint table, join with two browsers, and confirm shared note, test, and vote updates.
+3. Restart the backend and verify Sprint state returns from SQLite.
+4. Verify the admin secret is required for the dashboard and cross-team standings.
+5. Confirm the intended content pack, disabled or enabled Gatekeeper flag, light default theme, and four-character PIN flow.
+6. Confirm facilitator pause/resume, spectator mode, and the final report in a rehearsal room.
+7. Load-test with a representative number of tables and browsers. The repository does not include a measured concurrency or resource-capacity guarantee.
 
----
+## Approval request
 
-## 5. Network, Firewall & Security Specifications
-
-### 5.1 Ingress Requirements
-- **Protocol / Port:** HTTPS (TCP 443).
-- **Source CIDRs:** Restricted strictly to Corporate VPN pools, Zscaler GRE/IPsec tunnels, or internal office LAN subnets (e.g., `10.0.0.0/8`, `172.16.0.0/12`).
-- **Public Internet Ingress:** **NONE (0.0.0.0/0 ingress is explicitly NOT required).**
-
-### 5.2 Egress Requirements
-- **Outbound Internet:** **NONE required.** The application contains all simulation stages, logic, and assets locally. No external APIs (e.g., OpenAI, public registries) are called during gameplay.
-- **Internal AWS Egress:** ECR (for pulling images), CloudWatch (for metrics/logs), and SSM Parameter Store (for config). These can be routed via standard AWS VPC Endpoints (PrivateLink) or NAT Gateway.
-
-### 5.3 Security & Data Governance
-- **Data Classification:** Internal / Non-Sensitive.
-- **PII / Confidential Data:** **None collected.** Participants use arbitrary gamer handles (e.g., "Riks", "Wayne", "Squad-1"). No employee IDs, email addresses, or source code are transmitted or stored.
-- **Authentication & Roles:**
-  - **Participants:** Ephemeral room access via table code (no password needed).
-  - **Game Master Facilitator Console (`/admin`):** Guarded by passkey authentication validated against `ADMIN_SECRET_KEY`.
-  - *(Optional)* Can be integrated with Corporate SSO (Okta / Azure AD / PingID) directly at the ALB listener level using OpenID Connect (OIDC).
-
----
-
-## 6. Environment Variables & Configuration
-
-The deployment requires only a few environment variables:
-
-| Variable | Target Component | Description | Example / Recommended Value |
-|---|---|---|---|
-| `PORT` | Backend | Port for Uvicorn listener | `8000` |
-| `ADMIN_SECRET_KEY` | Backend | Passkey for Game Master `/admin` access | Injected from AWS SSM Parameter Store |
-| `CORS_ORIGINS` | Backend | Allowed origins for cross-origin calls | `*` (or specific internal domain `https://hitl.internal.corp.com`) |
-| `VITE_API_BASE` | Frontend | API URL endpoint for client browser | `/api` (default relative path works with Nginx reverse proxy) |
-
----
-
-## 7. Estimated Monthly Cost (AWS US East / EU West)
-
-Because the architecture requires zero database licensing and minimal compute:
-
-| Item | Monthly Cost Estimate |
-|---|---|
-| Compute (t3.small EC2 or ECS Fargate 0.5 vCPU/1GB) | ~$15.00 – $22.00 |
-| Internal ALB (shared or dedicated) | ~$16.00 – $22.00 |
-| Storage & CloudWatch Logs (<20GB) | ~$2.00 |
-| **Total Estimated Run Rate** | **~$33.00 – $46.00 / month** |
-| *(On-Demand / Workshop-Only Run)* | **< $5.00 per workshop day** |
-
----
-
-## 8. Ready-to-Deploy Assets Provided in Repository
-
-The codebase is fully container-ready. DevOps engineers can inspect and test locally in minutes:
-
-- `backend/Dockerfile`: Minimal multi-stage Python 3.11 image with non-root security principles and built-in container health check.
-- `frontend/Dockerfile`: Multi-stage build (Node.js build -> Alpine Nginx runtime, ~25MB compressed).
-- `frontend/nginx.conf`: Nginx SPA routing with automated `/api/` reverse proxy.
-- `docker-compose.yml`: Local orchestrator ready for single-command verification (`docker compose up --build`).
-
----
-
-## 9. Request Checklist for IT / DevOps Ticket
-
-```markdown
-### Infrastructure Provisioning Request
-- [ ] **Action:** Deploy containerized internal web application ("HITL AI Workshop Simulation").
-- [ ] **Target Environment:** AWS Internal Non-Prod / Sandbox VPC.
-- [ ] **Compute:** 1x EC2 (t3.small) OR ECS Fargate Task (0.5 vCPU / 1GB RAM).
-- [ ] **Network:** Internal ALB in private subnets; HTTPS 443 restricted to internal VPN/Zscaler CIDRs.
-- [ ] **DNS:** Internal private CNAME (e.g., `hitl.internal.<corp>.com`).
-- [ ] **Secrets:** 1x SSM parameter for `ADMIN_SECRET_KEY`.
-- [ ] **Database / Storage:** None required (fully in-memory state).
-- [ ] **Source Code / Dockerfiles:** GitHub repository ready with Dockerfile & docker-compose.
-```
+Provision an internal HTTPS route, one frontend service, one **single-worker** backend service, persistent storage for /app/data, secret injection for ADMIN_SECRET_KEY, and monitoring for container health and backend errors. Approve any optional external tunnel and external font access according to the organization's network policy. Keep the multi-replica redesign out of the initial deployment unless it is explicitly required.

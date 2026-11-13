@@ -1,36 +1,69 @@
-version: '3.8'
-
 services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
     container_name: hitl-backend
     restart: unless-stopped
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"                     # internal only; no host port mapping
     environment:
-      - PORT=8000
-      # Fix C1: Set CORS_ORIGINS explicitly — never use wildcard in production.
-      # Copy .env.example to .env and set your real Netlify URL.
-      - ADMIN_SECRET_KEY=${ADMIN_SECRET_KEY}
-      - CORS_ORIGINS=${CORS_ORIGINS}
-      # Fix L2: Disables /docs and /redoc Swagger UI in production
-      - ENVIRONMENT=${ENVIRONMENT:-production}
+      PORT: "8000"
+      HITL_STATE_DB: /app/data/hitl.sqlite3
+      ADMIN_SECRET_KEY: ${ADMIN_SECRET_KEY:?set ADMIN_SECRET_KEY in .env}
+      CORS_ORIGINS: ${CORS_ORIGINS:?set CORS_ORIGINS in .env}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      ENABLE_GATEKEEPER_MODE: ${ENABLE_GATEKEEPER_MODE:-true}
+      SPRINT_CONTENT_PACK: ${SPRINT_CONTENT_PACK:-classic}
+    volumes:
+      - sprint_state:/app/data
+    networks: [internal]
     healthcheck:
-      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:8000/api/health\")' || exit 1"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
       interval: 15s
       timeout: 5s
       retries: 3
+      start_period: 10s
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
     container_name: hitl-frontend
     restart: unless-stopped
-    ports:
-      - "80:80"
+    expose:
+      - "80"                       # internal only; no host port mapping
+      - "8000"                     # same nginx, matches the tunnel route port
     depends_on:
       backend:
         condition: service_healthy
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:80/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+
+#docker compose -f docker-compose.yml --profile tunnel up -d --build
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: hitl-tunnel
+    restart: unless-stopped
+    profiles: ["tunnel"]           # only starts with: docker compose --profile tunnel up
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:-}
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    # Shares the frontend's network namespace, so tunnel routes to
+    # localhost:8000, frontend:8000 or frontend:80 all reach nginx.
+    network_mode: "service:frontend"
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  sprint_state:

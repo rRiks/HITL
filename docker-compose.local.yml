@@ -1,0 +1,6 @@
+# Local testing only: publishes the frontend on 127.0.0.1:8080 (loopback, not LAN/public).
+# Usage: docker compose -f docker-compose.yml -f docker-compose.local.yml up -d --build
+services:
+  frontend:
+    ports:
+      - "127.0.0.1:8080:80"
